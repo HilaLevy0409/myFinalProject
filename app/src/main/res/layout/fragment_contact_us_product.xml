@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ContactUsProduct.ContactUsProductFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="יצירת קשר "
+        android:padding="10dp"
+        android:textSize="30sp"
+        android:layout_marginLeft="110dp"
+        android:layout_marginTop="10dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="איזה כיף לשמור על קשר! כתבו לנו..."
+        android:padding="10dp"
+        android:textSize="21sp"
+        android:layout_marginLeft="70dp"
+        android:layout_marginTop="70dp" />
+
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="שליחה"
+        android:padding="10dp"
+        android:textSize="21sp"
+        android:layout_marginLeft="170dp"
+        android:layout_marginTop="400dp"/>
+
+    <ImageButton
+        android:id="@+id/iBtnLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/left"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="550dp"/>
+
+</FrameLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".QuestionsProduct.QuestionsProductFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="שאלות נפוצות"
+        android:padding="10dp"
+        android:textSize="30sp"
+        android:layout_marginLeft="110dp"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="מעבר ליצירת קשר"
+        android:padding="10dp"
+        android:textSize="21sp"
+        android:layout_marginLeft="170dp"
+        android:layout_marginTop="400dp"/>
+
+
+    <ImageButton
+        android:id="@+id/iBtnLeft"
+        android:layout_width="82dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="500dp"
+        android:src="@drawable/left" />
+</FrameLayout>
