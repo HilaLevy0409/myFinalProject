@@ -23,22 +23,23 @@
         android:layout_marginLeft="70dp"
         android:layout_marginTop="70dp" />
 
+    <EditText
+        android:id="@+id/etUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:hint="כתיבת הודעה..."
+        android:padding="10dp" />
+
     <Button
         android:id="@+id/btnSend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="שליחה"
-        android:padding="10dp"
-        android:textSize="21sp"
         android:layout_marginLeft="170dp"
-        android:layout_marginTop="400dp"/>
-
-    <ImageButton
-        android:id="@+id/iBtnLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/left"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="550dp"/>
+        android:layout_marginTop="400dp"
+        android:padding="10dp"
+        android:text="שליחה"
+        android:textSize="21sp" />
 
 </FrameLayout>

@@ -12,15 +12,15 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="100dp"
+        android:layout_marginRight="50dp"
         android:layout_marginTop="10dp"
         android:fontFamily="sans-serif-medium"
         android:textColor="@color/black"
-        android:text="מסך התחברות"
+        android:text="מסך התחברות הנהלה"
         android:textSize="30sp" />
 
     <EditText
-        android:id="@+id/etUser"
+        android:id="@+id/etAdmin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

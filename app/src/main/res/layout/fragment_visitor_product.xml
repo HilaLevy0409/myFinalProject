@@ -117,10 +117,10 @@
 
 
     <ImageButton
-        android:id="@+id/iBtnLeft"
+        android:id="@+id/iBtnPrevious"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/left"
+        android:src="@drawable/previous"
         android:layout_marginLeft="100dp"
         android:layout_marginTop="550dp"/>
 

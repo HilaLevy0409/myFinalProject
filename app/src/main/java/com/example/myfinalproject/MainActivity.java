@@ -11,13 +11,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.myfinalproject.AdminProduct.AdminProductFragment;
 import com.example.myfinalproject.ContactUsProduct.ContactUsProductFragment;
 import com.example.myfinalproject.LoginProduct.LoginProductFragment;
 import com.example.myfinalproject.QuestionsProduct.QuestionsProductFragment;
 import com.example.myfinalproject.RegistrationProduct.RegistrationProductFragment;
 import com.example.myfinalproject.VisitorProduct.VisitorProductFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
+
+import ChooseClassFragment.ChooseClassFragment;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;
@@ -61,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             // Replace with AdminFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new AdminProductFragment()) // Create AdminFragment
+                    .replace(R.id.flFragment, new ChooseClassFragment()) // Create AdminFragment
                     .addToBackStack(null) // Add to back stack for navigation
                     .commit();
             return true;
