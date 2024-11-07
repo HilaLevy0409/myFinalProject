@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".LoginProduct.LoginProductFragment">
+    android:id="@+id/admin_login"
+    tools:context=".LoginFragment.LoginFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -16,7 +17,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="sans-serif-medium"
         android:textColor="@color/black"
-        android:text="מסך התחברות הנהלה"
+        android:text="מסך התחברות להנהלה"
         android:textSize="30sp" />
 
     <EditText
@@ -39,12 +40,12 @@
 
 
     <Button
-        android:id="@+id/iBtnPrevious"
+        android:id="@+id/btnRegister"
         android:layout_width="150dp"
         android:layout_marginTop="50dp"
         android:layout_marginLeft="130dp"
         android:layout_height="64dp"
-        android:src="@drawable/previous"
+
         android:text="המשך"
         tools:layout_editor_absoluteX="57dp"
         tools:layout_editor_absoluteY="142dp" />

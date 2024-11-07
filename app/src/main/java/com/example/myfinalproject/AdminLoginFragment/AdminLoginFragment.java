@@ -2,20 +2,27 @@ package com.example.myfinalproject.AdminLoginFragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.example.myfinalproject.AdminFragment.AdminFragment;
+import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AdminLoginFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AdminLoginFragment extends Fragment {
+public class AdminLoginFragment extends Fragment implements View.OnClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,6 +32,7 @@ public class AdminLoginFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private Button btnRegister;
 
     public AdminLoginFragment() {
         // Required empty public constructor
@@ -62,5 +70,22 @@ public class AdminLoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_admin_login, container, false);
+    }
+
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        btnRegister = view.findViewById(R.id. btnRegister);
+        btnRegister.setOnClickListener(this);
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        if(v == btnRegister) {
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new AdminFragment())
+                    .commit();
+        }
     }
 }

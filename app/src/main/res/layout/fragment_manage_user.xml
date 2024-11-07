@@ -8,6 +8,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,10 +27,10 @@
                 android:id="@+id/header_image"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:src="@drawable/sumup"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@tools:sample/avatars" />
 
 
             <TextView
@@ -88,7 +90,7 @@
                 android:layout_width="169dp"
                 android:layout_height="60dp"
                 android:backgroundTint="@color/red"
-                android:text="מחיקה"
+                android:text="מחיקת משתמש"
                 tools:layout_editor_absoluteX="89dp"
                 tools:layout_editor_absoluteY="367dp" />
 

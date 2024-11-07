@@ -14,4 +14,5 @@
         android:textSize="24sp"
         android:textColor="@android:color/white"
         android:gravity="center" />
+
 </LinearLayout>

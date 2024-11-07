@@ -11,14 +11,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.myfinalproject.ContactUsProduct.ContactUsProductFragment;
-import com.example.myfinalproject.LoginProduct.LoginProductFragment;
-import com.example.myfinalproject.QuestionsProduct.QuestionsProductFragment;
-import com.example.myfinalproject.RegistrationProduct.RegistrationProductFragment;
-import com.example.myfinalproject.VisitorProduct.VisitorProductFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
+import com.example.myfinalproject.ContactUsFragment.ContactUsFragment;
+import com.example.myfinalproject.LoginFragment.LoginFragment;
+import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
+import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import ChooseClassFragment.ChooseClassFragment;
 
@@ -28,13 +27,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+       
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
@@ -64,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             // Replace with AdminFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new ChooseClassFragment()) // Create AdminFragment
+                    .replace(R.id.flFragment, new AdminLoginFragment()) // Create AdminFragment
                     .addToBackStack(null) // Add to back stack for navigation
                     .commit();
             return true;
@@ -72,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             // Replace with ContactFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new ContactUsProductFragment()) // Create ContactFragment
+                    .replace(R.id.flFragment, new ContactUsFragment()) // Create ContactFragment
                     .addToBackStack(null)
                     .commit();
             return true;
@@ -80,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             // Replace with QuestionsFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new QuestionsProductFragment()) // Create QuestionsFragment
+                    .replace(R.id.flFragment, new QuestionsFragment()) // Create QuestionsFragment
                     .addToBackStack(null)
                     .commit();
             return true;
@@ -95,18 +90,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         if (item.getItemId() == R.id.login) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new LoginProductFragment())
+                    .replace(R.id.flFragment, new LoginFragment())
                     .commit();
             return true;
         } else if (item.getItemId() == R.id.registration) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new RegistrationProductFragment())
+                    .replace(R.id.flFragment, new RegistrationFragment())
                     .commit();
+            return true;
         } else if (item.getItemId() == R.id.visitor) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new VisitorProductFragment())
+                    .replace(R.id.flFragment, new ChooseClassFragment())
                     .commit();
             return true;
         }

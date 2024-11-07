@@ -7,14 +7,23 @@
     android:orientation="vertical"
     tools:context=".SumFragment.SumFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:textSize="30dp"
-        android:id="@+id/tvTopic"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="150dp"
-        android:text="נושא" />
+        android:layout_marginLeft="250dp"
+        android:text="⚠️" />
+
+    <TextView
+        android:id="@+id/tvTopic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="נושא"
+        android:layout_marginLeft="200dp"
+        android:textSize="30dp"
+        />
+
+
 
     <ImageView
         android:id="@+id/sumImage"
@@ -25,15 +34,43 @@
     <TextView
         android:id="@+id/tvText"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="250dp"
         android:text="מלל" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
 
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
 
     <TextView
         android:id="@+id/tvAuthor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="נכתב על ידי " />
+        android:textSize="20sp"
+        android:text="נכתב על ידי: " />
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <TextView
+        android:id="@+id/tvAverage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="ציון ממוצע לסיכום:  " />
+
+
+
 
 </LinearLayout>
