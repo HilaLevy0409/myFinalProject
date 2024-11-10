@@ -2,20 +2,25 @@ package UserProfileFragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.SumByMeFragment.SumByMeFragment;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link UserProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class UserProfileFragment extends Fragment {
+public class UserProfileFragment extends Fragment implements View.OnClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,6 +30,7 @@ public class UserProfileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private Button btnShowSums;
 
     public UserProfileFragment() {
         // Required empty public constructor
@@ -62,5 +68,20 @@ public class UserProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_user_profile, container, false);
+    }
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        btnShowSums = view.findViewById(R.id. btnShowSums);
+        btnShowSums.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view == btnShowSums ) {
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new SumByMeFragment())
+                    .commit();
+        }
     }
 }

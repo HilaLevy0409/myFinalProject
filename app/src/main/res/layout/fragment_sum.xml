@@ -42,11 +42,6 @@
         android:layout_height="20dp" />
 
 
-    <RatingBar
-        android:id="@+id/ratingBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <Space
         android:layout_width="match_parent"
         android:layout_height="20dp" />
@@ -71,6 +66,10 @@
         android:text="ציון ממוצע לסיכום:  " />
 
 
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp" />
 
 
 </LinearLayout>

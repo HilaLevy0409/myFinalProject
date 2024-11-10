@@ -44,7 +44,6 @@
         android:layout_marginBottom="10dp"
         android:text="שם משתמש" />
 
-
     <TextView
         android:id="@+id/tvBadPoints"
         android:layout_width="match_parent"
@@ -52,6 +51,14 @@
         android:textSize="20dp"
         android:layout_marginBottom="10dp"
         android:text="נקודות לרעה: " />
+
+    <TextView
+        android:id="@+id/tvSumNum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:layout_marginBottom="10dp"
+        android:text="מספר סיכומים שנכתבו: " />
 
     <Button
         android:id="@+id/btnShowSums"
