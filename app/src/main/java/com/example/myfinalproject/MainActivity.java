@@ -18,6 +18,8 @@ import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import ChooseClassFragment.ChooseClassFragment;
 
@@ -32,6 +34,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+
+
+
 
 
         if (savedInstanceState == null) {
