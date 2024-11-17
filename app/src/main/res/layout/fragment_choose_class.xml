@@ -1,25 +1,36 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#F7F7F7"
+    android:padding="16dp"
     tools:context="ChooseClassFragment.ChooseClassFragment">
 
     <TextView
-        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="בחירת כיתה"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="90dp"
-        android:layout_marginRight="150dp"
-        android:textSize="30dp"
-        android:textColor="@color/black"
-        android:text="בחירת כיתה" />
+        android:layout_height="16dp" />
+
 
     <GridView
         android:id="@+id/gridView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:numColumns="2"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="10dp"
-        android:stretchMode="columnWidth" />
+        android:verticalSpacing="16dp"
+        android:horizontalSpacing="16dp"
+        android:gravity="center"
+        android:stretchMode="columnWidth"
+        android:padding="8dp" />
 </LinearLayout>

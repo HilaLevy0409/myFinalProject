@@ -1,4 +1,4 @@
-package com.example.myfinalproject.utils;
+package com.example.myfinalproject.Utils;
 
 public class Validator {
     public static String isValidPassword(String password) {
@@ -23,7 +23,7 @@ public class Validator {
     }
     public static String isValidUsername(String username) {
         if(username.length() < 3) {
-            return "שם משתמש חייב להכיל 3 תווים לפחות";
+            return "שם משתמש חייב להכיל לפחות 3 תווים ";
         }
         return "";
     }

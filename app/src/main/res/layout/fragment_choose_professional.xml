@@ -1,23 +1,33 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F7F7F7"
+    android:padding="16dp"
     tools:context="ChooseProfessionFragment.ChooseProfessionalFragment">
 
-
     <TextView
-        android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
-        android:textSize="30dp"
-        android:layout_marginLeft="100dp"
-        android:text="בחירת מקצוע" />
-    <ListView
+        android:text="בחירת מקצוע"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="16dp" />
 
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="8dp"
+        android:padding="8dp"
+        android:background="#FFFFFF" />
 
-    </ListView>
 </LinearLayout>

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="16dp"
-
+    android:background="#F7F7F7"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -40,6 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="אימייל"
+                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/header_image" />
@@ -51,6 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="תאריך לידה"
+                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvEmail" />
@@ -64,6 +66,7 @@
                 android:text="שם משתמש"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/black"
                 app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
 
             <TextView
@@ -74,6 +77,7 @@
                 android:text="נקודות לרעה"
                 app:layout_constraintTop_toBottomOf="@id/tvUsername"
                 tools:layout_editor_absoluteX="179dp"
+                android:textColor="@color/black"
                 tools:layout_editor_absoluteY="246dp" />
 
             <Button
@@ -91,7 +95,7 @@
                 android:layout_height="60dp"
                 android:backgroundTint="@color/red"
                 android:text="מחיקת משתמש"
-                tools:layout_editor_absoluteX="89dp"
+                tools:layout_editor_absoluteX="85dp"
                 tools:layout_editor_absoluteY="367dp" />
 
 

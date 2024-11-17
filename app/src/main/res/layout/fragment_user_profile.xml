@@ -1,78 +1,138 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="#F7F7F7"
     tools:context="UserProfileFragment.UserProfileFragment">
 
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:textColor="@color/black"
-        android:layout_marginRight="150dp"
-        android:text="פרופיל משתמש" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:src="@tools:sample/avatars" />
-
-    <TextView
-        android:id="@+id/tvEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="אימייל" />
-    <TextView
-        android:id="@+id/tvBirthDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="תאריך לידה" />
-    <TextView
-        android:id="@+id/tvUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="שם משתמש" />
-
-    <TextView
-        android:id="@+id/tvBadPoints"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="נקודות לרעה: " />
-
-    <TextView
-        android:id="@+id/tvSumNum"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="מספר סיכומים שנכתבו: " />
-
     <Button
-        android:id="@+id/btnShowSums"
+        android:id="@+id/btnEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#6200EE"
+        android:text="עריכה"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvProfileTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="32dp"
+        android:text="פרופיל משתמש"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/black"
-        android:text="סיכומים שכתבתי" />
+        android:layout_marginTop="80dp"
+        android:layout_margin="16dp"
+        android:elevation="10dp"
+        android:radius="16dp"
+        android:backgroundTint="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/tvProfileTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Button
-        android:id="@+id/btnDeleteUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/red"
-        android:text="מחיקת משתמש" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:background="#F8F8F8">
 
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:src="@tools:sample/avatars"
+                android:contentDescription="User profile image"
+                android:layout_marginBottom="20dp"
+                android:padding="8dp"
+                android:elevation="5dp" />
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="אימייל: "
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvBirthDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="תאריך לידה: "
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="שם משתמש: "
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvBadPoints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="נקודות לרעה: "
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvSumNum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="מספר סיכומים שנכתבו: "
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="20dp" />
+
+            <Button
+                android:id="@+id/btnShowSums"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="סיכומים שכתבתי"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/black"
+                android:layout_marginBottom="15dp"
+                android:padding="14dp"
+                android:layout_gravity="center"
+                android:elevation="6dp"
+                android:layout_marginTop="10dp" />
+
+            <Button
+                android:id="@+id/btnDeleteUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="מחיקת משתמש"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/red"
+                android:layout_marginBottom="20dp"
+                android:padding="14dp"
+                android:layout_gravity="center"
+                android:elevation="6dp"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
