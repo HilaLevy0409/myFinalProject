@@ -74,7 +74,7 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
 
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        btnRegister = view.findViewById(R.id. btnRegister);
+        btnRegister = view.findViewById(R.id.btnSendReport);
         btnRegister.setOnClickListener(this);
     }
 

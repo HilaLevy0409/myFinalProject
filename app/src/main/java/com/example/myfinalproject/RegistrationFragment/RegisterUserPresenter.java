@@ -8,6 +8,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterUserPresenter {
+    /*
     RegistrationFragment view;
     private FirebaseAuth mAuth;
 
@@ -23,5 +24,7 @@ public class RegisterUserPresenter {
 
         mAuth.createUserWithEmailAndPassword("", "");
     }
+
+     */
 }
 
