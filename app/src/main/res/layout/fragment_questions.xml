@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="#F7F7F7"
+    tools:context=".QuestionsFragment.QuestionsFragment">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="שאלות נפוצות"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1. מצאתי תוכן פוגעני בסיכום. מה לעשות?"
+        android:padding="10dp"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="*לחצו על ⚠️ ודווחו לנו."
+        android:padding="10dp"
+        android:textSize="20sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="2. איך מתחילים לכתוב סיכום?"
+        android:padding="10dp"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="*בחרו את הכיתה, המקצוע והנושא שברצונכם לסכם ויופיעו טיפים לכתיבת סיכום."
+        android:padding="10dp"
+        android:textSize="20sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="3. אם בחרתי למחוק את המשתמש שלי הסיכומים שכתבתי נמחקים?"
+        android:padding="10dp"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="*לא :) אך אם תרצו להתחבר שוב, תאלצו להירשם מחדש."
+        android:padding="10dp"
+        android:textSize="20sp"/>
+
+
+    <Button
+        android:id="@+id/btnContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="מעבר ליצירת קשר"
+        android:textSize="18sp"
+        android:backgroundTint="#3F51B5"
+        android:textColor="@android:color/white"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp" />
+
+</LinearLayout>

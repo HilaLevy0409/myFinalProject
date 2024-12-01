@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,52 +8,42 @@
     android:padding="24dp"
     android:gravity="center_horizontal"
     android:background="#F7F7F7"
-    tools:context=".AdminLoginFragment.AdminLoginFragment">
+    tools:context=".ReportFragment.ReportFragment">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" התחברות להנהלה"
+        android:text="דיווח"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_marginTop="20dp"
         android:textColor="?android:attr/textColorPrimary" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="16dp" />
 
-    <EditText
-        android:id="@+id/etAdmin"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="#CCCCCC"
-        android:hint="שם משתמש"
-        android:padding="14dp"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="סיסמה"
-        android:textSize="20sp"
-        android:textAlignment="textEnd"
-        android:inputType="textPassword"
-        android:padding="14dp"
-        android:backgroundTint="#CCCCCC"
-        android:layout_marginBottom="24dp" />
-
-
-    <Button
-        android:id="@+id/btnContinue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:text="הסיכום שעליו מדווחים..."
         android:layout_marginTop="30dp"
         android:padding="10dp"
-        android:text="המשך"
+        android:textSize="20sp" />
+
+
+    <EditText
+        android:id="@+id/etReport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="סיבת הדיווח..."
+        android:layout_marginTop="70dp"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btnSendReport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:padding="10dp"
+        android:text="שליחה"
         android:textSize="18sp"
         android:textColor="#FFFFFF"
         android:backgroundTint="#3F51B5" />

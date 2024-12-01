@@ -1,4 +1,4 @@
-package com.example.myfinalproject.models;
+package com.example.myfinalproject.Models;
 
 public class User {
     public String email;

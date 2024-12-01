@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
+    android:padding="16dp"
     android:background="#F7F7F7"
-    tools:context=".AdminLoginFragment.AdminLoginFragment">
+    tools:context=".AdminFragment.AdminFragment">
+
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" התחברות להנהלה"
+        android:text="מסך הנהלה"
         android:textSize="30sp"
         android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
         android:textColor="?android:attr/textColorPrimary" />
 
@@ -24,39 +24,57 @@
         android:layout_width="match_parent"
         android:layout_height="16dp" />
 
-    <EditText
-        android:id="@+id/etAdmin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="#CCCCCC"
-        android:hint="שם משתמש"
-        android:padding="14dp"
-        android:textSize="20sp" />
 
-    <EditText
-        android:id="@+id/etPassword"
+    <TextView
+        android:id="@+id/numUers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="סיסמה"
+        android:padding="16dp"
+        android:background="#EEEEEE"
+        android:text="מספר משתמשים: "
         android:textSize="20sp"
-        android:textAlignment="textEnd"
-        android:inputType="textPassword"
-        android:padding="14dp"
-        android:backgroundTint="#CCCCCC"
-        android:layout_marginBottom="24dp" />
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_vertical" />
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="בחירת משתמש:"
+        android:textSize="20sp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:layout_marginBottom="10dp" />>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#EEEEEE"
+        android:padding="10dp"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#CCCCCC" />
+    </LinearLayout>
 
 
     <Button
-        android:id="@+id/btnContinue"
+        android:id="@+id/btnSend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="30dp"
         android:padding="10dp"
-        android:text="המשך"
+        android:text="📩"
         android:textSize="18sp"
         android:textColor="#FFFFFF"
         android:backgroundTint="#3F51B5" />
 
 </LinearLayout>
+

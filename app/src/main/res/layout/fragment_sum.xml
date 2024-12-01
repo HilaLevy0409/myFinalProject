@@ -30,7 +30,7 @@
         android:id="@+id/sumImage"
         android:layout_width="match_parent"
         android:layout_height="131dp"
-        android:src="@drawable/sumup" />
+        android:src="@drawable/newlogo" />
 
     <TextView
         android:id="@+id/tvText"
