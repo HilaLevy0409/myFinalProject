@@ -13,5 +13,5 @@
         android:layout_marginTop="150dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/newlogo" />
+        android:src="@drawable/newlogo" />
 </LinearLayout>

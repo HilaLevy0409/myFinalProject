@@ -45,6 +45,7 @@
         android:padding="10dp"
         android:text="שליחה"
         android:textSize="18sp"
+        android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:backgroundTint="#3F51B5" />
 

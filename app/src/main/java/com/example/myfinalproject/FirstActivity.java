@@ -14,21 +14,16 @@ public class FirstActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_first);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
 
-        });
+        setContentView(R.layout.activity_first);
+
 
         Thread t=new Thread() {
             public void run() {
 
                 try {
 
-                    sleep(1500);
+                    sleep(3500);
 
 
                     Intent i=new Intent(FirstActivity.this,MainActivity.class);

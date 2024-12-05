@@ -2,7 +2,9 @@ package com.example.myfinalproject.RegistrationFragment;
 
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.Utils.Validator;
-import com.example.myfinalproject.Models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -163,21 +165,40 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         String password = etPassword.getText().toString();
 
         // Validation
-        String validPassword = Validator.isValidPassword(password);
-        String validUsername = Validator.isValidUsername(username);
-        if (!validPassword.isEmpty()) {
-            Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
+//        String validPassword = Validator.isValidPassword(password);
+//        String validUsername = Validator.isValidUsername(username);
+//        if (!validPassword.isEmpty()) {
+//            Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
+//
+//        }if (!validUsername.isEmpty())
+//        {
+//            Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+//
+//        }
 
-        }if (!validUsername.isEmpty())
-        {
-            Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+        User user = new User(username, password, email);
+        submitClicked(user);
+//        mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(user)
+//                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show())
+//                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save user data", Toast.LENGTH_SHORT).show());
+    }
+    public void submitClicked(User user) {
 
-        }
+        mAuth.createUserWithEmailAndPassword(user.getUserEmail(),user.getUserPass()).addOnCompleteListener(getActivity(),new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
 
-        User user = new User(email, username, password, imageUrl);
-        mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(user)
-                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save user data", Toast.LENGTH_SHORT).show());
+                    User user1 = new User(user.getUserName(),user.getUserPass(),FirebaseAuth.getInstance().getUid());
+                    UserRepository.getInstance().AddUser(user1);
+                    //view.navigateToMain();
+
+                } else {
+                    // If sign in fails, display a message to the user.
+                Toast.makeText(getContext(), "נכשל", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     public void openDialog() {

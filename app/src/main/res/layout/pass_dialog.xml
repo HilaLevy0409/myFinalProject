@@ -1,77 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Relative Layout -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    android:background="#F7F7F7"
+    android:padding="10dp">
 
-    <!-- Edit text for email id -->
-    <EditText
-        android:id="@+id/editText1"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="18dp"
-        android:layout_marginRight="22dp" />
+        android:orientation="vertical">
 
-    <!-- Edit text for email subject -->
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editText1"
-        android:layout_alignLeft="@+id/editText1"
-        android:layout_marginTop="20dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="שחזור סיסמה"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:textColor="?android:attr/textColorPrimary"/>
 
-    <!-- Edit text for email body -->
-    <EditText
-        android:id="@+id/editText3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editText2"
-        android:layout_alignLeft="@+id/editText2"
-        android:layout_marginTop="30dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="אימייל:"
+            android:textSize="20sp"
+            android:layout_marginBottom="4dp" />
 
-    <!-- text Views for label -->
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/editText1"
-        android:layout_alignBottom="@+id/editText1"
-        android:layout_alignParentLeft="true"
-        android:text="אימייל: "
-        android:textColor="#0F9D58" />
+        <EditText
+            android:id="@+id/etEmailS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint=" כתובת אימייל"
+            android:background="@android:drawable/edit_text"
+            android:padding="10dp"
+            android:textSize="15sp" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/editText2"
-        android:layout_alignBottom="@+id/editText2"
-        android:layout_alignParentLeft="true"
-        android:text="סיסמה חדשה:"
-        android:textColor="#0F9D58" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="סיסמה חדשה:"
+            android:textSize="20sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/editText3"
-        android:layout_alignBottom="@+id/editText3"
-        android:text="אימות סיסמה חדשה:"
-        android:textColor="#0F9D58" />
+        <EditText
+            android:id="@+id/etPassS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="הכנסת סיסמה חדשה"
+            android:background="@android:drawable/edit_text"
+            android:padding="10dp"
+            android:textAlignment="textEnd"
+            android:inputType="textPassword"
+            android:textSize="15sp" />
 
-    <!-- Button to send email -->
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editText3"
-        android:layout_alignLeft="@+id/editText3"
-        android:layout_marginLeft="-234dp"
-        android:layout_marginTop="121dp"
-        android:text="שינוי הסיסמה" />
-</RelativeLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="אימות סיסמה חדשה:"
+            android:textSize="20sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp" />
+
+        <EditText
+            android:id="@+id/etPassS2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="הכנסת הסיסמה החדשה בשנית"
+            android:textAlignment="textEnd"
+            android:background="@android:drawable/edit_text"
+            android:padding="10dp"
+            android:inputType="textPassword"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnFinish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="סיום והגדרת הסיסמה"
+            android:backgroundTint="#F7F7F7"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            />
+
+
+
+    </LinearLayout>
+
+
+</ScrollView>

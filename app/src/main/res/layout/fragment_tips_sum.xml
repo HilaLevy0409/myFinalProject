@@ -96,6 +96,7 @@
         android:backgroundTint="#3F51B5"
         android:padding="12dp"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:layout_gravity="center"/>
 
 </LinearLayout>

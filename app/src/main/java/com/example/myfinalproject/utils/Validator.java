@@ -1,6 +1,13 @@
 package com.example.myfinalproject.Utils;
 
 public class Validator {
+    public static String isValidUsername(String username) {
+        if(username.length() < 3) {
+            return "שם משתמש חייב להכיל לפחות 3 תווים ";
+        }
+        return username;
+    }
+
     public static String isValidPassword(String password) {
         if (password.length() < 8) {
             return "סיסמה צריכה להכיל לפחות 8 תווים";
@@ -25,12 +32,7 @@ public class Validator {
         }
         return (hasUppercase && hasSpecialChar && hasNumber) ? password : "סיסמה צריכה להכיל תו מיוחד, אות גדולה וספרה";
     }
-    public static String isValidUsername(String username) {
-        if(username.length() < 3) {
-            return "שם משתמש חייב להכיל לפחות 3 תווים ";
-        }
-        return username;
-    }
+
 
 
 

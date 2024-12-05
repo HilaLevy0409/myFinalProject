@@ -70,8 +70,9 @@
         android:textColor="#FFFFFF"
         android:backgroundTint="#3F51B5"
         android:layout_gravity="center"
+        android:textStyle="bold"
 
-        android:elevation="4dp" />
+        />
 
     <Button
         android:id="@+id/btnNext"
@@ -83,7 +84,8 @@
         android:textColor="#FFFFFF"
         android:backgroundTint="#3F51B5"
         android:layout_gravity="center"
+        android:textStyle="bold"
 
-        android:elevation="4dp" />
+        />
 
 </LinearLayout>
