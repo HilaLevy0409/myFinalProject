@@ -7,11 +7,16 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 
 import com.example.myfinalproject.R;
 
 
 public class NoticesAdminFragment extends Fragment  {
+
+    private TextView tvMessages;
+
 
 
 
@@ -27,5 +32,7 @@ public class NoticesAdminFragment extends Fragment  {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_notices_admin, container, false);
+
+
     }
 }

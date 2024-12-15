@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import ChooseClassFragment.ChooseClassFragment;
+import UserProfileFragment.UserProfileFragment;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;
@@ -61,32 +62,35 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.admin) {
-            // Replace with AdminFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new AdminLoginFragment()) // Create AdminFragment
-                    .addToBackStack(null) // Add to back stack for navigation
+                    .replace(R.id.flFragment, new AdminLoginFragment())
+                    .addToBackStack(null)
                     .commit();
             return true;
         } else if (item.getItemId() == R.id.contact) {
-            // Replace with ContactFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new ContactUsFragment()) // Create ContactFragment
+                    .replace(R.id.flFragment, new ContactUsFragment())
                     .addToBackStack(null)
                     .commit();
             return true;
         } else if (item.getItemId() == R.id.questions) {
-            // Replace with QuestionsFragment
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new QuestionsFragment()) // Create QuestionsFragment
+                    .replace(R.id.flFragment, new QuestionsFragment())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        } else if (item.getItemId() == R.id.user) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new UserProfileFragment())
                     .addToBackStack(null)
                     .commit();
             return true;
         }
 
-        // Handle other options or default behavior
         return super.onOptionsItemSelected(item);
     }
 

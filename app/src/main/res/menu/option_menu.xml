@@ -7,7 +7,10 @@
         android:id="@+id/contact"
         android:title="יצירת קשר" />
     <item
-        android:id="@+id/questions"
-        android:title="שאלות נפוצות" />
+    android:id="@+id/questions"
+    android:title="שאלות נפוצות" />
+    <item
+        android:id="@+id/user"
+        android:title="פרופיל משתמש" />
 
 </menu>

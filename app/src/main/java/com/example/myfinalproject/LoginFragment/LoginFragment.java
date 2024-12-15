@@ -37,7 +37,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private Button btnNext, btnForgotPass;
     private Button  btnFinish;
     private EditText etUsername, etPassword;
-    private EditText etEmailS, etPassS;
+    private EditText etEmailS, etPassS, etPassS2;
     private DatabaseReference mDatabase;
 
 
@@ -89,14 +89,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                  createCustomDialog();
             }
 
-          /*  if(view == btnForgotPass) {
-                    getActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.flFragment, new LoginFragment())
-                            .commit();
-                }
+//           if(view == btnForgotPass) {
+//                    getActivity().getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.flFragment, new dialogPass())
+//                            .commit();
+//                }
 
-           */
+
 
 
 /*
@@ -140,29 +140,52 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     }
 
+//    @Override
+//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(view, savedInstanceState);
+//
+//        // Find the button in the layout
+//        Button button = view.findViewById(R.id.btnForgotPass);
+//
+//        // Set up a click listener for the button
+//        button.setOnClickListener(v -> {
+//            // Start the DialogActivity when the button is clicked
+//            Intent intent = new Intent(getContext(), .class);
+//            startActivity(intent);
+//        });
+//    }
+
+
     private void createCustomDialog() {
         Dialog dialog  = new Dialog(getContext());
         dialog.setTitle("שחזור סיסמה");
-        dialog.setContentView(R.layout.fragment_login);
+        dialog.setContentView(R.layout.pass_dialog);
         btnFinish = dialog.findViewById(R.id.btnFinish);
         etEmailS = dialog.findViewById(R.id.etEmailS);
         etPassS = dialog.findViewById(R.id.etPassS);
+        etPassS2 = dialog.findViewById(R.id.etPassS2);
+        dialog.show();
         btnFinish.setOnClickListener(v -> {
             String emailSend = etEmailS.getText().toString();
             String emailSubject = "שינוי סיסמה";
             String newPassW = etPassS.getText().toString();
             String emailBody ="הסיסמה שונתה\nהסיסמה החדשה היא: \n" + newPassW;
 
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailSend});
-            intent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);intent.putExtra(Intent.EXTRA_TEXT, emailBody);
-            intent.setType("message/rfc822");
+            if(!(etPassS.getText().toString().equals(etPassS2.getText().toString()))){
+                Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();
+            }
+            else {
 
-            // Check if there's an activity to handle the intent
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailSend});
+                intent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);
+                intent.putExtra(Intent.EXTRA_TEXT, emailBody);
+                intent.setType("message/rfc822");
 
                 startActivity(Intent.createChooser(intent, "Choose an Email client :"));
-
+                dialog.dismiss();
+            }
         });
 
-}
+    }
 }

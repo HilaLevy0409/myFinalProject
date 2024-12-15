@@ -85,7 +85,7 @@
                 android:layout_width="169dp"
                 android:layout_height="60dp"
                 android:backgroundTint="@color/black"
-                android:text="הוספת נקודות לרעה"
+                android:text="הוספת נקודה לרעה"
                 tools:layout_editor_absoluteX="85dp"
                 android:textStyle="bold"
                 tools:layout_editor_absoluteY="303dp" />

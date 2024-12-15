@@ -31,6 +31,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     private String mParam1;
     private String mParam2;
     private Button btnShowSums;
+    private Button btnDeleteUser;
 
     public UserProfileFragment() {
         // Required empty public constructor
@@ -73,6 +74,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         btnShowSums = view.findViewById(R.id. btnShowSums);
         btnShowSums.setOnClickListener(this);
+
+        btnDeleteUser  = view.findViewById(R.id. btnDeleteUser);
+        btnDeleteUser.setOnClickListener(this);
     }
 
     @Override
