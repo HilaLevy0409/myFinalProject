@@ -10,23 +10,23 @@
 
     <ListView
         android:id="@+id/listView"
-        android:layout_width="429dp"
+        android:layout_width="400dp"
         android:layout_height="600dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnAddPreview"
-        android:layout_marginStart="159dp"
-        android:layout_marginTop="21dp"
-        android:text="הוספת ביקורת"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#3F51B5"
-        android:textStyle="bold"
-        android:padding="12dp"
-        android:textSize="20sp"
         android:layout_gravity="center"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#3F51B5"
+        android:padding="12dp"
+        android:text="הוספת ביקורת"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listView" />
 

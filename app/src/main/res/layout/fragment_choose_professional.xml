@@ -13,10 +13,11 @@
         android:layout_height="wrap_content"
         android:text="בחירת מקצוע"
         android:textSize="30sp"
+        android:textColor="?android:attr/textColorPrimary"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:textColor="?android:attr/textColorPrimary" />
+        />
 
     <Space
         android:layout_width="match_parent"

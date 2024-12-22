@@ -24,7 +24,7 @@
             android:textSize="30sp"
             android:textStyle="bold"
             android:gravity="start"
-            android:textColor="@color/black" />
+            android:textColor="?android:attr/textColorPrimary" />
 
         <Button
             android:id="@+id/btnAdd"

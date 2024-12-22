@@ -47,8 +47,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         bottomNavigationView
                 .setOnNavigationItemSelectedListener(this);
         bottomNavigationView.setSelectedItemId(R.id.login);
-        bottomNavigationView.setSelectedItemId(R.id.registration);
-        bottomNavigationView.setSelectedItemId(R.id.visitor);
+
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);

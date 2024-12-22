@@ -41,7 +41,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     private Button btnUploadPhoto;
     private Button btnN;
     private Button btnDialogBirthday;
-    private EditText etEmail, etUser, etPassword;
+    private EditText etEmail, etUser, etPassword, etPassword2;
     private ImageView profileImageView;
     private Uri imageUri;
 
@@ -72,6 +72,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         etEmail = view.findViewById(R.id.etEmail);
         etUser = view.findViewById(R.id.etUser);
         etPassword = view.findViewById(R.id.etPassword);
+        etPassword2 = view.findViewById(R.id.etPassword2);
+
 
 
 
@@ -80,6 +82,24 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     @Override
     public void onClick(View v) {
         if (v == btnN) {
+            String username = etUser.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            String validUsername = Validator.isValidUsername(username);
+            String validPassword = Validator.isValidPassword(password);
+
+            if (!validUsername.isEmpty()) {
+                Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!validPassword.isEmpty()) {
+                Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!(etPassword.getText().toString().equals(etPassword2.getText().toString()))) {
+                Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if(imageUri == null) {
                 Toast.makeText(getContext(), "חובה לשים תמונת פרופיל", Toast.LENGTH_SHORT).show();
                 return;
@@ -96,6 +116,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         if (v == btnUploadPhoto) {
             showImageSourceDialog();
         }
+
     }
 
 

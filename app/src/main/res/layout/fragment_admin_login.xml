@@ -35,7 +35,7 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/etPassword"
+        android:id="@+id/etPasswordA"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="סיסמה"

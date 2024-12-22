@@ -40,6 +40,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private EditText etEmailS, etPassS, etPassS2;
     private DatabaseReference mDatabase;
 
+    private Button btnNotification;
+
 
     public LoginFragment() {
         // Required empty public constructor
@@ -66,6 +68,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
 
+        btnNotification = view.findViewById(R.id.btnNotification);
+        btnNotification.setOnClickListener(this);
+
 
     }
 
@@ -74,14 +79,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         if (view == btnNext) {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
-            String validPassword = Validator.isValidPassword(password);
+
             String validUsername = Validator.isValidUsername(username);
-            if (!validPassword.isEmpty()) {
-                Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
-                return;
-            }
+            String validPassword = Validator.isValidPassword(password);
             if (!validUsername.isEmpty()) {
                 Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!validPassword.isEmpty()) {
+                Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -89,6 +95,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                  createCustomDialog();
             }
 
+        if (view == btnNotification) {
+
+        }
 //           if(view == btnForgotPass) {
 //                    getActivity().getSupportFragmentManager()
 //                            .beginTransaction()
@@ -170,6 +179,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             String emailSubject = "שינוי סיסמה";
             String newPassW = etPassS.getText().toString();
             String emailBody ="הסיסמה שונתה\nהסיסמה החדשה היא: \n" + newPassW;
+
+            String password = etPassS.getText().toString().trim();
+            String validPassword = Validator.isValidPassword(password);
+
+            if (!validPassword.isEmpty()) {
+                Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if(!(etPassS.getText().toString().equals(etPassS2.getText().toString()))){
                 Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();

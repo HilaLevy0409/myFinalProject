@@ -11,11 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
+import com.example.myfinalproject.Utils.Validator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +36,7 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
     private String mParam1;
     private String mParam2;
     private Button btnContinue;
+    private EditText etAdmin, etPasswordA;
 
     public AdminLoginFragment() {
         // Required empty public constructor
@@ -76,12 +80,29 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         btnContinue = view.findViewById(R.id.btnContinue);
         btnContinue.setOnClickListener(this);
+
+        etAdmin = view.findViewById(R.id.etAdmin);
+        etPasswordA = view.findViewById(R.id.etPasswordA);
     }
 
 
     @Override
     public void onClick(View v) {
         if(v == btnContinue) {
+            String username = etAdmin.getText().toString().trim();
+            String password = etPasswordA.getText().toString().trim();
+
+            String validUsername = Validator.isValidUsername(username);
+            String validPassword = Validator.isValidPassword(password);
+
+            if (!validUsername.isEmpty()) {
+                Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!validPassword.isEmpty()) {
+                Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
+                return;
+            }
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new AdminFragment())

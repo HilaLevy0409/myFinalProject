@@ -15,9 +15,9 @@
         android:text="יצירת קשר "
         android:textSize="30sp"
         android:textStyle="bold"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:layout_marginTop="20dp" />
 
 
     <TextView
@@ -45,12 +45,10 @@
         android:id="@+id/btnSendTo"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginTop="30dp"
-        android:text="שליחה"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#3F51B5"
         android:layout_gravity="center"
-        android:elevation="4dp" />
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#3F51B5"
+        android:text="שליחה"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 </FrameLayout>

@@ -17,7 +17,8 @@
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:textColor="?android:attr/textColorPrimary"
+         />
 
     <TextView
         android:layout_width="match_parent"
@@ -78,7 +79,6 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:backgroundTint="#3F51B5"
-        android:textColor="@android:color/white"
         android:padding="10dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
