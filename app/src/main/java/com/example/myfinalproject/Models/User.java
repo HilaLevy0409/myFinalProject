@@ -1,4 +1,4 @@
-package com.example.myfinalproject.RegistrationFragment;
+package com.example.myfinalproject.Models;
 
 public class User {
     private String userName;

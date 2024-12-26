@@ -1,29 +1,33 @@
 package com.example.myfinalproject.RegistrationFragment;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.myfinalproject.CallBacks.AddUserCallback;
+import com.example.myfinalproject.CallBacks.UserCallback;
+import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.Database.UserDatabase;
 
 public class RegisterUserPresenter {
 
     RegistrationFragment view;
-    private FirebaseAuth mAuth;
-
+    UserDatabase userDb;
 
     public RegisterUserPresenter(RegistrationFragment view) {
-
         this.view = view;
-        mAuth = FirebaseAuth.getInstance();
-
+        this.userDb = new UserDatabase();
     }
 
     public void submitClicked(User user) {
+        userDb.addUser(user, new AddUserCallback() {
+            @Override
+            public void onUserAdd(User user) {
 
+            }
 
-        mAuth.createUserWithEmailAndPassword("", "");
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+
     }
 
 

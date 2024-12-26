@@ -1,6 +1,8 @@
 package com.example.myfinalproject.RegistrationFragment;
 
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.Database.UserDatabase;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,8 +36,7 @@ import java.util.Calendar;
 
 public class RegistrationFragment extends Fragment implements View.OnClickListener {
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+
     private StorageReference mStorage;
 
     private Button btnUploadPhoto;
@@ -44,6 +45,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     private EditText etEmail, etUser, etPassword, etPassword2;
     private ImageView profileImageView;
     private Uri imageUri;
+    private RegisterUserPresenter presenter;
 
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     private static final int REQUEST_GALLERY_PICK = 102;
@@ -55,10 +57,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("users");
         mStorage = FirebaseStorage.getInstance().getReference("ProfileImages");
-
+        presenter = new RegisterUserPresenter(this);
         btnN = view.findViewById(R.id.btnN);
         btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
         btnDialogBirthday = view.findViewById(R.id.btnDialogBirthday);
@@ -73,6 +73,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         etUser = view.findViewById(R.id.etUser);
         etPassword = view.findViewById(R.id.etPassword);
         etPassword2 = view.findViewById(R.id.etPassword2);
+
 
 
 
@@ -116,6 +117,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         if (v == btnUploadPhoto) {
             showImageSourceDialog();
         }
+
+
 
     }
 
@@ -204,22 +207,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save user data", Toast.LENGTH_SHORT).show());
     }
     public void submitClicked(User user) {
-
-        mAuth.createUserWithEmailAndPassword(user.getUserEmail(),user.getUserPass()).addOnCompleteListener(getActivity(),new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-
-                    User user1 = new User(user.getUserName(),user.getUserPass(),FirebaseAuth.getInstance().getUid());
-                    UserRepository.getInstance().AddUser(user1);
-                    //view.navigateToMain();
-
-                } else {
-                    // If sign in fails, display a message to the user.
-                Toast.makeText(getContext(), "נכשל", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        presenter.submitClicked(user);
     }
 
     public void openDialog() {

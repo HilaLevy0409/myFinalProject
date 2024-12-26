@@ -30,7 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import ChooseClassFragment.ChooseClassFragment;
 
 
-public class LoginFragment extends Fragment implements View.OnClickListener {
+public class LoginFragment extends Fragment implements View.OnClickListener, LoginView {
 
 
 
@@ -204,5 +204,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+    }
+
+    @Override
+    public void showLoginSuccess() {
+
+    }
+
+    @Override
+    public void showLoginFailure(String error) {
+        Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
     }
 }
