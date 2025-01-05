@@ -51,6 +51,6 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
-        android:backgroundTint="#3F51B5" />
+        android:backgroundTint="@color/orange" />
 
 </LinearLayout>

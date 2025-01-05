@@ -104,7 +104,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="מעבר לכתיבת סיכום"
-        android:backgroundTint="#3F51B5"
+        android:backgroundTint="@color/orange"
         android:padding="12dp"
         android:textSize="18sp"
         android:textStyle="bold"

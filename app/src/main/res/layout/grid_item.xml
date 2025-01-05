@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@drawable/grid_item_background"
+    android:background="@color/orange"
     android:gravity="center">
 
     <TextView

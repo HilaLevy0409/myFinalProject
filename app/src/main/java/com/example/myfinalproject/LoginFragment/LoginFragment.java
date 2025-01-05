@@ -40,7 +40,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     private EditText etEmailS, etPassS, etPassS2;
     private DatabaseReference mDatabase;
 
-    private Button btnNotification;
 
 
     public LoginFragment() {
@@ -68,8 +67,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
 
-        btnNotification = view.findViewById(R.id.btnNotification);
-        btnNotification.setOnClickListener(this);
 
 
     }
@@ -79,7 +76,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         if (view == btnNext) {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
+            String email = etEmailS.getText().toString().trim();
 
+            String validEmail = Validator.isValidEmail(email);
             String validUsername = Validator.isValidUsername(username);
             String validPassword = Validator.isValidPassword(password);
             if (!validUsername.isEmpty()) {
@@ -90,14 +89,20 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                 Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (email.isEmpty()) {
+                Toast.makeText(getContext(), "שדה האימייל ריק", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!validEmail.equals(etEmailS)) {
+                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
             if(view == btnForgotPass){
                  createCustomDialog();
             }
 
-        if (view == btnNotification) {
-
-        }
 //           if(view == btnForgotPass) {
 //                    getActivity().getSupportFragmentManager()
 //                            .beginTransaction()

@@ -78,17 +78,24 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
 
 
+
+
     }
+
+
 
     @Override
     public void onClick(View v) {
         if (v == btnN) {
             String username = etUser.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
 
             String validUsername = Validator.isValidUsername(username);
             String validPassword = Validator.isValidPassword(password);
+            String validEmail = Validator.isValidEmail(email);
 
+/*
             if (!validUsername.isEmpty()) {
                 Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
                 return;
@@ -101,10 +108,19 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(imageUri == null) {
-                Toast.makeText(getContext(), "חובה לשים תמונת פרופיל", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty()) {
+                Toast.makeText(getContext(), "שדה האימייל ריק", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            if (!validEmail.isEmpty()) {
+                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+ */
+
+
             saveUserData(imageUri.toString());
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -223,6 +239,13 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 year, month, day
         );
 
-        datePickerDialog.show();
+        btnDialogBirthday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                datePickerDialog.show();
+            }
+        });
+
+
     }
 }
