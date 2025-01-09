@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,125 +11,108 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/ivLockIcon"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_marginTop="24dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/orange" />
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="שחזור סיסמה"
-            android:textSize="28sp"
-            android:textColor="#202124"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/ivLockIcon"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:padding="20dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardForm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="שחזור סיסמה"
+                android:textColor="#202124"
+                android:textSize="28sp"
+                android:textStyle="bold" />
 
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilEmail"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:hint="אימייל"
+                android:layoutDirection="rtl"
+                app:boxStrokeColor="@color/orange"
+                app:hintTextColor="@color/orange">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilEmail"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmailS"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="אימייל"
-                    android:layoutDirection="rtl"
-                    app:boxStrokeColor="@color/orange"
-                    app:hintTextColor="@color/orange">
+                    android:inputType="textEmailAddress"
+                    android:textAlignment="viewEnd"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etEmailS"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress"
-                        android:textAlignment="viewEnd"
-                        android:textSize="16sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="סיסמה חדשה"
+                android:layoutDirection="rtl"
+                app:boxStrokeColor="@color/orange"
+                app:endIconMode="password_toggle"
+                app:endIconTint="@color/orange"
+                app:hintTextColor="@color/orange">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilPassword"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassS"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="סיסמה חדשה"
-                    android:layoutDirection="rtl"
-                    app:boxStrokeColor="@color/orange"
-                    app:endIconMode="password_toggle"
-                    app:endIconTint="@color/orange"
-                    app:hintTextColor="@color/orange">
+                    android:inputType="textPassword"
+                    android:textAlignment="viewEnd"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPassS"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:textAlignment="viewEnd"
-                        android:textSize="16sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilConfirmPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="אימות סיסמה חדשה"
+                android:layoutDirection="rtl"
+                app:boxStrokeColor="@color/orange"
+                app:endIconMode="password_toggle"
+                app:endIconTint="@color/orange"
+                app:hintTextColor="@color/orange">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilConfirmPassword"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassS2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="אימות סיסמה חדשה"
-                    android:layoutDirection="rtl"
-                    app:boxStrokeColor="@color/orange"
-                    app:endIconMode="password_toggle"
-                    app:endIconTint="@color/orange"
-                    app:hintTextColor="@color/orange">
+                    android:inputType="textPassword"
+                    android:textAlignment="viewEnd"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPassS2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:textAlignment="viewEnd"
-                        android:textSize="16sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFinish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/orange"
+                android:padding="12dp"
+                android:text="סיום והגדרה"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFinish"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:backgroundTint="@color/orange"
-                    android:padding="12dp"
-                    android:text="סיום והגדרת הסיסמה"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="8dp" />
+        </LinearLayout>
 
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

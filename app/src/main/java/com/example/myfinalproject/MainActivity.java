@@ -18,6 +18,7 @@ import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
 
-
+       // FirebaseApp.initalizeApp(this);
 
 
         if (savedInstanceState == null) {

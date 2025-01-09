@@ -121,7 +121,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
  */
 
 
-            saveUserData(imageUri.toString());
+
+            saveUserData(imageUri != null ? imageUri.toString() : "");
+
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new ChooseClassFragment.ChooseClassFragment())

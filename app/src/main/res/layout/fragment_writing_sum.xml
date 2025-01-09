@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@color/white"
+    android:fillViewport="true">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/sumImage"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:src="@drawable/newlogo" />
+
+
+        <TextView
+            android:id="@+id/tvClassTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="כיתה"
+            android:textSize="18sp"
+            android:textColor="#202124"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"/>
+
+        <EditText
+            android:id="@+id/etClass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="כיתה"
+            android:textSize="15sp"
+            android:inputType="text"
+            android:gravity="start"/>
+
+        <TextView
+            android:id="@+id/tvProfessionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="מקצוע"
+            android:textSize="18sp"
+            android:textColor="#202124"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"/>
+
+        <EditText
+            android:id="@+id/etProfession"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint=" מקצוע"
+            android:textSize="15sp"
+            android:inputType="text"
+            android:gravity="start"/>
+
+        <TextView
+            android:id="@+id/tvSummaryTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="נושא הסיכום"
+            android:textSize="18sp"
+            android:textColor="#202124"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"/>
+
+
+        <EditText
+            android:id="@+id/etSummaryTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="נושא סיכום"
+            android:textSize="15sp"
+            android:inputType="text"
+            android:gravity="start"/>
+
+
+        <TextView
+            android:id="@+id/tvSummaryContentTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="כתיבת סיכום"
+            android:textSize="18sp"
+            android:textColor="#202124"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"/>
+
+        <EditText
+            android:id="@+id/etSummaryContent"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:textSize="16sp"
+            android:inputType="textMultiLine"
+            android:gravity="top|start"
+            android:scrollbars="vertical"/>
+
+        <Button
+            android:id="@+id/btnUploadPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/orange"
+            android:layout_gravity="center_horizontal"
+            android:text="העלאת תמונה"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="שלח סיכום"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/orange"/>
+
+
+
+    </LinearLayout>
+</LinearLayout>
