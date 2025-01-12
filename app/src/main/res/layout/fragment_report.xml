@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_horizontal"
-    android:background="#F7F7F7"
+    android:background="@color/white"
     tools:context=".ReportFragment.ReportFragment">
 
     <TextView
@@ -24,6 +24,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="הסיכום שעליו מדווחים..."
+        android:layout_marginTop="30dp"
+        android:padding="10dp"
+        android:textSize="20sp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="הסיכום המדווח"
         android:layout_marginTop="30dp"
         android:padding="10dp"
         android:textSize="20sp" />

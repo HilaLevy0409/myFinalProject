@@ -1,13 +1,21 @@
 package com.example.myfinalproject.WritingSumFragment;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
+import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
+
+import java.util.Calendar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,7 +23,7 @@ import com.example.myfinalproject.R;
  * create an instance of this fragment.
  *
  */
-public class WritingSumFragment extends Fragment {
+public class WritingSumFragment extends Fragment implements View.OnClickListener{
 
 
     private static final String ARG_PARAM1 = "param1";
@@ -24,8 +32,11 @@ public class WritingSumFragment extends Fragment {
 
     private String mParam1;
     private String mParam2;
+
+
     private Button btnUploadPhoto, btnSubmit;
-    SummaryPresenter summaryPresenter;
+    private SummaryPresenter summaryPresenter;
+    private EditText etClass, etProfession, etSummaryTitle, etSummaryContent;
 
 
     public static WritingSumFragment newInstance(String param1, String param2) {
@@ -57,5 +68,47 @@ public class WritingSumFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_writing_sum, container, false);
+
+
+
     }
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        btnSubmit = view.findViewById(R.id.btnSubmit);
+        btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
+
+        summaryPresenter = new SummaryPresenter(this);
+
+        btnUploadPhoto.setOnClickListener(this);
+        btnUploadPhoto.setOnClickListener(this);
+
+
+
+
+    }
+
+    public void onClick(View v) {
+        if (v == btnSubmit) {
+
+        }
+    }
+
+    private void saveSummaryData(String ...) {
+        String classOption = etClass.getText().toString();
+        String profession = etProfession.getText().toString();
+        String summaryTitle = etSummaryTitle.getText().toString();
+        String summaryContent = etSummaryContent.getText().toString();
+
+
+
+        Summary summary = new Summary(classOption, profession, summaryTitle, summaryContent);
+        submitClicked(summary);
+
+    }
+    public void submitClicked(Summary summary) {
+        summaryPresenter.submitClicked(summary);
+    }
+
+
 }

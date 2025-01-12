@@ -5,6 +5,21 @@ public class SummaryClass {
     private String etProfession;
     private String etSummaryTitle;
     private String etSummaryContent;
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
+    public SummaryClass(String id) {
+        this.id = id;
+    }
+
 
     public String getEtSummaryContent() {
         return etSummaryContent;

@@ -5,65 +5,63 @@ import com.example.myfinalproject.CallBacks.UserCallback;
 import com.example.myfinalproject.Models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.Objects;
 
 public class UserDatabase {
 
     private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
+    private FirebaseFirestore database;
 
-    // Constructor for initializing FirebaseAuth and FirebaseDatabase
+    // Constructor for initializing FirebaseAuth and FirebaseFirestore
     public UserDatabase() {
         mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        database = FirebaseFirestore.getInstance();
     }
 
-    public void addUser(final User user, AddUserCallback callback) {
+    // Add a new user to Firestore
+    public void addUser(User user, AddUserCallback callback) {
+        // Create user in Firebase Authentication first
         mAuth.createUserWithEmailAndPassword(user.getUserEmail(), user.getUserPass())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            DatabaseReference myRef = database.getReference("users/" + firebaseUser.getUid());
-                            myRef.setValue(user)
-                                    .addOnSuccessListener(aVoid -> {
-                                        callback.onUserAdd(user);
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        callback.onError(e.getMessage());
-                                    });
-                        }
+                            DocumentReference userRef = database.collection("users").document(user.getUserEmail());
+                            userRef.set(user)
+                                    .addOnSuccessListener(aVoid -> callback.onUserAdd(user)) // On success, call callback
+                                    .addOnFailureListener(e -> callback.onError(e.getMessage())); // On failure, call callback
                     } else {
-                        // Handle failure to create user
-                        System.err.println("Error creating user: " + task.getException().getMessage());
+
+                        System.err.println("Error creating user: " + Objects.requireNonNull(task.getException()).getMessage());
+                        callback.onError(task.getException().getMessage());
                     }
                 });
     }
-    public void getUser(final String userId, final UserCallback callback) {
-        DatabaseReference myRef = database.getReference("users/" + userId);
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    User user = dataSnapshot.getValue(User.class);
-                    if (user != null) {
-                        callback.onUserReceived(user);
-                    } else {
-                        callback.onError("User data is invalid.");
-                    }
-                } else {
-                    callback.onError("User not found.");
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                callback.onError("Database error: " + databaseError.getMessage());
-            }
-        });
+    // Get user details from Firestore
+    public void getUser(final String userId, final UserCallback callback) {
+        // Fetch user from Firestore using the user email as the document ID
+        DocumentReference userRef = database.collection("users").document(userId);
+
+        userRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            callback.onUserReceived(user); // Callback with user data
+                        } else {
+                            callback.onError("User data is invalid.");
+                        }
+                    } else {
+                        callback.onError("User not found.");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError("Database error: " + e.getMessage()));
     }
 }

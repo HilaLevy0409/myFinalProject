@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
 
-       // FirebaseApp.initalizeApp(this);
+        FirebaseApp.initializeApp(this);
 
 
         if (savedInstanceState == null) {

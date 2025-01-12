@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_horizontal"
-    android:background="#F7F7F7"
+    android:background="@color/white"
     tools:context=".NoticesAdminFragment.NoticesAdminFragment">
 
     <TextView

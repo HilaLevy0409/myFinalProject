@@ -18,6 +18,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -220,6 +221,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
         User user = new User(username, password, email);
         submitClicked(user);
+
 //        mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(user)
 //                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show())
 //                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save user data", Toast.LENGTH_SHORT).show());
