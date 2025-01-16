@@ -5,7 +5,7 @@ public class Validator {
         if (username.length() < 3) {
             return "שם משתמש חייב להכיל לפחות 3 תווים ";
         }
-        return username;
+        return "";
     }
 
     public static String isValidPassword(String password) {
@@ -35,7 +35,7 @@ public class Validator {
             }
         }
 
-        return (hasUppercase && hasSpecialChar && hasNumber && hasLowercase) ? password : "סיסמה צריכה להכיל תו מיוחד, אות גדולה, אות קטנה וספרה";
+        return (hasUppercase && hasSpecialChar && hasNumber && hasLowercase) ? "" : "סיסמה צריכה להכיל תו מיוחד, אות גדולה, אות קטנה וספרה";
     }
 
     public static String isValidEmail(String email) {

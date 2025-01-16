@@ -3,12 +3,18 @@
     <item
         android:id="@+id/admin"
         android:title="התחברות להנהלה" />
+
+    <item
+        android:id="@+id/addSum"
+        android:title="הוספת סיכום" />
+
     <item
         android:id="@+id/contact"
         android:title="יצירת קשר" />
     <item
     android:id="@+id/questions"
     android:title="שאלות נפוצות" />
+
     <item
         android:id="@+id/user"
         android:title="פרופיל משתמש" />

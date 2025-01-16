@@ -208,16 +208,16 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         String password = etPassword.getText().toString();
 
         // Validation
-//        String validPassword = Validator.isValidPassword(password);
-//        String validUsername = Validator.isValidUsername(username);
-//        if (!validPassword.isEmpty()) {
-//            Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
-//
-//        }if (!validUsername.isEmpty())
-//        {
-//            Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
-//
-//        }
+        String validPassword = Validator.isValidPassword(password);
+       String validUsername = Validator.isValidUsername(username);
+       if (!validPassword.isEmpty()) {
+           Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
+
+      }if (!validUsername.isEmpty())
+     {
+          Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+
+        }
 
         User user = new User(username, password, email);
         submitClicked(user);

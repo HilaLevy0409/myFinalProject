@@ -1,8 +1,6 @@
 package com.example.myfinalproject.WritingSumFragment;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -11,104 +9,88 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.R;
 
-import java.util.Calendar;
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link WritingSumFragment#newInstance} factory method to
- * create an instance of this fragment.
- *
- */
-public class WritingSumFragment extends Fragment implements View.OnClickListener{
-
-
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-
-    private String mParam1;
-    private String mParam2;
-
-
+public class WritingSumFragment extends Fragment implements View.OnClickListener {
     private Button btnUploadPhoto, btnSubmit;
     private SummaryPresenter summaryPresenter;
     private EditText etClass, etProfession, etSummaryTitle, etSummaryContent;
-
-
-    public static WritingSumFragment newInstance(String param1, String param2) {
-        WritingSumFragment fragment = new WritingSumFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public WritingSumFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-
-
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_writing_sum, container, false);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_writing_sum, container, false);
-
-
-
-    }
-
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        // Initialize views
         btnSubmit = view.findViewById(R.id.btnSubmit);
         btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
+        etClass = view.findViewById(R.id.etClass);
+        etProfession = view.findViewById(R.id.etProfession);
+        etSummaryTitle = view.findViewById(R.id.etSummaryTitle);
+        etSummaryContent = view.findViewById(R.id.etSummaryContent);
 
         summaryPresenter = new SummaryPresenter(this);
 
+        // Set click listeners
+        btnSubmit.setOnClickListener(this);
         btnUploadPhoto.setOnClickListener(this);
-        btnUploadPhoto.setOnClickListener(this);
-
-
-
-
     }
 
+    @Override
     public void onClick(View v) {
-        if (v == btnSubmit) {
-
+        if (v.getId() == R.id.btnSubmit) {
+            if (validateInputs()) {
+                saveSummaryData();
+            }
+        } else if (v.getId() == R.id.btnUploadPhoto) {
+            // Handle photo upload
+            // TODO: Implement photo upload functionality
         }
     }
 
-    private void saveSummaryData(String ...) {
-        String classOption = etClass.getText().toString();
-        String profession = etProfession.getText().toString();
-        String summaryTitle = etSummaryTitle.getText().toString();
-        String summaryContent = etSummaryContent.getText().toString();
+    private boolean validateInputs() {
+        if (etClass.getText().toString().trim().isEmpty()) {
+            showToast("נא להזין כיתה");
+            return false;
+        }
+        if (etProfession.getText().toString().trim().isEmpty()) {
+            showToast("נא להזין מקצוע");
+            return false;
+        }
+        if (etSummaryTitle.getText().toString().trim().isEmpty()) {
+            showToast("נא להזין כותרת לסיכום");
+            return false;
+        }
+        if (etSummaryContent.getText().toString().trim().isEmpty()) {
+            showToast("נא להזין תוכן סיכום");
+            return false;
+        }
+        return true;
+    }
 
-
+    private void saveSummaryData() {
+        String classOption = etClass.getText().toString().trim();
+        String profession = etProfession.getText().toString().trim();
+        String summaryTitle = etSummaryTitle.getText().toString().trim();
+        String summaryContent = etSummaryContent.getText().toString().trim();
 
         Summary summary = new Summary(classOption, profession, summaryTitle, summaryContent);
-        submitClicked(summary);
-
-    }
-    public void submitClicked(Summary summary) {
-        summaryPresenter.submitClicked(summary);
+        summaryPresenter.submitSummaryClicked(summary);
     }
 
-
+    private void showToast(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
 }

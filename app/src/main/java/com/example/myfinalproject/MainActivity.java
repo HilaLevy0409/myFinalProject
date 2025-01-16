@@ -17,6 +17,7 @@ import com.example.myfinalproject.ContactUsFragment.ContactUsFragment;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
+import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
@@ -89,6 +90,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     .addToBackStack(null)
                     .commit();
             return true;
+        } else if(item.getItemId() == R.id.addSum) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new WritingSumFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
 
         return super.onOptionsItemSelected(item);

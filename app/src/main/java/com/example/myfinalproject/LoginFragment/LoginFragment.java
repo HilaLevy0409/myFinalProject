@@ -94,10 +94,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                 return;
             }
 
-            if (!validEmail.equals(etEmailS)) {
-                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
-                return;
-            }
+            Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+            return;
         }
             if(view == btnForgotPass){
                  createCustomDialog();

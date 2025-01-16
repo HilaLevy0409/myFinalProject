@@ -19,15 +19,12 @@ public class UserDatabase {
     private FirebaseAuth mAuth;
     private FirebaseFirestore database;
 
-    // Constructor for initializing FirebaseAuth and FirebaseFirestore
     public UserDatabase() {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
     }
 
-    // Add a new user to Firestore
     public void addUser(User user, AddUserCallback callback) {
-        // Create user in Firebase Authentication first
         mAuth.createUserWithEmailAndPassword(user.getUserEmail(), user.getUserPass())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -44,9 +41,7 @@ public class UserDatabase {
                 });
     }
 
-    // Get user details from Firestore
     public void getUser(final String userId, final UserCallback callback) {
-        // Fetch user from Firestore using the user email as the document ID
         DocumentReference userRef = database.collection("users").document(userId);
 
         userRef.get()
