@@ -8,6 +8,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_horizontal"
+    android:layoutDirection="rtl"
     android:background="@color/white"
     tools:context=".AdminLoginFragment.AdminLoginFragment">
 
@@ -17,18 +18,18 @@
         android:text=" התחברות להנהלה"
         android:textSize="30sp"
         android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="48dp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:fontFamily="sans-serif-medium" />
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="שם "
-        android:layoutDirection="rtl"
+        android:hint="שם"
         android:padding="10dp"
-        android:textSize="20sp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="15dp"
         app:boxStrokeColor="@color/orange"
         app:hintTextColor="@color/orange">
 
@@ -37,8 +38,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="viewEnd"
-            android:textSize="20sp" />
+            android:inputType="textPersonName"
+            android:textSize="20sp"
+
+            app:errorEnabled="true"
+            app:errorTextColor="@color/red"
+            app:endIconMode="clear_text"/>
     </com.google.android.material.textfield.TextInputLayout>
+
 
 
 
@@ -47,11 +54,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="סיסמה"
-        android:layoutDirection="rtl"
         app:boxStrokeColor="@color/orange"
         android:padding="10dp"
         app:endIconMode="password_toggle"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="15dp"
         app:endIconTint="@color/orange"
         app:hintTextColor="@color/orange">
 
@@ -61,13 +67,12 @@
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:textAlignment="viewEnd"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+
+            app:errorEnabled="true"
+            app:errorTextColor="@color/red"
+            app:endIconMode="clear_text"/>
     </com.google.android.material.textfield.TextInputLayout>
-
-
-
-
-
 
     <Button
         android:id="@+id/btnContinue"

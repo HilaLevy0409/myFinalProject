@@ -15,9 +15,14 @@ import com.google.firebase.storage.StorageReference;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,9 +38,17 @@ import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import android.provider.MediaStore;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class RegistrationFragment extends Fragment implements View.OnClickListener {
+
+    private static final String IMAGE_DIRECTORY = "/demonuts";
+    private int GALLERY = 1, CAMERA = 2;
+    final int REQUEST_CODE_GALLERY = 999;
 
 
     private StorageReference mStorage;
@@ -43,13 +56,13 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     private Button btnUploadPhoto;
     private Button btnN;
     private Button btnDialogBirthday;
-    private EditText etEmail, etUser, etPassword, etPassword2;
-    private ImageView profileImageView;
+    private EditText etEmail, etUser, etPassword, etPassword2, etPhone;
     private Uri imageUri;
     private RegisterUserPresenter presenter;
 
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     private static final int REQUEST_GALLERY_PICK = 102;
+    private ImageView imageViewProfile;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,7 +77,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
         btnDialogBirthday = view.findViewById(R.id.btnDialogBirthday);
 
-        profileImageView = view.findViewById(R.id.imageView3);
+        imageViewProfile = view.findViewById(R.id.imageViewProfile);
 
         btnUploadPhoto.setOnClickListener(this);
         btnDialogBirthday.setOnClickListener(this);
@@ -74,13 +87,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         etUser = view.findViewById(R.id.etUser);
         etPassword = view.findViewById(R.id.etPassword);
         etPassword2 = view.findViewById(R.id.etPassword2);
-
-
-
-
-
-
-
+        etPhone = view.findViewById(R.id.etPhone);
     }
 
 
@@ -90,37 +97,34 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         if (v == btnN) {
             String username = etUser.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
+            String password2 = etPassword2.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
 
-            String validUsername = Validator.isValidUsername(username);
+
+
             String validPassword = Validator.isValidPassword(password);
             String validEmail = Validator.isValidEmail(email);
-
-/*
-            if (!validUsername.isEmpty()) {
+            String validUsername = Validator.isValidUsername(username);
+            if(!validEmail.isEmpty()){
+                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(!validUsername.isEmpty()){
                 Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
                 return;
             }
+
             if (!validPassword.isEmpty()) {
                 Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (!(etPassword.getText().toString().equals(etPassword2.getText().toString()))) {
+
+
+            if(!(password.equals(password2))){
                 Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (email.isEmpty()) {
-                Toast.makeText(getContext(), "שדה האימייל ריק", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!validEmail.isEmpty()) {
-                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
- */
-
 
 
             saveUserData(imageUri != null ? imageUri.toString() : "");
@@ -133,8 +137,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         if (v == btnDialogBirthday) {
             openDialog();
         }
+
         if (v == btnUploadPhoto) {
-            showImageSourceDialog();
+            showPictureDialog();
         }
 
 
@@ -142,49 +147,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     }
 
 
-    private void showImageSourceDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("בחירת מקור תמונה")
-                .setItems(new CharSequence[]{"מצלמה", "גלריה"}, (dialog, which) -> {
-                    if (which == 0) {
-                        openCamera();
-                    } else {
-                        openGallery();
-                    }
-                })
-                .show();
-    }
-
-
-    private void openCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-    }
-
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_GALLERY_PICK);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    imageUri = (Uri) extras.get("data");  // Get URI from camera
-                    profileImageView.setImageURI(imageUri);
-                }
-            } else if (requestCode == REQUEST_GALLERY_PICK) {
-                imageUri = data.getData();  // Get URI from gallery
-                profileImageView.setImageURI(imageUri);
-            }
-        }
-    }
 
     private void uploadImage() {
         if (imageUri != null) {
@@ -206,21 +168,10 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         String email = etEmail.getText().toString();
         String username = etUser.getText().toString();
         String password = etPassword.getText().toString();
-
-        // Validation
-        String validPassword = Validator.isValidPassword(password);
-       String validUsername = Validator.isValidUsername(username);
-       if (!validPassword.isEmpty()) {
-           Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
-
-      }if (!validUsername.isEmpty())
-     {
-          Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
-
-        }
-
-        User user = new User(username, password, email);
+        String phone = etPhone.getText().toString();
+        User user = new User(username, password, email, phone);
         submitClicked(user);
+
 
 //        mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(user)
 //                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show())
@@ -252,4 +203,119 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
 
     }
+
+    private void showPictureDialog(){
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(getContext());
+        pictureDialog.setTitle("בחירת מקור תמונת פרופיל:");
+        String[] pictureDialogItems = {
+                "מהגלריה",
+                "מהמצלמה" };
+        pictureDialog.setItems(pictureDialogItems,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                choosePhotoFromGallary();
+                                break;
+                            case 1:
+                                takePhotoFromCamera();
+                                break;
+                        }
+                    }
+                });
+        pictureDialog.show();
+    }
+
+    public void choosePhotoFromGallary() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+
+        startActivityForResult(galleryIntent, GALLERY);
+    }
+
+    private void takePhotoFromCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, CAMERA);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_CANCELED) {
+            return;
+        }
+        if (requestCode == GALLERY) {
+            if (data != null) {
+                Uri contentURI = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
+                    String path = saveImage(bitmap);
+                    Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
+                    imageViewProfile.setImageBitmap(bitmap);
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "נכשל!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+
+        }
+        if (requestCode == CAMERA) {
+            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+            imageViewProfile.setImageBitmap(thumbnail);
+            saveImage(thumbnail);
+            Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
+
+
+        }
+    }
+
+
+    public String saveImage(Bitmap myBitmap) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+        File wallpaperDirectory = new File(Environment.getExternalStorageDirectory() + IMAGE_DIRECTORY);
+        if (!wallpaperDirectory.exists()) {
+            wallpaperDirectory.mkdirs();
+        }
+
+
+        try {
+            File f = new File(wallpaperDirectory, Calendar.getInstance()
+                    .getTimeInMillis() + ".jpg");
+            f.createNewFile();
+            FileOutputStream fo = new FileOutputStream(f);
+            fo.write(bytes.toByteArray());
+            MediaScannerConnection.scanFile(getContext(),
+                    new String[]{f.getPath()},
+                    new String[]{"image/jpeg"}, null);
+            fo.close();
+            Log.d("TAG", "File Saved::--->" + f.getAbsolutePath());
+
+
+            return f.getAbsolutePath();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        return "";
+    }
+
+
+
+
+    private byte[] imageViewToByte(ImageView image) {
+        Bitmap bitmap=((BitmapDrawable)image.getDrawable()).getBitmap();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 0, stream);
+        byte[]byteArray=stream.toByteArray();
+        return byteArray;
+    }
+
+
+
 }

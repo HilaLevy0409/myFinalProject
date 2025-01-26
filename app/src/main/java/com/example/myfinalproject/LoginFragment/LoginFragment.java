@@ -42,6 +42,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
 
 
+
+
     public LoginFragment() {
         // Required empty public constructor
     }
@@ -76,9 +78,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         if (view == btnNext) {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
-            String email = etEmailS.getText().toString().trim();
 
-            String validEmail = Validator.isValidEmail(email);
             String validUsername = Validator.isValidUsername(username);
             String validPassword = Validator.isValidPassword(password);
             if (!validUsername.isEmpty()) {
@@ -89,13 +89,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                 Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (email.isEmpty()) {
-                Toast.makeText(getContext(), "שדה האימייל ריק", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
-            return;
+
+
+
+
         }
             if(view == btnForgotPass){
                  createCustomDialog();
@@ -185,6 +183,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
             String password = etPassS.getText().toString().trim();
             String validPassword = Validator.isValidPassword(password);
+            String validEmail = Validator.isValidEmail(emailSend);
+            if(!validEmail.isEmpty()){
+                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (!validPassword.isEmpty()) {
                 Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
@@ -193,6 +196,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
             if(!(etPassS.getText().toString().equals(etPassS2.getText().toString()))){
                 Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();
+                return;
             }
             else {
 

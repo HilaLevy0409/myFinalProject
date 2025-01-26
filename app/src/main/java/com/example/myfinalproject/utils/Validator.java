@@ -40,8 +40,8 @@ public class Validator {
 
     public static String isValidEmail(String email) {
         if (!email.contains("@")) {
-            return "האימייל חייב לכלול את התו '@'";
+            return "אימייל חייב לכלול את התו '@'";
         }
-        return email;
+        return "";
     }
 }

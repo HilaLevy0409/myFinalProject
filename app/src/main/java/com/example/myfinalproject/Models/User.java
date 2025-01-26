@@ -4,11 +4,17 @@ public class User {
     private String userName;
     private String userPass;
     private String userEmail;
+    private String phone;
 
-    public User(String userName, String userPass, String userEmail) {
+
+
+
+    public User(String userName, String userPass, String userEmail, String phone) {
         this.userName = userName;
         this.userPass = userPass;
         this.userEmail = userEmail;
+        this.phone = phone;
+
     }
 
     public String getUserEmail() {
@@ -41,6 +47,15 @@ public class User {
         this.userPass = userPass;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+
 
 
     @Override
@@ -49,6 +64,7 @@ public class User {
                 "userName='" + userName + '\'' +
                 ", userPass='" + userPass + '\'' +
                 ", userEmail='" + userEmail + '\'' +
+                ", userPhone='" + phone + '\'' +
                 '}';
     }
 

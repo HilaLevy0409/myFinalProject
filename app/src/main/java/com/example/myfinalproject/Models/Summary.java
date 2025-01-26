@@ -7,6 +7,16 @@ public class Summary {
     private String summaryTitle;
     private String summaryContent;
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    private String image;
+
     // Empty constructor required for Firestore
     public Summary() {}
 
