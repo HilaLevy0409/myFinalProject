@@ -9,12 +9,75 @@ public class SummaryPresenter {
     private WritingSumFragment view;
     private SummaryDatabase summaryDb;
 
+
+    Summary summary;
+
+
+
     public SummaryPresenter(WritingSumFragment view) {
         this.view = view;
         this.summaryDb = new SummaryDatabase();
+
     }
 
-    public void submitSummaryClicked(Summary summary) {
+//    public void loadSummaries(SummaryDatabase.SummariesCallback callback) {
+//        SummaryDatabase.loadSummaries(callback);
+//    }
+//
+//
+//    public void updateSummary(Summary summary) {
+//        SummaryDatabase.updateSummary(summary, new SummaryDatabase.SummaryCallback() {
+//            @Override
+//            public void onSuccess(Summary summary) {
+//                view.onSummaryUpdated(summary);
+//            }
+//
+//
+//            @Override
+//            public void onError(String message) {
+//                view.onError(message);
+//            }
+//        });
+//    }
+//
+//
+//
+//    public void deleteSummary(String summaryId) {
+//        SummaryDatabase.deleteSummary(summaryId, new SummaryDatabase.SummaryCallback() {
+//            @Override
+//            public void onSuccess(Summary summary) {
+//                view.onSummaryDeleted();
+//            }
+//
+//
+//            @Override
+//            public void onError(String message) {
+//                view.onError(message);
+//            }
+//        });
+//    }
+//
+//
+//
+//
+//    public void submitClicked(Summary summary) {
+//     SummaryDatabase.addSummary(summary, new SummaryDatabase.SummaryCallback() {
+//            @Override
+//            public void onSuccess(Summary summary) {
+//                // Product added successfully, update UI or display a message
+//                view.onSuccess(summary);
+//            }
+//
+//
+//            public void onError(String message) {
+//            }
+//        });
+//    }
+//}
+
+
+
+        public void submitSummaryClicked(Summary summary) {
         if (view.getContext() == null) return;
 
         summaryDb.addSummary(summary, new AddSummaryCallback() {

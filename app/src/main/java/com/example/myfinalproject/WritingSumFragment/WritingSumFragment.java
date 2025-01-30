@@ -1,6 +1,7 @@
 package com.example.myfinalproject.WritingSumFragment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -25,8 +26,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.myfinalproject.Database.SummaryDatabase;
 import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.Utils.Validator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,12 +44,33 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     final int REQUEST_CODE_GALLERY = 999;
 
 
-    private Button btnUploadPhoto, btnSubmit;
+    private Button btnUploadPhoto, btnSubmit, btnTips;
     private SummaryPresenter summaryPresenter;
     private EditText etClass, etProfession, etSummaryTitle, etSummaryContent;
     private ImageView imageViewSummary;
 
     private Summary summary;
+
+
+//    private static final int REQUEST_CAMERA_PERMISSION = 100;
+//    private static final int REQUEST_STORAGE_PERMISSION = 101;
+//    private static final int REQUEST_IMAGE_CAPTURE = 1;
+//    private static final int REQUEST_IMAGE_GALLERY = 2;
+//    private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
+//
+//
+//    Summary summary;
+//
+//    private Uri filePath;
+//    private final int PICK_IMAGE_REQUEST = 71;
+//    SummaryDatabase summaryDatabase;
+//    SummaryReference SummaryReference;
+//
+//
+//    private ListView listViewSummaries;
+//    private SummaryAdapter summaryAdapter;
+//    private List<Summary> summaryList;
+
 
     public WritingSumFragment() {
         // Required empty public constructor
@@ -64,11 +88,13 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
         summary = new Summary();
         btnSubmit = view.findViewById(R.id.btnSubmit);
+        btnTips = view.findViewById(R.id.btnTips);
         btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
         etClass = view.findViewById(R.id.etClass);
         etProfession = view.findViewById(R.id.etProfession);
         etSummaryTitle = view.findViewById(R.id.etSummaryTitle);
         etSummaryContent = view.findViewById(R.id.etSummaryContent);
+
 
         summaryPresenter = new SummaryPresenter(this);
 
@@ -76,6 +102,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
         btnSubmit.setOnClickListener(this);
         btnUploadPhoto.setOnClickListener(this);
+        btnTips.setOnClickListener(this);
     }
 
     @Override
@@ -91,7 +118,187 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         if (v == btnUploadPhoto) {
             showPictureDialog();
         }
+
+
+
+//        listViewSummaries = findViewById(R.id.listViewSummaries);
+//        summaryList = new ArrayList<>();
+//        summaryAdapter = new SummaryAdapter(this, summaryList);
+//        listViewSummaries.setAdapter(summaryAdapter);
+//        loadSummaries();
+//
+//
+//
+//
+//        listViewProducts.setOnItemClickListener((parent, view, position, id) -> {
+//            Product selectedSummary = summaryList.get(position);
+//            showManagementDialog(selectedSummary);
+//        });
+
     }
+//    private void showManagementDialog(Summary summary) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        builder.setTitle("ניהול סיכום");
+//        String[] options = {"עריכה", "מחיקה", "ביטול"};
+//
+//
+//        builder.setItems(options, (dialog, which) -> {
+//            switch (which) {
+//                case 0: // Edit
+//                    showEditDialog(summary);
+//                    break;
+//                case 1: // Delete
+//                    showDeleteConfirmationDialog(summary);
+//                    break;
+//                case 2: // Cancel
+//                    dialog.dismiss();
+//                    break;
+//            }
+//        });
+//
+//
+//        builder.show();
+//    }
+
+//    private void showEditDialog(Summary summary) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_summary, null);
+//
+//
+//        EditText etName = dialogView.findViewById(R.id.etEditName);
+//        ImageView imgSummary = dialogView.findViewById(R.id.imgEditSummary);
+//        Button btnChangeImage = dialogView.findViewById(R.id.btnChangeImage);
+//
+//
+//        etName.setText(summary.getSummaryName());
+//        loadBase64Image(summary.getSummaryPic(), imgSummary);
+//
+//
+//        btnChangeImage.setOnClickListener(v -> {
+//            // Store the current ImageView reference for later use
+//            imageView = imgSummary;
+//            showPictureDialog();
+//        });
+//
+//
+//        builder.setView(dialogView)
+//                .setPositiveButton("שמור", (dialog, which) -> {
+//                    summary.setSummaryName(etName.getText().toString());
+//                    if (imgProduct.getDrawable() != null) {
+//                        product.setProdPic(imageViewToBase64(imgSummary));
+//                    }
+//                        summaryPresenter.updateSummary(summary);
+//                })
+//                .setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
+//
+//
+//        builder.show();
+//    }
+
+//    private void showDeleteConfirmationDialog(Summary summary) {
+//        new AlertDialog.Builder(getContext())
+//                .setTitle("מחיקת ")
+//                .setMessage("האם ברצונך למחוק ?")
+//                .setPositiveButton("כן", (dialog, which) ->
+//                       summaryPresenter.deleteSummary(summary.getId()))
+//                .setNegativeButton("לא", null)
+//                .show();
+//    }
+//
+//
+//    public void onProductUpdated(Summary summary) {
+//        Toast.makeText(getContext(), "עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+//        loadSummaries();
+//    }
+//
+//
+//    public void onSummaryDeleted() {
+//        Toast.makeText(getContext(), "נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+//        loadSummaries();
+//    }
+//
+//
+//    public void onError(String message) {
+//        Toast.makeText(getContext(), "שגיאה: " + message, Toast.LENGTH_SHORT).show();
+//    }
+//
+//
+//
+//    private void loadProducts() {
+//        summaryPresenter.loadSummaries(new SummaryDatabase().SummariesCallback() {
+//            @Override
+//            public void onSuccess(List<Summary> summaries) {
+//                summaryList.clear();
+//               summaryList.addAll(summaries);
+//                summaryAdapter.notifyDataSetChanged();
+//            }
+//
+//
+//            @Override
+//            public void onError(String message) {
+//                Toast.makeText(WritingSumFragment.this, "Error loading products: " + message,
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
+//
+//
+//    private void requestStoragePermission() {
+//    }
+//    private void launchCamera() {
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            // Create the File where the photo should go
+//            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                // Error occurred while creating the File
+//                ex.printStackTrace();
+//            }
+//            // Continue only if the File was successfully created
+//            Uri photoURI = FileProvider.getUriForFile(this, "com.example.firestorepicapplication.fileprovider", photoFile);
+//            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//        }
+//    }
+//    private File createImageFile() throws IOException {
+//        // Create an image file name
+//        String imageFileName = "JPEG_" + System.currentTimeMillis() + ".jpg";
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+//        return image;
+//    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//
+//
+//        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission granted, proceed with camera launch
+//                launchCamera();
+//            } else {
+//                // Permission denied, handle the error
+//                Toast.makeText(getContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
+//
+//    private void requestCameraPermission() {
+//        if (WritingSumFragment.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {WritingSumFragment.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+//        }
+//    }
+//
+//
+//    public void onSuccess(Summary summary) {
+//        Toast.makeText(this, summary.getProdName() + " added", Toast.LENGTH_SHORT).show();
+//    }
+
+
+
+
 
     private boolean validateInputs() {
         if (etClass.getText().toString().trim().isEmpty()) {
@@ -169,6 +376,43 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     }
 
 
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (resultCode == Activity.RESULT_CANCELED) {
+//            return;
+//        }
+//        if (requestCode == GALLERY) {
+//            if (data != null) {
+//                Uri contentURI = data.getData();
+//                try {
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+//                    String path = saveImage(bitmap);
+//                    Toast.makeText(getContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
+//                    imageView.setImageBitmap(bitmap);
+//
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    Toast.makeText(getContext(), "Failed!", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//
+//        }
+//        if (requestCode == CAMERA) {
+//            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+//            imageView.setImageBitmap(thumbnail);
+//            saveImage(thumbnail);
+//            Toast.makeText(getContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
+//
+//
+//        }
+//    }
+
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -244,6 +488,59 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         byte[]byteArray=stream.toByteArray();
         return byteArray;
     }
+
+    private void chooseImage() {
+
+
+    }
+
+//    @Override
+//    public void onClick(View v) {
+//        if (v == btnSubmit) {
+//            EditText etSummary = findViewById(R.id.etSummary);
+//
+//
+//            // Convert image to Base64 string instead of byte array
+//            String base64Image = imageViewToBase64(imageView);
+//
+//
+//            Summary prod = new Summary(
+//                    "",
+//                    etSummary.getText().toString(),
+//                    Integer.parseInt(etAmountProd.getText().toString()),
+//                    base64Image
+//            );
+//            SummaryPresenter.submitClicked(summary);
+//        }
+//    }
+//
+//
+//    private String imageViewToBase64(ImageView image) {
+//        try {
+//            Bitmap bitmap = ((BitmapDrawable)image.getDrawable()).getBitmap();
+//            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream); // Use 70% quality for better storage
+//            byte[] byteArray = stream.toByteArray();
+//            return Base64.encodeToString(byteArray, Base64.DEFAULT);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+//
+//
+//    // Add method to load Base64 image into ImageView
+//    private void loadBase64Image(String base64Image, ImageView imageView) {
+//        try {
+//            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+//            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//            imageView.setImageBitmap(decodedByte);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+
 
 
 

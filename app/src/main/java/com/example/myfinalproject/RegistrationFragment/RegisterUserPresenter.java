@@ -15,12 +15,47 @@ public class RegisterUserPresenter {
     RegistrationFragment view;
     UserDatabase userDb;
 
+    User user;
+    String id;
+
+
     public RegisterUserPresenter(RegistrationFragment view) {
         this.view = view;
         this.userDb = new UserDatabase();
+
+        this.id = id;
+
     }
 
-    public void submitClicked(User user) {
+//    public void loadUsers(userDb.UsersCallback callback) {
+//        userDb.loadUsers(callback);
+//    }
+//
+//
+//    public void updateUser(User user) {
+//        userDb.updateUser(user, new UserDatabase().UserCallback() {
+//            @Override
+//            public void onSuccess(User user) {
+//                view.onUpdateUser(user);
+//            }
+//            @Override
+//            public void onError(String message) {
+//                view.onError(message);
+//            }
+//        });
+//
+//    }
+//    public void submitClicked(User user) {
+//        userDb.addUser(user, new UserDatabase().UserCallback() {
+//            @Override
+//            public void onSuccess (User user){
+//                // Product added successfully, update UI or display a message
+//                view.onSuccess(user);
+//            }
+//
+//        }
+
+            public void submitClicked(User user) {
         userDb.addUser(user, new AddUserCallback() {
             @Override
             public void onUserAdd(User user) {
@@ -36,5 +71,5 @@ public class RegisterUserPresenter {
     }
 
 
-}
+    }
 

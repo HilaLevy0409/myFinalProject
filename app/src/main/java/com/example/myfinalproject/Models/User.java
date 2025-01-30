@@ -5,9 +5,34 @@ public class User {
     private String userPass;
     private String userEmail;
     private String phone;
+    private String imageProfile;
+    private int badPoints;
+    private int sumCount;
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    private String id;
+
+    public String getImageProfile() {
+        return imageProfile;
+    }
+
+    public void setImageProfile(String imageProfile) {
+        this.imageProfile = imageProfile;
+    }
 
 
 
+
+
+    public User() {}
 
     public User(String userName, String userPass, String userEmail, String phone) {
         this.userName = userName;
@@ -54,7 +79,21 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+    public int getBadPoints() {
+        return badPoints;
+    }
 
+    public void setBadPoints(int badPoints) {
+        this.badPoints = badPoints;
+    }
+
+    public int getSumCount() {
+        return sumCount;
+    }
+
+    public void setSumCount(int sumCount) {
+        this.sumCount = sumCount;
+    }
 
 
 

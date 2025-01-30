@@ -1,73 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
     android:background="@color/white"
     tools:context=".SumFragment.SumFragment">
 
-    <Button
-        android:id="@+id/btnReport"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/orange"
-        android:layout_marginLeft="100dp"
-        android:text="⚠️" />
-
-    <TextView
-        android:id="@+id/tvTopic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="נושא"
-        android:textSize="30dp"
-        />
-
-
-    <ImageView
-        android:id="@+id/sumImage"
-        android:layout_width="match_parent"
-        android:layout_height="131dp"
-        android:src="@drawable/newlogo" />
-
-    <TextView
-        android:id="@+id/tvText"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:text="מלל" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="20dp" />
-
-
-    <TextView
-        android:id="@+id/tvAuthor"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:text="נכתב על ידי: " />
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
+        <Button
+            android:id="@+id/btnReport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/orange"
+            android:layout_marginLeft="100dp"
+            android:text="⚠️" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="20dp" />
+        <TextView
+            android:id="@+id/tvTopic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="נושא"
+            android:textSize="30dp" />
 
-    <TextView
-        android:id="@+id/tvAverage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:text="ציון ממוצע לסיכום:  " />
+        <ImageView
+            android:id="@+id/sumImage"
+            android:layout_width="match_parent"
+            android:layout_height="131dp"
+            android:src="@drawable/newlogo" />
 
+        <TextView
+            android:id="@+id/tvText"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="מלל" />
 
-    <RatingBar
-        android:id="@+id/ratingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="46dp" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
 
+        <TextView
+            android:id="@+id/tvAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="נכתב על ידי: " />
 
-</LinearLayout>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+        <TextView
+            android:id="@+id/tvAverage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="ציון ממוצע לסיכום:  " />
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

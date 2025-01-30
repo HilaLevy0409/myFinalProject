@@ -16,8 +16,77 @@ public class SummaryDatabase {
         database = FirebaseFirestore.getInstance();
     }
 
+//
+//    public void addSummary(Summary summary, AddSummaryCallback callback) {
+//        database.collection("summary").add(summary)
+//                .addOnCompleteListener(task1 -> {
+//                    if(task1.isSuccessful()) {
+//                        String productId = task1.getResult().getId();
+//                        summary.setId(productId);
+//                        callback.onSuccess(summary);
+//                    } else {
+//                        callback.onError(Objects.requireNonNull(task1.getException()).getMessage());
+//                    }
+//                });
+//    }
 
-    public void addSummary(Summary summary, AddSummaryCallback callback) {
+//    public void loadSummaries(SummariesCallback callback) {
+//        database.collection("summary")
+//                .get()
+//                .addOnSuccessListener(queryDocumentSnapshots -> {
+//                    List<Summary> products = new ArrayList<>();
+//                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+//                        Summary summary = document.toObject(Summary.class);
+//                        if (summary != null) {
+//                            summary.setId(document.getId());
+//                            summaries.add(summary);
+//                        }
+//                    }
+//                    callback.onSuccess(summaries);
+//                })
+//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+//    }
+//
+//
+//
+//
+//    public void updateSummary(Summary summary, SummaryCallback callback) {
+//        database.collection("product").document(product.getId())
+//                .set(summary)
+//                .addOnSuccessListener(aVoid -> callback.onSuccess(summary))
+//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+//    }
+//
+//
+//    public void deleteSummary(String productId, ProdCallback callback) {
+//        database.collection("summary").document(productId)
+//                .delete()
+//                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+//    }
+//
+//
+//
+//
+//    public void getSummary(Summary summary) {
+//
+//
+//    }
+//
+//    public interface SummaryCallback {
+//        void onSuccess(Summary summary);
+//        void onError(String message);
+//    }
+//
+//    public interface SummariessCallback {
+//        void onSuccess(List<Summary> summaries);
+//        void onError(String message);
+//    }
+//
+//}
+
+
+public void addSummary(Summary summary, AddSummaryCallback callback) {
         DocumentReference summaryRef = database.collection("summaries").document(summary.getSummaryId());
 
         summaryRef.set(summary)

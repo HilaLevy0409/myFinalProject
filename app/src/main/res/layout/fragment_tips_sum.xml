@@ -1,113 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/white"
     tools:context=".TipsSumFragment.TipsSumFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="טיפים לכתיבת סיכום"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:textColor="?android:attr/textColorPrimary"
-         />
-
-
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="1. שמרו על מבנה ברור:"
-        android:padding="8dp"
-        android:textSize="18sp" />
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="א. פתיחה: ציינו את הנושא המרכזי של הטקסט במשפט או שניים."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="טיפים לכתיבת סיכום"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:textColor="?android:attr/textColorPrimary" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ב. גוף הסיכום: הציגו את הנקודות העיקריות לפי סדר הגיוני."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. שמרו על מבנה ברור:"
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ג. סיום: אם יש מסקנה או תובנה מרכזית, הדגישו אותה בקצרה."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="א. פתיחה: ציינו את הנושא המרכזי של הטקסט במשפט או שניים."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="2. הקפידו על עברית תקנית תוך הקפדה על קישוריות ולכידות."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ב. גוף הסיכום: הציגו את הנקודות העיקריות לפי סדר הגיוני."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="3. הכניסו לסיכום רק את התוכן העיקרי והשמיטו פרטים מיותרים."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ג. סיום: אם יש מסקנה או תובנה מרכזית, הדגישו אותה בקצרה."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="4. שימו לב לאורכו של הסיכום."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. הקפידו על עברית תקנית תוך הקפדה על קישוריות ולכידות."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="5. אין להכניס דעה אישית לכתיבת הסיכום."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. הכניסו לסיכום רק את התוכן העיקרי והשמיטו פרטים מיותרים."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="6. השתמשו במילות קישור כדי להפוך את הסיכום לטקסט שלם בעל משמעות."
-    android:padding="8dp"
-    android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4. שימו לב לאורכו של הסיכום."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="7.לסיום, קראו את הסיכום שוב, בדקו שגיאות כתיב, דיוק וניסוח."
-        android:padding="8dp"
-        android:textSize="18sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5. אין להכניס דעה אישית לכתיבת הסיכום."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="6. השתמשו במילות קישור כדי להפוך את הסיכום לטקסט שלם בעל משמעות."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="בהצלחה!"
-        android:textSize="20sp"
-        android:textStyle="italic"
-        android:layout_gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="7. לסיום, קראו את הסיכום שוב, בדקו שגיאות כתיב, דיוק וניסוח."
+            android:padding="8dp"
+            android:textSize="18sp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="בהצלחה!"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:layout_gravity="center" />
 
-    <Button
-        android:id="@+id/btnNextSum"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="מעבר לכתיבת סיכום"
-        android:backgroundTint="@color/orange"
-        android:padding="12dp"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"/>
+        <Button
+            android:id="@+id/btnNextSum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="מעבר לכתיבת סיכום"
+            android:backgroundTint="@color/orange"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_gravity="center" />
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

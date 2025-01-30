@@ -17,6 +17,7 @@ import com.example.myfinalproject.ContactUsFragment.ContactUsFragment;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
+import com.example.myfinalproject.UserProfileFragment.UserProfileFragment;
 import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
@@ -24,7 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import ChooseClassFragment.ChooseClassFragment;
-import UserProfileFragment.UserProfileFragment;
+
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;

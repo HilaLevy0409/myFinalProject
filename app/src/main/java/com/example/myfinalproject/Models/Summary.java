@@ -1,11 +1,21 @@
 package com.example.myfinalproject.Models;
 
+import com.example.myfinalproject.Database.SummaryDatabase;
+import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
+
 public class Summary {
     private String summaryId;
     private String classOption;
     private String profession;
     private String summaryTitle;
     private String summaryContent;
+    private String image;
+
+
+
+
+
+
 
     public String getImage() {
         return image;
@@ -15,7 +25,6 @@ public class Summary {
         this.image = image;
     }
 
-    private String image;
 
     // Empty constructor required for Firestore
     public Summary() {}
@@ -26,9 +35,13 @@ public class Summary {
         this.profession = profession;
         this.summaryTitle = summaryTitle;
         this.summaryContent = summaryContent;
+
+
     }
 
-    // Getters and setters
+
+
+// Getters and setters
     public String getSummaryId() { return summaryId; }
     public void setSummaryId(String summaryId) { this.summaryId = summaryId; }
 

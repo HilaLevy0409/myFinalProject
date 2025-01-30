@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -62,6 +63,23 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     private static final int REQUEST_GALLERY_PICK = 102;
+
+    //new
+//    private static final int REQUEST_CAMERA_PERMISSION = 100;
+//    private static final int REQUEST_STORAGE_PERMISSION = 101;
+//    private static final int REQUEST_IMAGE_CAPTURE = 1;
+//    private static final int REQUEST_IMAGE_GALLERY = 2;
+//    private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
+//    private final int PICK_IMAGE_REQUEST = 71;
+//    FirebaseUser user;
+//   UserReference userReference;
+//
+//
+//    private ListView listViewUsers;
+//    private UserAdapter userAdapter;
+//    private List<User> userList;
+
+
     private ImageView imageViewProfile;
 
     @Override
@@ -88,6 +106,12 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         etPassword = view.findViewById(R.id.etPassword);
         etPassword2 = view.findViewById(R.id.etPassword2);
         etPhone = view.findViewById(R.id.etPhone);
+
+//        user = FirebaseStorage.getInstance();
+//        userReference = user.getReference();
+//        requestCameraPermission();
+//        requestStoragePermission();
+
     }
 
 
@@ -142,9 +166,192 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             showPictureDialog();
         }
 
+//        listViewUsers = findViewById(R.id.listViewUsers);
+//        userList = new ArrayList<>();
+//        userAdapter = new UserAdapter(this, userList);
+//        listViewUsers.setAdapter(userAdapter);
+//        loadUsers();
+//
+//
+//
+//
+//        listViewUsers.setOnItemClickListener((parent, view, position, id) -> {
+//            User selectedUser = userList.get(position);
+//            showManagementDialog(selectedUser);
+//        });
+
+
 
 
     }
+
+//    private void showManagementDialog(User user) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        builder.setTitle("ניהול משתמש");
+//        String[] options = {"עריכה", "מחיקה", "ביטול"};
+//
+//
+//        builder.setItems(options, (dialog, which) -> {
+//            switch (which) {
+//                case 0: // Edit
+//                    showEditDialog(user);
+//                    break;
+//                case 1: // Delete
+//                    showDeleteConfirmationDialog(user);
+//                    break;
+//                case 2: // Cancel
+//                    dialog.dismiss();
+//                    break;
+//            }
+//        });
+//
+//
+//        builder.show();
+//    }
+//
+//    private void showEditDialog(User user) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_user, null);
+//
+//
+//        EditText etName = dialogView.findViewById(R.id.etEditName);
+//        ImageView imgUser = dialogView.findViewById(R.id.imgEditUser);
+//        Button btnChangeImage = dialogView.findViewById(R.id.btnChangeImage);
+//
+//
+//        etName.setText(user.getUserName());
+//        loadBase64Image(user.getUserPic(), imgUser);
+//
+//
+//        btnChangeImage.setOnClickListener(v -> {
+//            // Store the current ImageView reference for later use
+//            imageView = imgUser;
+//            showPictureDialog();
+//        });
+//
+//
+//        builder.setView(dialogView)
+//                .setPositiveButton("שמור", (dialog, which) -> {
+//                    user.setUserName(etName.getText().toString());
+//                    if (imgUser.getDrawable() != null) {
+//                        user.setProdPic(imageViewToBase64(imgUser));
+//                    }
+//                    RegisterUserPresenter.updateUser(user);
+//                })
+//                .setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
+//
+//
+//        builder.show();
+//    }
+//private void showDeleteConfirmationDialog(User user) {
+//    new AlertDialog.Builder(getContext())
+//            .setTitle("מחיקת ")
+//            .setMessage("האם ברצונך למחוק?")
+//            .setPositiveButton("כן", (dialog, which) ->
+//                   RegisterUserPresenter.deleteUser(user.getId()))
+//            .setNegativeButton("לא", null)
+//            .show();
+//}
+//
+//
+//    public void onUserUpdated(User user) {
+//        Toast.makeText(getContext(), "המוצר עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+//        loadUsers();
+//    }
+//
+//
+//    public void onUserDeleted() {
+//        Toast.makeText(getContext(), "נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+//        loadUsers();
+//    }
+//
+//
+//    public void onError(String message) {
+//        Toast.makeText(getContext(), "שגיאה: " + message, Toast.LENGTH_SHORT).show();
+//    }
+
+//
+//    private void loadUsers() {
+//        RegisterUserPresenter.loadUsers(new UserDatabase().UsersCallback() {
+//            @Override
+//            public void onSuccess(List<Users> users) {
+//                userList.clear();
+//                userList.addAll(users);
+//                userAdapter.notifyDataSetChanged();
+//            }
+//
+//
+//            @Override
+//            public void onError(String message) {
+//                Toast.makeText(RegistrationFragment.this, "Error loading products: " + message,
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
+//
+//
+//    private void requestStoragePermission() {
+//    }
+//    private void launchCamera() {
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            // Create the File where the photo should go
+//            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                // Error occurred while creating the File
+//                ex.printStackTrace();
+//            }
+//            // Continue only if the File was successfully created
+//            Uri photoURI = FileProvider.getUriForFile(this, "com.example.firestorepicapplication.fileprovider", photoFile);
+//            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//        }
+//    }
+
+
+//    private File createImageFile() throws IOException {
+//        // Create an image file name
+//        String imageFileName = "JPEG_" + System.currentTimeMillis() + ".jpg";
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+//        return image;
+//    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//
+//
+//        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission granted, proceed with camera launch
+//                launchCamera();
+//            } else {
+//                // Permission denied, handle the error
+//                Toast.makeText(getContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
+
+//    private void requestCameraPermission() {
+//        if (RegistrationFragment.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {RegistrationFragment.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+//        }
+//    }
+//
+//
+//    public void onSuccess(User user) {
+//        Toast.makeText(getContext(), user.getUserName() + " added", Toast.LENGTH_SHORT).show();
+//    }
+
+
+
+
+
+
+
+
 
 
 
@@ -316,6 +523,56 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         return byteArray;
     }
 
+    private void chooseImage() {
+
+
+    }
+
+
+//    @Override
+//    public void onClick(View v) {
+//        if (v == btnN) {
+//            EditText etUser = findViewById(R.id.etUser);
+//
+//            // Convert image to Base64 string instead of byte array
+//            String base64Image = imageViewToBase64(imageView);
+//
+//
+//            User user = new User(
+//                    "",
+//                    etUser.getText().toString(),
+//                    Integer.parseInt(etAmountProd.getText().toString()),
+//                    base64Image
+//            );
+//            RegisterUserPresenter.submitClicked(user);
+//        }
+//    }
+//
+//
+//    private String imageViewToBase64(ImageView image) {
+//        try {
+//            Bitmap bitmap = ((BitmapDrawable)image.getDrawable()).getBitmap();
+//            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream); // Use 70% quality for better storage
+//            byte[] byteArray = stream.toByteArray();
+//            return Base64.encodeToString(byteArray, Base64.DEFAULT);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+//
+//
+//    // Add method to load Base64 image into ImageView
+//    private void loadBase64Image(String base64Image, ImageView imageView) {
+//        try {
+//            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+//            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//            imageView.setImageBitmap(decodedByte);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
 }

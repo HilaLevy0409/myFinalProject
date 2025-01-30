@@ -1,7 +1,9 @@
 package com.example.myfinalproject.LoginFragment;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.myfinalproject.AdminFragment.AdminFragment;
+import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Objects;
 
 import ChooseClassFragment.ChooseClassFragment;
 
@@ -39,7 +44,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     private EditText etUsername, etPassword;
     private EditText etEmailS, etPassS, etPassS2;
     private DatabaseReference mDatabase;
-
+    private LoginUserPresenter presenter;
 
 
 
@@ -64,7 +69,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         etPassword = view.findViewById(R.id.etPassword);
         btnForgotPass = view.findViewById(R.id.btnForgotPass);
         mDatabase = FirebaseDatabase.getInstance().getReference("users");
-
+        presenter = new LoginUserPresenter(this);
 
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
@@ -91,6 +96,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             }
 
 
+            presenter.loginUser(username, password);
 
 
 
@@ -214,8 +220,23 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     }
 
     @Override
-    public void showLoginSuccess() {
+    public void showLoginSuccess(User user) {
+        Toast.makeText(getContext(), "logged in", Toast.LENGTH_SHORT).show();
+        saveUserToLocalStorage(user);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, new ChooseClassFragment())
+                .commit();
 
+    }
+
+    private void saveUserToLocalStorage(User user) {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("userId", user.getId());
+
+
+        editor.apply();
     }
 
     @Override

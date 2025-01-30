@@ -9,9 +9,9 @@ public class LoginUserPresenter {
     private final LoginView view;
     private final UserDatabase userDb;
 
-    public LoginUserPresenter(LoginView view, UserDatabase userDb) {
+    public LoginUserPresenter(LoginView view) {
         this.view = view;
-        this.userDb = userDb;
+        this.userDb = new UserDatabase();
     }
 
     public void loginUser(String username, String password) {
@@ -19,7 +19,7 @@ public class LoginUserPresenter {
             @Override
             public void onUserReceived(User user) {
                 if (user.getUserPass().equals(password)) {
-                    view.showLoginSuccess();
+                    view.showLoginSuccess(user);
                 } else {
                     view.showLoginFailure("Invalid password.");
                 }
