@@ -103,10 +103,10 @@
             android:layout_gravity="center" />
 
         <Button
-            android:id="@+id/btnNextSum"
+            android:id="@+id/btnClosure"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="מעבר לכתיבת סיכום"
+            android:text="סגירה"
             android:backgroundTint="@color/orange"
             android:padding="12dp"
             android:textSize="18sp"

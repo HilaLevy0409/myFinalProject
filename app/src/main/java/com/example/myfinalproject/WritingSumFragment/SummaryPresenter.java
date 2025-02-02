@@ -2,6 +2,7 @@ package com.example.myfinalproject.WritingSumFragment;
 
 import android.widget.Toast;
 import com.example.myfinalproject.CallBacks.AddSummaryCallback;
+import com.example.myfinalproject.CallBacks.SummaryCallback;
 import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.Database.SummaryDatabase;
 
@@ -42,20 +43,19 @@ public class SummaryPresenter {
 //
 //
 //
-//    public void deleteSummary(String summaryId) {
-//        SummaryDatabase.deleteSummary(summaryId, new SummaryDatabase.SummaryCallback() {
-//            @Override
-//            public void onSuccess(Summary summary) {
-//                view.onSummaryDeleted();
-//            }
-//
-//
-//            @Override
-//            public void onError(String message) {
-//                view.onError(message);
-//            }
-//        });
-//    }
+   public void deleteSummary(String summaryId) {
+       summaryDb.deleteSummary(summaryId, new SummaryCallback() {
+           @Override
+           public void onSummaryReceived(Summary summary) {
+               view.onSummaryDeleted();
+           }
+
+           @Override
+            public void onError(String message) {
+               view.onError(message);
+            }
+       });
+    }
 //
 //
 //

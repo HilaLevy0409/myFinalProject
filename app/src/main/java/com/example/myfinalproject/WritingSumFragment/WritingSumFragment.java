@@ -104,6 +104,12 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnUploadPhoto.setOnClickListener(this);
         btnTips.setOnClickListener(this);
     }
+    public void onSummaryDeleted() {
+
+    }
+    public void onError(String message) {
+
+    }
 
     @Override
     public void onClick(View v) {
@@ -112,12 +118,13 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
                 saveSummaryData();
             }
         } else if (v.getId() == R.id.btnUploadPhoto) {
-            // Handle photo upload
-            // TODO: Implement photo upload functionality
-        }
-        if (v == btnUploadPhoto) {
+            // Handle photo upload (show image source dialog)
             showPictureDialog();
+        } else if (v.getId() == R.id.btnTips) {
+            // Show tips dialog
+            createCustomDialog();
         }
+
 
 
 
@@ -541,7 +548,14 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 //    }
 //
 
+    private void createCustomDialog() {
+        Dialog dialog  = new Dialog(getContext());
+        dialog.setTitle("טיפים לכתיבת סיכום");
+        dialog.setContentView(R.layout.fragment_tips_sum);
+        dialog.show();
 
+
+    }
 
 
 }

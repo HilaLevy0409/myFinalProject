@@ -1,5 +1,7 @@
 package com.example.myfinalproject.UserProfileFragment;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,11 +24,16 @@ import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumByMeFragment.SumByMeFragment;
 
+import java.util.Calendar;
+
 public class UserProfileFragment extends Fragment implements View.OnClickListener {
-    private TextView tvEmail, tvPhoneNumber, tvUsername, tvBadPoints, tvSumNum;
-    private Button btnShowSums, btnDeleteUser, btnLogOut, btnEdit;
-    private ImageView imageView;
+    private TextView tvEmail, tvPhoneNumber, tvBirthDate, tvUsername, tvBadPoints, tvSumNum;
+    private Button btnShowSums, btnDeleteUser, btnLogOut, btnEdit, btnBirthDate;
+    private ImageView imageView, imageViewProfile;
     private UserProfilePresenter presenter;
+    private EditText etEmail, etPhoneNumber, etUsername, etBirthDate;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,6 +56,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         tvEmail = view.findViewById(R.id.tvEmail);
         tvPhoneNumber = view.findViewById(R.id.tvPhoneNumber);
         tvUsername = view.findViewById(R.id.tvUsername);
+        tvBirthDate = view.findViewById(R.id.tvBirthDate);
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
         tvSumNum = view.findViewById(R.id.tvSumNum);
 
@@ -57,11 +66,17 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         btnEdit = view.findViewById(R.id.btnEdit);
         imageView = view.findViewById(R.id.imageView);
 
-        // Set click listeners
+        etEmail = view.findViewById(R.id.etEmail);
+        etPhoneNumber = view.findViewById(R.id.etPhoneNumber);
+        etUsername = view.findViewById(R.id.etUsername);
+        imageViewProfile = view.findViewById(R.id.imageViewProfile);
+
+
         btnShowSums.setOnClickListener(this);
         btnDeleteUser.setOnClickListener(this);
         btnLogOut.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
+
     }
 
     public void displayUserData(User user) {
@@ -84,8 +99,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         } else if (view == btnLogOut) {
             presenter.logOut();
         } else if (view == btnEdit) {
-            // Navigate to edit profile fragment
-            // TODO: Implement edit functionality
+            createCustomDialog();
+        }else if (view == btnBirthDate) {
+            openDialog();
         }
     }
 
@@ -94,11 +110,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     }
 
     public void onLogOutSuccess() {
-        // Clear SharedPreferences
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", getContext().MODE_PRIVATE);
         sharedPreferences.edit().clear().apply();
 
-        // Navigate to login
         // TODO: Replace with your login fragment
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
@@ -109,5 +123,34 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     public void onDeleteSuccess() {
         Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
         onLogOutSuccess();
+    }
+
+    private void createCustomDialog() {
+        Dialog dialog  = new Dialog(getContext());
+        dialog.setTitle("עריכת פרטים");
+        dialog.setContentView(R.layout.edit_user_profile);
+        dialog.show();
+
+        btnBirthDate = dialog.findViewById(R.id.btnBirthDate);
+        btnBirthDate.setOnClickListener(this);
+    }
+
+    public void openDialog() {
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                (view, year1, month1, dayOfMonth) -> {
+                    String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                },
+                year, month, day
+        );
+
+        datePickerDialog.show();
+
+
+
     }
 }

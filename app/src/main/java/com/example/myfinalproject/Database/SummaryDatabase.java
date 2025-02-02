@@ -58,12 +58,11 @@ public class SummaryDatabase {
 //    }
 //
 //
-//    public void deleteSummary(String productId, ProdCallback callback) {
-//        database.collection("summary").document(productId)
-//                .delete()
-//                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-//    }
+   public void deleteSummary(String productId, SummaryCallback callback) {
+        database.collection("summary").document(productId).delete()
+                .addOnSuccessListener(aVoid -> callback.onSummaryReceived(null))
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
 //
 //
 //
