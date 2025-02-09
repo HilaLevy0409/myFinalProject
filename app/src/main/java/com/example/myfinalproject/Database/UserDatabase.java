@@ -163,7 +163,23 @@ public class UserDatabase {
 //
 //
 //
+
+//    public void updateUser(String userId, User user, UserCallback callback) {
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//        db.collection("Users").document(userId)
+//                .update(
+//                        "userEmail", user.getUserEmail(),
+//                        "phone", user.getPhone(),
+//                        "userName", user.getUserName()
+//                )
+//                .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
+//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+//    }
+
+
 }
+
 
 
 

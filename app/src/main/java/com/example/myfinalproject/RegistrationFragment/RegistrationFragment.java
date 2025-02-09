@@ -14,10 +14,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
@@ -35,6 +37,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import android.provider.MediaStore;
@@ -54,9 +58,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
     private StorageReference mStorage;
 
-    private Button btnUploadPhoto;
-    private Button btnN;
-    private Button btnDialogBirthday;
+    private Button btnUploadPhoto, btnN, btnDialogBirthday;
     private EditText etEmail, etUser, etPassword, etPassword2, etPhone;
     private Uri imageUri;
     private RegisterUserPresenter presenter;
@@ -113,6 +115,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //        requestStoragePermission();
 
     }
+
 
 
 
@@ -305,13 +308,13 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //                ex.printStackTrace();
 //            }
 //            // Continue only if the File was successfully created
-//            Uri photoURI = FileProvider.getUriForFile(this, "com.example.firestorepicapplication.fileprovider", photoFile);
+//            Uri photoURI = FileProvider.getUriForFile(getContext(), "com.example.firestorepicapplication.fileprovider", photoFile);
 //            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 //            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
 //        }
 //    }
-
-
+//
+//
 //    private File createImageFile() throws IOException {
 //        // Create an image file name
 //        String imageFileName = "JPEG_" + System.currentTimeMillis() + ".jpg";
@@ -319,6 +322,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 //        return image;
 //    }
+
+
 //    @Override
 //    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 //        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -335,10 +340,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //        }
 //    }
 
-//    private void requestCameraPermission() {
-//        if (RegistrationFragment.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {RegistrationFragment.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-//        }
-//    }
+//
 //
 //
 //    public void onSuccess(User user) {
@@ -515,6 +517,12 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
 
 
+//    private void requestCameraPermission() {
+//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
+//            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+//        }
+//    }
+
     private byte[] imageViewToByte(ImageView image) {
         Bitmap bitmap=((BitmapDrawable)image.getDrawable()).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -563,7 +571,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //    }
 //
 //
-//    // Add method to load Base64 image into ImageView
+//
 //    private void loadBase64Image(String base64Image, ImageView imageView) {
 //        try {
 //            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);

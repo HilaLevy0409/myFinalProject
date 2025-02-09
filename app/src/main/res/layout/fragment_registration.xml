@@ -42,7 +42,8 @@
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"
-            tools:src="@tools:sample/avatars" />
+            tools:srcCompat="@tools:sample/avatars"
+             />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

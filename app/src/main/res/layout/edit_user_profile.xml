@@ -12,6 +12,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/btnClosure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="×"
+            android:backgroundTint="@color/white"
+            android:textSize="20sp"
+            android:textColor="@color/orange"
+            android:textStyle="bold"
+            android:layout_gravity="center" />
+
 
         <TextView
             android:id="@+id/tvProfileTitle"
@@ -22,6 +33,18 @@
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="30sp"
             android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnUploadPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="@color/white"
+            android:text="שינוי תמונת פרופיל"
+            android:textColor="@color/orange"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
 
             <ImageView
@@ -34,26 +57,60 @@
                 android:layout_marginBottom="20dp"
                 android:padding="8dp" />
 
-            <EditText
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="אימייל"
+            android:padding="10dp"
+            android:layout_marginBottom="12dp"
+            app:boxStrokeColor="@color/orange"
+            app:hintTextColor="@color/orange">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="אימייל "
+                android:inputType="textEmailAddress"
+                android:textAlignment="viewEnd"
                 android:textSize="18sp"
-                android:textColor="@color/black"
-                android:layout_marginBottom="12dp" />
 
-            <EditText
+
+                app:errorEnabled="true"
+                app:errorTextColor="@color/red"
+                app:endIconMode="clear_text"
+
+                 />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="מספר טלפון"
+            android:padding="10dp"
+            android:layout_marginBottom="12dp"
+            app:boxStrokeColor="@color/orange"
+            app:hintTextColor="@color/orange">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPhoneNumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="מספר טלפון "
-                android:textSize="18sp"
-                android:textColor="@color/black"
                 android:maxLength="10"
                 android:inputType="phone"
                 android:textAlignment="textEnd"
-                android:layout_marginBottom="12dp" />
+                android:textSize="18sp"
+
+                app:errorEnabled="true"
+                app:errorTextColor="@color/red"
+                app:endIconMode="clear_text"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
 
             <Button
                 android:id="@+id/btnBirthDate"
@@ -65,14 +122,31 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="16dp" />
 
-            <EditText
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שם משתמש"
+            android:padding="10dp"
+            android:layout_marginBottom="12dp"
+            app:boxStrokeColor="@color/orange"
+            app:hintTextColor="@color/orange">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="שם משתמש "
+                android:inputType="textPersonName"
+                android:textAlignment="viewEnd"
                 android:textSize="18sp"
-                android:textColor="@color/black"
-                android:layout_marginBottom="12dp" />
+
+                app:errorEnabled="true"
+                app:errorTextColor="@color/red"
+                app:endIconMode="clear_text"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
 
 
             <Button

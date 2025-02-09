@@ -44,7 +44,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     final int REQUEST_CODE_GALLERY = 999;
 
 
-    private Button btnUploadPhoto, btnSubmit, btnTips;
+    private Button btnUploadPhoto, btnSubmit, btnTips, btnClosure;
     private SummaryPresenter summaryPresenter;
     private EditText etClass, etProfession, etSummaryTitle, etSummaryContent;
     private ImageView imageViewSummary;
@@ -94,7 +94,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         etProfession = view.findViewById(R.id.etProfession);
         etSummaryTitle = view.findViewById(R.id.etSummaryTitle);
         etSummaryContent = view.findViewById(R.id.etSummaryContent);
-
+        btnClosure = view.findViewById(R.id.btnClosure);
 
         summaryPresenter = new SummaryPresenter(this);
 
@@ -103,6 +103,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnSubmit.setOnClickListener(this);
         btnUploadPhoto.setOnClickListener(this);
         btnTips.setOnClickListener(this);
+//        btnClosure.setOnClickListener(this);
     }
     public void onSummaryDeleted() {
 
@@ -373,7 +374,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-
         startActivityForResult(galleryIntent, GALLERY);
     }
 
@@ -384,76 +384,76 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
 
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (resultCode == Activity.RESULT_CANCELED) {
-//            return;
-//        }
-//        if (requestCode == GALLERY) {
-//            if (data != null) {
-//                Uri contentURI = data.getData();
-//                try {
-//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
-//                    String path = saveImage(bitmap);
-//                    Toast.makeText(getContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
-//                    imageView.setImageBitmap(bitmap);
-//
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    Toast.makeText(getContext(), "Failed!", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//
-//        }
-//        if (requestCode == CAMERA) {
-//            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-//            imageView.setImageBitmap(thumbnail);
-//            saveImage(thumbnail);
-//            Toast.makeText(getContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
-//
-//
-//        }
-//    }
-
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
-
-        Bitmap bitmap = null;
-        if (requestCode == GALLERY && data != null) {
-            try {
+        if (requestCode == GALLERY) {
+            if (data != null) {
                 Uri contentURI = data.getData();
-                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
-            } catch (IOException e) {
-                e.printStackTrace();
-                showToast("Failed to load image");
-                return;
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
+                    String path = saveImage(bitmap);
+                    Toast.makeText(getContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
+                    imageViewSummary.setImageBitmap(bitmap);
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Failed!", Toast.LENGTH_SHORT).show();
+                }
             }
-        } else if (requestCode == CAMERA) {
-            bitmap = (Bitmap) data.getExtras().get("data");
-        }
 
-        if (bitmap != null) {
-            imageViewSummary.setImageBitmap(bitmap);
-            String base64Image = bitmapToBase64(bitmap);
-            summary.setImage(base64Image);
+
+        }
+        if (requestCode == CAMERA) {
+            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+            imageViewSummary.setImageBitmap(thumbnail);
+            saveImage(thumbnail);
+            Toast.makeText(getContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
+
+
         }
     }
 
-    private String bitmapToBase64(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
-    }
+
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (resultCode == Activity.RESULT_CANCELED) {
+//            return;
+//        }
+//
+//        Bitmap bitmap = null;
+//        if (requestCode == GALLERY && data != null) {
+//            try {
+//                Uri contentURI = data.getData();
+//                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                showToast("Failed to load image");
+//                return;
+//            }
+//        } else if (requestCode == CAMERA) {
+//            bitmap = (Bitmap) data.getExtras().get("data");
+//        }
+//
+//        if (bitmap != null) {
+//            imageViewSummary.setImageBitmap(bitmap);
+//            String base64Image = bitmapToBase64(bitmap);
+//            summary.setImage(base64Image);
+//        }
+//    }
+
+//    private String bitmapToBase64(Bitmap bitmap) {
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+//        byte[] byteArray = byteArrayOutputStream.toByteArray();
+//        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+//    }
 
 
     public String saveImage(Bitmap myBitmap) {
@@ -551,7 +551,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private void createCustomDialog() {
         Dialog dialog  = new Dialog(getContext());
         dialog.setTitle("טיפים לכתיבת סיכום");
-        dialog.setContentView(R.layout.fragment_tips_sum);
+        dialog.setContentView(R.layout.tips);
         dialog.show();
 
 

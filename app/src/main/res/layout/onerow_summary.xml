@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+
+    <ImageView
+        android:id="@+id/imageSum"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        tools:src="@tools:sample/avatars"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvClassTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="כיתה"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvClass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint=" טקסט 1"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvProfessionalTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="מקצוע"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvProfessional"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint=" טקסט 2"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvSummaryTitleTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="נושא"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvSummaryTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint=" טקסט 3" />
+
+    </LinearLayout>
+</LinearLayout>

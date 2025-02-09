@@ -39,8 +39,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
 
 
-    private Button btnNext, btnForgotPass;
-    private Button  btnFinish;
+    private Button btnNext, btnForgotPass, btnFinish, btnClosure;
     private EditText etUsername, etPassword;
     private EditText etEmailS, etPassS, etPassS2;
     private DatabaseReference mDatabase;
@@ -68,11 +67,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         etUsername = view.findViewById(R.id.etUser);
         etPassword = view.findViewById(R.id.etPassword);
         btnForgotPass = view.findViewById(R.id.btnForgotPass);
+        //btnClosure = view.findViewById(R.id.btnClosure);
+
         mDatabase = FirebaseDatabase.getInstance().getReference("users");
         presenter = new LoginUserPresenter(this);
 
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
+     //   btnClosure.setOnClickListener(this);
 
 
 
@@ -105,12 +107,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                  createCustomDialog();
             }
 
-//           if(view == btnForgotPass) {
-//                    getActivity().getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.flFragment, new dialogPass())
-//                            .commit();
-//                }
+
 
 
 
