@@ -20,13 +20,13 @@ import com.example.myfinalproject.R;
 
 import java.util.List;
 
-public class SumAdapter extends ArrayAdapter<Summary> {
+public class SummaryAdapter extends ArrayAdapter<Summary> {
 
     private Context context;
     private List<Summary> Summaries;
 
 
-    public SumAdapter(Context context, List<Summary> Summaries) {
+    public SummaryAdapter(Context context, List<Summary> Summaries) {
         super(context, R.layout.onerow_summary, Summaries);
         this.context = context;
         this.Summaries = Summaries;
@@ -44,7 +44,7 @@ public class SumAdapter extends ArrayAdapter<Summary> {
             holder = new ViewHolder();
             holder.imageSum = convertView.findViewById(R.id.imageSum);
             holder.tvClass = convertView.findViewById(R.id.tvClass);
-            holder.tvProfessional = convertView.findViewById(R.id.tvProfessional);
+            holder.tvProfessional = convertView.findViewById(R.id.tvProfession);
             holder.tvSummaryTitle = convertView.findViewById(R.id.tvSummaryTitle);
             convertView.setTag(holder);
         } else {
@@ -53,7 +53,6 @@ public class SumAdapter extends ArrayAdapter<Summary> {
 
 
         Summary summary = Summaries.get(position);
-
 
         holder.tvClass.setText("כיתה: " + summary.getClassOption());
         holder.tvProfessional.setText("מקצוע: " + summary.getProfession());

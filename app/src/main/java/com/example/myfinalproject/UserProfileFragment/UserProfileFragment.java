@@ -61,6 +61,17 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     private static final int REQUEST_GALLERY_PICK = 102;
 //    private Uri imageUri;
+private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
+
+//    private Uri filePath;
+//    private final int PICK_IMAGE_REQUEST = 71;
+//    FirebaseStorage storage;
+//
+//    private ListView listViewUsers;
+//    private UserAdapter userAdapter;
+//    private List<User> userList;
+//
+
 
 
     @Override

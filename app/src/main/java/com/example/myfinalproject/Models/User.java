@@ -6,8 +6,21 @@ public class User {
     private String userEmail;
     private String phone;
     private String imageProfile;
+    private String id;
+    private String userBirthDate;
     private int badPoints;
     private int sumCount;
+
+
+    public String getUserBirthDate() {
+        return userBirthDate;
+    }
+
+    public void setUserBirthDate(String userBirthDate) {
+        this.userBirthDate = userBirthDate;
+    }
+
+
 
 
     public String getId() {
@@ -18,7 +31,6 @@ public class User {
         this.id = id;
     }
 
-    private String id;
 
     public String getImageProfile() {
         return imageProfile;
@@ -95,17 +107,18 @@ public class User {
         this.sumCount = sumCount;
     }
 
-
-
     @Override
     public String toString() {
         return "User{" +
                 "userName='" + userName + '\'' +
                 ", userPass='" + userPass + '\'' +
                 ", userEmail='" + userEmail + '\'' +
-                ", userPhone='" + phone + '\'' +
+                ", phone='" + phone + '\'' +
+                ", imageProfile='" + imageProfile + '\'' +
+                ", userBirthDate='" + userBirthDate + '\'' +
+                ", badPoints=" + badPoints +
+                ", sumCount=" + sumCount +
+                ", id='" + id + '\'' +
                 '}';
     }
-
-
 }

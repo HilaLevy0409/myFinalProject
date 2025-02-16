@@ -9,7 +9,7 @@
     android:gravity="center_vertical">
 
     <ImageView
-        android:id="@+id/imageSum"
+        android:id="@+id/imgUserProfile"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:scaleType="centerCrop"
@@ -23,58 +23,82 @@
         android:background="@color/white"
         android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/tvClassTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="כיתה"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:layout_marginBottom="4dp"/>
+
 
         <TextView
-            android:id="@+id/tvClass"
+            android:id="@+id/tvUserEmailTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="אימייל"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/tvUserEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text=""
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tvUserPhoneTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="מספר טלפון"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/tvUserPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text=""
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tvUserBirthDateTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="תאריך לידה"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/tvUserBirthDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text=""
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tvUserNameTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="שם משתמש"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/tvUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text=" "
             android:textSize="14sp"
             android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/tvProfessionTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="מקצוע"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:layout_marginBottom="4dp"/>
-
-        <TextView
-            android:id="@+id/tvProfession"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text=""
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/tvSummaryTitleTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="נושא"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:layout_marginBottom="4dp"/>
-
-        <TextView
-            android:id="@+id/tvSummaryTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text=""
-            android:textSize="14sp"/>
-
     </LinearLayout>
 </LinearLayout>

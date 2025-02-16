@@ -3,16 +3,13 @@ package com.example.myfinalproject;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
+import com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment;
+import com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment;
 import com.example.myfinalproject.ContactUsFragment.ContactUsFragment;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
@@ -21,8 +18,6 @@ import com.example.myfinalproject.UserProfileFragment.UserProfileFragment;
 import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import ChooseClassFragment.ChooseClassFragment;
 
@@ -91,7 +86,21 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     .addToBackStack(null)
                     .commit();
             return true;
-        } else if(item.getItemId() == R.id.addSum) {
+        } else if (item.getItemId() == R.id.chooseSum) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new ChooseSumFragment())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        } else if (item.getItemId() == R.id.chooseUser) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, new ChooseUserFragment())
+                .addToBackStack(null)
+                .commit();
+        return true;
+    } else if(item.getItemId() == R.id.addSum) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new WritingSumFragment())

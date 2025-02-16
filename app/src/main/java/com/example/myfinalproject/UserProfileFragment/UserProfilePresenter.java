@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.example.myfinalproject.CallBacks.AddUserCallback;
 import com.example.myfinalproject.CallBacks.UserCallback;
+import com.example.myfinalproject.CallBacks.UsersCallback;
 import com.example.myfinalproject.Database.UserDatabase;
 import com.example.myfinalproject.Models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -110,5 +111,8 @@ public class UserProfilePresenter {
             }
         });
 
+    }
+
+    public void loadUsers(UsersCallback usersCallback) {
     }
 }

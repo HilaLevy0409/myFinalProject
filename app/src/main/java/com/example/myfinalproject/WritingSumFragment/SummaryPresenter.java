@@ -46,7 +46,7 @@ public class SummaryPresenter {
    public void deleteSummary(String summaryId) {
        summaryDb.deleteSummary(summaryId, new SummaryCallback() {
            @Override
-           public void onSummaryReceived(Summary summary) {
+           public void onSuccess(Summary summary) {
                view.onSummaryDeleted();
            }
 

@@ -1,7 +1,6 @@
-package com.example.myfinalproject.ChooseSumFragment;
+package com.example.myfinalproject.ChooseUserFragment;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,6 +9,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -17,24 +21,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
+import com.example.myfinalproject.CallBacks.UsersCallback;
 
-import com.example.myfinalproject.CallBacks.SummariesCallback;
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
-import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
+import com.example.myfinalproject.UserProfileFragment.UserAdapter;
+import com.example.myfinalproject.UserProfileFragment.UserProfilePresenter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,35 +42,36 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class ChooseSumFragment extends Fragment implements View.OnClickListener {
+
+public class ChooseUserFragment extends Fragment {
+
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private static final int REQUEST_STORAGE_PERMISSION = 101;
     private static final int GALLERY = 1;
     private static final int CAMERA = 2;
 
-    private Button btnAdd;
-    private ImageView imageSum;
-    private ListView listViewSummaries;
-    private SummaryAdapter summaryAdapter;
-    private ArrayList<Summary> summaryList;
-    private ChooseSumPresenter chooseSumPresenter;
+    private ImageView imgUserProfile;
+    private ListView listViewUsers;
+    private UserAdapter userAdapter;
+    private ArrayList<User> userList;
+    private UserProfilePresenter userProfilePresenter;
     private SearchView searchView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        summaryList = new ArrayList<>();
-        chooseSumPresenter = new ChooseSumPresenter(this);
+        userList = new ArrayList<>();
+//        UserProfilePresenter = new UserProfilePresenter(this);
         requestPermissions();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choose_sum, container, false);
+        View view = inflater.inflate(R.layout.fragment_choose_user, container, false);
         initializeViews(view);
         setupListeners();
-        loadSummaries();
+        loadUsers();
         return view;
     }
 
@@ -90,21 +88,20 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     }
 
     private void initializeViews(View view) {
-        btnAdd = view.findViewById(R.id.btnAdd);
-        listViewSummaries = view.findViewById(R.id.listViewSummaries);
-        searchView = view.findViewById(R.id.searchView);
-        imageSum = new ImageView(getContext());
 
-        summaryAdapter = new SummaryAdapter(getContext(), summaryList);
-        listViewSummaries.setAdapter(summaryAdapter);
+        listViewUsers = view.findViewById(R.id.listViewUsers);
+        searchView = view.findViewById(R.id.searchView);
+        imgUserProfile = new ImageView(getContext());
+
+        userAdapter = new UserAdapter(getContext(), userList);
+        listViewUsers.setAdapter(userAdapter);
     }
 
     private void setupListeners() {
-        btnAdd.setOnClickListener(this);
 
-        listViewSummaries.setOnItemClickListener((parent, view, position, id) -> {
-            Summary selectedSummary = summaryList.get(position);
-            showManagementDialog(selectedSummary);
+        listViewUsers.setOnItemClickListener((parent, view, position, id) -> {
+            User selectedUser = userList.get(position);
+            showManagementDialog(selectedUser);
         });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -115,37 +112,25 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                chooseSumPresenter.filterSummaries(newText, summaryList, summaryAdapter);
+//                userProfilePresenter.filterUsers(newText, userList, userAdapter);
                 return true;
             }
         });
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.btnAdd) {
-            navigateToWritingSumFragment();
-        }
-    }
 
-    private void navigateToWritingSumFragment() {
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flFragment, new WritingSumFragment())
-                .addToBackStack(null)
-                .commit();
-    }
 
-    private void loadSummaries() {
-        chooseSumPresenter.loadSummaries(new SummariesCallback() {
+
+    private void loadUsers() {
+        userProfilePresenter.loadUsers(new UsersCallback() {
             @Override
-            public void onSuccess(List<Summary> summaries) {
+            public void onSuccess(List<User> users) {
                 if (getActivity() == null) return;
 
                 getActivity().runOnUiThread(() -> {
-                    summaryList.clear();
-                    summaryList.addAll(summaries);
-                    summaryAdapter.notifyDataSetChanged();
+                   userList.clear();
+                    userList.addAll(users);
+                    userAdapter.notifyDataSetChanged();
                 });
             }
 
@@ -154,27 +139,27 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 if (getActivity() == null) return;
 
                 getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error loading summaries: " + message,
+                        Toast.makeText(getContext(), "Error loading users: " + message,
                                 Toast.LENGTH_SHORT).show()
                 );
             }
         });
     }
 
-    private void showManagementDialog(Summary summary) {
+    private void showManagementDialog(User user) {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("ניהול סיכום");
+        builder.setTitle("ניהול משתמש");
         String[] options = {"עריכה", "מחיקה", "ביטול"};
 
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
                 case 0:
-                    showEditDialog(summary);
+                    showEditDialog(user);
                     break;
                 case 1:
-                    showDeleteConfirmationDialog(summary);
+                    showDeleteConfirmationDialog(user);
                     break;
                 case 2:
                     dialog.dismiss();
@@ -184,7 +169,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         builder.show();
     }
 
-    private void showEditDialog(Summary summary) {
+    private void showEditDialog(User user) {
         if (getContext() == null) return;
     /*
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -223,14 +208,14 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
      */
     }
 
-    private void showDeleteConfirmationDialog(Summary summary) {
+    private void showDeleteConfirmationDialog(User user) {
         if (getContext() == null) return;
 
         new AlertDialog.Builder(getContext())
-                .setTitle("מחיקת סיכום")
-                .setMessage("האם אתה בטוח שברצונך למחוק סיכום זה?")
-                .setPositiveButton("כן", (dialog, which) ->
-                        chooseSumPresenter.deleteSummary(summary.getSummaryId()))
+                .setTitle("מחיקת משתמש")
+                .setMessage("האם ברצונך למחוק משתמש זה?")
+//                .setPositiveButton("כן", (dialog, which) ->
+//                        userProfilePresenter.deleteUser(user.getId()))
                 .setNegativeButton("לא", null)
                 .show();
     }
@@ -279,7 +264,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 handleCameraResult(data);
             }
         } catch (Exception e) {
-            Log.e("ChooseSumFragment", "Error processing image: " + e.getMessage());
+            Log.e("ChooseUserFragment", "Error processing image: " + e.getMessage());
             Toast.makeText(getContext(), "Error processing image", Toast.LENGTH_SHORT).show();
         }
     }
@@ -288,13 +273,13 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         Uri contentURI = data.getData();
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
         String path = saveImage(bitmap);
-        imageSum.setImageBitmap(bitmap);
+        imgUserProfile.setImageBitmap(bitmap);
         Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
     }
 
     private void handleCameraResult(Intent data) {
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-        imageSum.setImageBitmap(thumbnail);
+        imgUserProfile.setImageBitmap(thumbnail);
         saveImage(thumbnail);
         Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
     }
@@ -324,7 +309,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
             return f.getAbsolutePath();
         } catch (IOException e) {
-            Log.e("ChooseSumFragment", "Error saving image: " + e.getMessage());
+            Log.e("ChooseUserFragment", "Error saving image: " + e.getMessage());
             return "";
         }
     }
@@ -337,7 +322,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
             byte[] byteArray = stream.toByteArray();
             return Base64.encodeToString(byteArray, Base64.DEFAULT);
         } catch (Exception e) {
-            Log.e("ChooseSumFragment", "Error converting image to base64: " + e.getMessage());
+            Log.e("ChooseUserFragment", "Error converting image to base64: " + e.getMessage());
             return null;
         }
     }
@@ -348,25 +333,50 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             imageView.setImageBitmap(decodedByte);
         } catch (Exception e) {
-            Log.e("ChooseSumFragment", "Error loading base64 image: " + e.getMessage());
+            Log.e("ChooseUserFragment", "Error loading base64 image: " + e.getMessage());
         }
     }
 
     // Callback methods for the presenter
-    public void onSummaryUpdated(Summary summary) {
+    public void onUserUpdated(User user) {
         if (getContext() == null) return;
-        Toast.makeText(getContext(), "הסיכום עודכן בהצלחה", Toast.LENGTH_SHORT).show();
-        loadSummaries();
+        Toast.makeText(getContext(), "המשתמש עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+        loadUsers();
     }
 
-    public void onSummaryDeleted() {
+    public void onUsersDeleted() {
         if (getContext() == null) return;
-        Toast.makeText(getContext(), "הסיכום נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-        loadSummaries();
+        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+        loadUsers();
     }
 
     public void onError(String message) {
         if (getContext() == null) return;
         Toast.makeText(getContext(), "שגיאה: " + message, Toast.LENGTH_SHORT).show();
     }
+
+
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    private String mParam1;
+    private String mParam2;
+
+    public ChooseUserFragment() {
+        // Required empty public constructor
+    }
+
+
+    public static ChooseUserFragment newInstance(String param1, String param2) {
+        ChooseUserFragment fragment = new ChooseUserFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
 }
+
+

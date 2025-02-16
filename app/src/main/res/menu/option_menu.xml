@@ -19,5 +19,12 @@
     <item
         android:id="@+id/user"
         android:title="פרופיל משתמש" />
+    <item
+        android:id="@+id/chooseSum"
+        android:title="בחירת סיכום" />
+
+    <item
+        android:id="@+id/chooseUser"
+        android:title="בחירת משתמש" />
 
 </menu>
