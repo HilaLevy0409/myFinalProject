@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:iconifiedByDefault="false"
-        android:queryHint="חיפוש לפי משתמש"
+        android:queryHint="חיפוש משתמש"
         android:layout_marginBottom="16dp" />
 
     <ListView

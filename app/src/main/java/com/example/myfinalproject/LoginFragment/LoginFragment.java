@@ -39,7 +39,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
 
 
-    private Button btnNext, btnForgotPass, btnFinish, btnClosure;
+    private Button btnNext, btnForgotPass, btnFinish;
     private EditText etUsername, etPassword;
     private EditText etEmailS, etPassS, etPassS2;
     private DatabaseReference mDatabase;
@@ -67,14 +67,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         etUsername = view.findViewById(R.id.etUser);
         etPassword = view.findViewById(R.id.etPassword);
         btnForgotPass = view.findViewById(R.id.btnForgotPass);
-        //btnClosure = view.findViewById(R.id.btnClosure);
 
         mDatabase = FirebaseDatabase.getInstance().getReference("users");
         presenter = new LoginUserPresenter(this);
 
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
-     //   btnClosure.setOnClickListener(this);
 
 
 
@@ -173,11 +171,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         Dialog dialog  = new Dialog(getContext());
         dialog.setTitle("שחזור סיסמה");
         dialog.setContentView(R.layout.pass_dialog);
+
         btnFinish = dialog.findViewById(R.id.btnFinish);
         etEmailS = dialog.findViewById(R.id.etEmailS);
         etPassS = dialog.findViewById(R.id.etPassS);
         etPassS2 = dialog.findViewById(R.id.etPassS2);
-        dialog.show();
+
+
         btnFinish.setOnClickListener(v -> {
             String emailSend = etEmailS.getText().toString();
             String emailSubject = "שינוי סיסמה";
@@ -213,6 +213,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                 dialog.dismiss();
             }
         });
+        dialog.show();
 
     }
 

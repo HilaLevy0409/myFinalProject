@@ -30,7 +30,6 @@ import com.example.myfinalproject.CallBacks.UsersCallback;
 
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
-import com.example.myfinalproject.UserProfileFragment.UserAdapter;
 import com.example.myfinalproject.UserProfileFragment.UserProfilePresenter;
 
 import java.io.ByteArrayOutputStream;
@@ -356,11 +355,7 @@ public class ChooseUserFragment extends Fragment {
     }
 
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    private String mParam1;
-    private String mParam2;
 
     public ChooseUserFragment() {
         // Required empty public constructor
@@ -370,8 +365,7 @@ public class ChooseUserFragment extends Fragment {
     public static ChooseUserFragment newInstance(String param1, String param2) {
         ChooseUserFragment fragment = new ChooseUserFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }

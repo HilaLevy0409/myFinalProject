@@ -23,7 +23,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="הסיכום שעליו מדווחים..."
+        android:text="פרטי הסיכום / המשתמש המדווח "
         android:layout_marginTop="30dp"
         android:padding="10dp"
         android:textSize="20sp" />
@@ -31,7 +31,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="הסיכום המדווח"
+        android:hint="הסיכום / המשתמש המדווח"
         android:layout_marginTop="30dp"
         android:padding="10dp"
         android:textSize="20sp" />
@@ -41,13 +41,13 @@
         android:id="@+id/etReport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="סיבת הדיווח..."
-        android:textSize="20sp"
-        android:padding="15dp"
-        android:background="@android:color/transparent"
-        android:inputType="textMultiLine"
-        android:minLines="5"
-        android:layout_marginTop="50dp"/>
+        android:hint="סיבת הדיווח"
+        android:background="@android:drawable/edit_text"
+        android:padding="12dp"
+        android:minHeight="100dp"
+        android:gravity="top"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="16dp"/>
 
     <Button
         android:id="@+id/btnSendReport"

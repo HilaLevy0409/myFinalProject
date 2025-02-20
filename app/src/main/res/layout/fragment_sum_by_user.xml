@@ -8,12 +8,12 @@
     android:padding="24dp"
     android:gravity="center_horizontal"
     android:background="@color/white"
-    tools:context=".SumByMeFragment.SumByMeFragment">
+    tools:context=".SumByUserFragment.SumByUserFragment">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="סיכומים שכתבתי "
+        android:text="סיכומים"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"

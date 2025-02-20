@@ -1,4 +1,4 @@
-package com.example.myfinalproject.UserProfileFragment;
+package com.example.myfinalproject.ChooseUserFragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -40,9 +40,9 @@ public class UserAdapter extends ArrayAdapter<User> {
             holder = new ViewHolder();
             holder.imgUserProfile = convertView.findViewById(R.id.imgUserProfile);
             holder.tvUserName = convertView.findViewById(R.id.tvUserName);
-            holder.tvUserEmail = convertView.findViewById(R.id.tvUserEmail);
-            holder.tvUserPhone = convertView.findViewById(R.id.tvUserPhone);
-            holder.tvUserBirthDate = convertView.findViewById(R.id.tvUserBirthDate);
+            holder.tvSumNumTitle = convertView.findViewById(R.id.tvSumNumTitle);
+
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -51,9 +51,8 @@ public class UserAdapter extends ArrayAdapter<User> {
         User user = users.get(position);
 
         holder.tvUserName.setText(user.getUserName());
-        holder.tvUserEmail.setText(user.getUserEmail());
-        holder.tvUserPhone.setText(user.getPhone());
-        holder.tvUserBirthDate.setText(user.getUserBirthDate());
+        holder.tvSumNumTitle.setText(user.getSumCount());
+
 
         if (user.getImageProfile() != null) {
             try {
@@ -74,7 +73,7 @@ public class UserAdapter extends ArrayAdapter<User> {
 
     private static class ViewHolder {
         ImageView imgUserProfile;
-        TextView tvUserName, tvUserEmail, tvUserPhone, tvUserBirthDate ;
+        TextView tvUserName, tvSumNumTitle;
 
     }
 

@@ -399,6 +399,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
                 (view, year1, month1, dayOfMonth) -> {
                     String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+
+                    btnDialogBirthday.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
+
                 },
                 year, month, day
         );

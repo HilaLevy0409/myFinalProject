@@ -1,4 +1,4 @@
-package com.example.myfinalproject.SumByMeFragment;
+package com.example.myfinalproject.SumByUserFragment;
 
 import android.os.Bundle;
 
@@ -7,15 +7,17 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.myfinalproject.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link SumByMeFragment#newInstance} factory method to
+ * Use the {@link SumByUserFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SumByMeFragment extends Fragment {
+public class SumByUserFragment extends Fragment {
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +28,7 @@ public class SumByMeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public SumByMeFragment() {
+    public SumByUserFragment() {
         // Required empty public constructor
     }
 
@@ -39,8 +41,8 @@ public class SumByMeFragment extends Fragment {
      * @return A new instance of fragment SumByMeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SumByMeFragment newInstance(String param1, String param2) {
-        SumByMeFragment fragment = new SumByMeFragment();
+    public static SumByUserFragment newInstance(String param1, String param2) {
+        SumByUserFragment fragment = new SumByUserFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,6 +63,6 @@ public class SumByMeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sum_by_me, container, false);
+        return inflater.inflate(R.layout.fragment_sum_by_user, container, false);
     }
 }

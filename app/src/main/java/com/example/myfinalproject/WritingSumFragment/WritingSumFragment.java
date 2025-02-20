@@ -44,7 +44,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     final int REQUEST_CODE_GALLERY = 999;
 
 
-    private Button btnUploadPhoto, btnSubmit, btnTips, btnClosure;
+    private Button btnUploadPhoto, btnSubmit, btnTips;
     private SummaryPresenter summaryPresenter;
     private EditText etClass, etProfession, etSummaryTitle, etSummaryContent;
     private ImageView imageViewSummary;
@@ -94,7 +94,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         etProfession = view.findViewById(R.id.etProfession);
         etSummaryTitle = view.findViewById(R.id.etSummaryTitle);
         etSummaryContent = view.findViewById(R.id.etSummaryContent);
-        btnClosure = view.findViewById(R.id.btnClosure);
 
         summaryPresenter = new SummaryPresenter(this);
 
@@ -103,7 +102,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnSubmit.setOnClickListener(this);
         btnUploadPhoto.setOnClickListener(this);
         btnTips.setOnClickListener(this);
-//        btnClosure.setOnClickListener(this);
     }
     public void onSummaryDeleted() {
 
@@ -549,13 +547,12 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 //
 
     private void createCustomDialog() {
-        Dialog dialog  = new Dialog(getContext());
+        Dialog dialog = new Dialog(getContext());
         dialog.setTitle("טיפים לכתיבת סיכום");
         dialog.setContentView(R.layout.tips);
         dialog.show();
-
-
     }
+
 
 
 }

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,12 +31,8 @@ import android.widget.Toast;
 
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.Models.User;
-import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
 import com.example.myfinalproject.R;
-import com.example.myfinalproject.RegistrationFragment.RegisterUserPresenter;
-import com.example.myfinalproject.SumByMeFragment.SumByMeFragment;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -165,7 +160,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         if (view == btnShowSums) {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new SumByMeFragment())
+                    .replace(R.id.flFragment, new SumByUserFragment())
                     .commit();
         } else if (view == btnDeleteUser) {
             presenter.deleteUser();
@@ -393,6 +388,9 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
                 (view, year1, month1, dayOfMonth) -> {
                     String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+
+                    btnBirthDate.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
+
                 },
                 year, month, day
         );
