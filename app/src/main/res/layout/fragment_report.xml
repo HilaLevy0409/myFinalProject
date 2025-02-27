@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:hint="הסיכום / המשתמש המדווח"
         android:layout_marginTop="30dp"
+        android:id="@+id/userName"
         android:padding="10dp"
         android:textSize="20sp" />
 

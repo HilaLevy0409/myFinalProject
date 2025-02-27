@@ -1,5 +1,6 @@
 package com.example.myfinalproject.ChooseUserFragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.myfinalproject.CallBacks.OnUserClickListener;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
 
@@ -23,13 +26,16 @@ import java.util.List;
 public class UserAdapter extends ArrayAdapter<User> {
     private Context context;
     private List<User> users;
+    OnUserClickListener onClickedReport;
 
-    public UserAdapter(Context context, List<User> users) {
+    public UserAdapter(Context context, List<User> users, OnUserClickListener onClickedReport) {
         super(context,  R.layout.onerow_user, users);
         this.context = context;
         this.users = users;
+        this.onClickedReport = onClickedReport;
     }
 
+    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -41,6 +47,13 @@ public class UserAdapter extends ArrayAdapter<User> {
             holder.imgUserProfile = convertView.findViewById(R.id.imgUserProfile);
             holder.tvUserName = convertView.findViewById(R.id.tvUserName);
             holder.tvSumNumTitle = convertView.findViewById(R.id.tvSumNumTitle);
+            holder.btnReport = convertView.findViewById(R.id.btnReport);
+            holder.btnReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickedReport.onUserClick(position);
+                }
+            });
 
 
             convertView.setTag(holder);
@@ -51,8 +64,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         User user = users.get(position);
 
         holder.tvUserName.setText(user.getUserName());
-        holder.tvSumNumTitle.setText(user.getSumCount());
-
+        holder.tvSumNumTitle.setText("מספר סיכומים שנכתבו: " + (user.getSumCount() > 0 ? user.getSumCount() : "0"));
 
         if (user.getImageProfile() != null) {
             try {
@@ -74,6 +86,7 @@ public class UserAdapter extends ArrayAdapter<User> {
     private static class ViewHolder {
         ImageView imgUserProfile;
         TextView tvUserName, tvSumNumTitle;
+        Button btnReport;
 
     }
 

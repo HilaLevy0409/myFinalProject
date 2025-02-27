@@ -3,7 +3,10 @@ package com.example.myfinalproject.Database;
 import android.util.Log;
 
 import com.example.myfinalproject.CallBacks.AddUserCallback;
+import com.example.myfinalproject.CallBacks.SummariesCallback;
 import com.example.myfinalproject.CallBacks.UserCallback;
+import com.example.myfinalproject.CallBacks.UsersCallback;
+import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.Models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -15,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,7 +73,7 @@ public class UserDatabase {
                             callback.onError("שגיאה בטעינת נתוני משתמש");
                         }
                     } else {
-                        callback.onError("משתמש לא נמצא");
+                        callback.onError("לא נמצא משתמש");
                     }
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
@@ -77,22 +81,22 @@ public class UserDatabase {
 
 
     public void getUser(final String username, final UserCallback callback) {
-        // Query the 'users' collection for a document where the 'username' field matches
+
         Query userQuery = database.collection("users").whereEqualTo("userName", username);
 
         userQuery.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        // Assuming there is only one document with this username
+
                         DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null) {
-                            callback.onUserReceived(user); // Callback with user data
+                            callback.onUserReceived(user);
                         } else {
                             callback.onError("User data is invalid.");
                         }
                     } else {
-                        callback.onError("User not found.");
+                        callback.onError("לא נמצא משתמש");
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -134,6 +138,22 @@ public class UserDatabase {
                 .delete()
                .addOnSuccessListener(aVoid -> callback.onUserReceived(null))
                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+    public void getAllUsers(UsersCallback callback) {
+        database.collection("users")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    ArrayList<User> users = new ArrayList<>();
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        User user = document.toObject(User.class);
+                        if (user != null) {
+                            user.setId(document.getId());
+                            users.add(user);
+                        }
+                    }
+                    callback.onSuccess(users);
+                })
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 //
 //

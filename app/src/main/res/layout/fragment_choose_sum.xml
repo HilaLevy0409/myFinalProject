@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-
     android:padding="16dp"
     tools:context="ChooseSumFragment.ChooseSumFragment">
 
@@ -17,7 +16,6 @@
         android:padding="8dp">
 
         <TextView
-            android:id="@+id/choose_sum_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

@@ -50,7 +50,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
     final int REQUEST_CODE_GALLERY = 999;
-
+    private User currentUser;
 
 //    private StorageReference mStorage;
     private static final int REQUEST_IMAGE_CAPTURE = 101;
@@ -83,6 +83,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         initializeViews(view);
         // Initialize presenter
         presenter = new UserProfilePresenter(this);
+        // Load user data from Firestore using the stored userId
         presenter.loadUserData();
 
 //        mStorage = FirebaseStorage.getInstance().getReference("ProfileImages");
@@ -120,6 +121,73 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
 
     }
 
+    private void createCustomDialog() {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setTitle("עריכת פרטים");
+        dialog.setContentView(R.layout.edit_user_profile);
+
+        // Get references from the custom dialog layout.
+        EditText etEditEmail = dialog.findViewById(R.id.etEmail);
+        EditText etEditPhone = dialog.findViewById(R.id.etPhoneNumber);
+        EditText etEditUsername = dialog.findViewById(R.id.etUsername);
+        Button btnFinishDialog = dialog.findViewById(R.id.btnFinish);
+        btnBirthDate = dialog.findViewById(R.id.btnBirthDate);
+
+        // Pre-populate fields with current user data if available.
+        if (currentUser != null) {
+            etEditEmail.setText(currentUser.getUserEmail());
+            etEditPhone.setText(currentUser.getPhone());
+            etEditUsername.setText(currentUser.getUserName());
+            // Optionally pre-populate a birth date field if you have one.
+            // etEditBirthDate.setText(currentUser.getBirthDate());
+        }
+
+        // Set a click listener on the birth date button (if needed).
+        btnBirthDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialog(); // This opens the DatePickerDialog.
+            }
+        });
+
+        // When the finish button is clicked, update the user.
+        btnFinishDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newEmail = etEditEmail.getText().toString().trim();
+                String newPhone = etEditPhone.getText().toString().trim();
+                String newUsername = etEditUsername.getText().toString().trim();
+
+                if(newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty()){
+                    showError("יש למלא את כל השדות!");
+                    return;
+                }
+
+                // Create a new User object with the updated fields.
+                User updatedUser = new User();
+                // Preserve the current user ID.
+                updatedUser.setId(currentUser != null ? currentUser.getId() : "");
+                updatedUser.setUserEmail(newEmail);
+                updatedUser.setPhone(newPhone);
+                updatedUser.setUserName(newUsername);
+
+                // Optionally preserve other fields from the current user.
+                if (currentUser != null) {
+                    updatedUser.setBadPoints(currentUser.getBadPoints());
+                    updatedUser.setSumCount(currentUser.getSumCount());
+                    // If you have a birth date field, update it here as well.
+                }
+
+                // Call the presenter to submit the update.
+                presenter.submitClicked(updatedUser);
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+
 //    private void saveUserData() {
 //        String newEmail = etEmail.getText().toString().trim();
 //        String newPhone = etPhoneNumber.getText().toString().trim();
@@ -147,14 +215,16 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
 //        showError(errorMessage);
 //    }
 
+
     public void displayUserData(User user) {
+        // Cache the current user so we can pre-populate the edit dialog.
+        this.currentUser = user;
         tvEmail.setText("אימייל: " + user.getUserEmail());
         tvPhoneNumber.setText("מספר טלפון: " + user.getPhone());
         tvUsername.setText("שם משתמש: " + user.getUserName());
         tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
         tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
     }
-
     @Override
     public void onClick(View view) {
         if (view == btnShowSums) {
@@ -168,45 +238,11 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
             presenter.logOut();
         } else if (view == btnEdit) {
             createCustomDialog();
-        }else if (view == btnBirthDate) {
+        } else if (view == btnBirthDate) {
             openDialog();
-        }else if (view == btnUploadPhoto) {
+        } else if (view == btnUploadPhoto) {
             showPictureDialog();
         }
-
-
-//        saveUserDataChange(imageUri != null ? imageUri.toString() : "");
-//
-//    }
-//
-//    private void uploadImage() {
-//        if (imageUri != null) {
-//            StorageReference fileRef = mStorage.child(System.currentTimeMillis() + ".jpg");
-//            fileRef.putFile(imageUri)
-//                    .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl()
-//                            .addOnSuccessListener(uri -> {
-//                                String imageUrl = uri.toString();
-//                                saveUserDataChange(imageUrl);  // Save image URL and other user data
-//                            })
-//                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to get image URL", Toast.LENGTH_SHORT).show()))
-//                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show());
-//        } else {
-//            Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-//    private void saveUserDataChange(String imageUrl) {
-//        String email = etEmail.getText().toString();
-//        String phone = etPhoneNumber.getText().toString();
-//        String username = etUsername.getText().toString();
-//        Image image = imageViewProfile.getImage();
-//        User userChange = new User(username, image, email, phone);
-//        submitClicked(userChange);
-
-
-//        mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(user)
-//                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show())
-//                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save user data", Toast.LENGTH_SHORT).show());
     }
     public void submitClicked(User userChange) {
         presenter.submitClicked(userChange);
@@ -347,37 +383,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         onLogOutSuccess();
     }
 
-    private void createCustomDialog() {
-        Dialog dialog  = new Dialog(getContext());
-        dialog.setTitle("עריכת פרטים");
-        dialog.setContentView(R.layout.edit_user_profile);
-        dialog.show();
 
-        btnBirthDate = dialog.findViewById(R.id.btnBirthDate);
-        btnBirthDate.setOnClickListener(this);
-
-//        EditText etEditEmail = dialog.findViewById(R.id.etEmail);
-//        EditText etEditPhone = dialog.findViewById(R.id.etPhoneNumber);
-//        EditText etEditUsername = dialog.findViewById(R.id.etUsername);
-//        Button btnFinish = dialog.findViewById(R.id.btnFinish);
-//
-//        btnFinish.setOnClickListener(v -> {
-//            String newEmail = etEditEmail.getText().toString().trim();
-//            String newPhone = etEditPhone.getText().toString().trim();
-//            String newUsername = etEditUsername.getText().toString().trim();
-//
-//            // קבלת ה-ID של המשתמש המחובר
-//            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs",getContext().MODE_PRIVATE);
-//            String userId = sharedPreferences.getString("userId", "");
-//
-//            if (!userId.isEmpty()) {
-//                presenter.updateUserDetails(userId, newEmail, newPhone, newUsername);
-//                dialog.dismiss();
-//            } else {
-//                showError("שגיאה: משתמש לא מזוהה");
-//            }
-//        });
-    }
 
     public void openDialog() {
         final Calendar calendar = Calendar.getInstance();

@@ -63,10 +63,20 @@
             android:textSize="20sp"
             android:text="ציון ממוצע לסיכום:  " />
 
+
         <RatingBar
-            android:id="@+id/ratingBar"
+            android:id="@+id/ratingBarSum"
             android:layout_width="wrap_content"
-            android:layout_height="46dp" />
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btnSaveSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="⭐ "
+            android:backgroundTint="@color/orange"/>
+
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

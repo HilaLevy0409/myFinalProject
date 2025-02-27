@@ -28,6 +28,14 @@
             android:textStyle="bold"
             android:textSize="26sp"/>
 
+        <Button
+        android:id="@+id/btnSaveSummary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="⭐ "
+        android:backgroundTint="@color/orange"/>
+
         <ImageView
             android:id="@+id/sumImage"
             android:layout_width="100dp"
@@ -80,7 +88,7 @@
             android:id="@+id/tvSummaryTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="נושא הסיכום"
+            android:text="נושא"
             android:textSize="18sp"
             android:textColor="@color/black"
             android:textStyle="bold"
@@ -92,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="נושא סיכום"
+            android:hint="נושא"
             android:textSize="15sp"
             android:inputType="text"
             android:gravity="start"/>

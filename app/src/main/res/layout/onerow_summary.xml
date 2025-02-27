@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,9 +9,8 @@
 
     <ImageView
         android:id="@+id/imageSum"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         tools:src="@tools:sample/avatars" />
 
     <LinearLayout
@@ -54,7 +52,7 @@
             android:id="@+id/tvProfession"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text=""
+            tools:text=" "
             android:textSize="18sp"
             android:layout_marginBottom="12dp"/>
 
@@ -72,8 +70,18 @@
             android:id="@+id/tvSummaryTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text=""
+            tools:text=" "
             android:textSize="18sp"/>
 
+        <!-- Make the RatingBar take up available space and ensure proper alignment -->
+        <RatingBar
+            android:id="@+id/ratingBarSum"
+            android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+            android:isIndicator="true"
+        android:layout_marginTop="12dp" />
+
     </LinearLayout>
+
 </LinearLayout>

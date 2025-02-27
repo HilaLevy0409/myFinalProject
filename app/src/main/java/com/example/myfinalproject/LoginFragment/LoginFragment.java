@@ -24,6 +24,7 @@ import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.Utils.Validator;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -168,53 +169,32 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
 
     private void createCustomDialog() {
-        Dialog dialog  = new Dialog(getContext());
+        Dialog dialog = new Dialog(getContext());
         dialog.setTitle("שחזור סיסמה");
         dialog.setContentView(R.layout.pass_dialog);
 
-        btnFinish = dialog.findViewById(R.id.btnFinish);
-        etEmailS = dialog.findViewById(R.id.etEmailS);
-        etPassS = dialog.findViewById(R.id.etPassS);
-        etPassS2 = dialog.findViewById(R.id.etPassS2);
 
+        etEmailS = dialog.findViewById(R.id.etEmailS);
+        btnFinish = dialog.findViewById(R.id.btnFinish);
 
         btnFinish.setOnClickListener(v -> {
-            String emailSend = etEmailS.getText().toString();
-            String emailSubject = "שינוי סיסמה";
-            String newPassW = etPassS.getText().toString();
-            String emailBody ="הסיסמה שונתה\nהסיסמה החדשה היא: \n" + newPassW;
-
-            String password = etPassS.getText().toString().trim();
-            String validPassword = Validator.isValidPassword(password);
+            String emailSend = etEmailS.getText().toString().trim();
             String validEmail = Validator.isValidEmail(emailSend);
-            if(!validEmail.isEmpty()){
+            if (!validEmail.isEmpty()){
                 Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            if (!validPassword.isEmpty()) {
-                Toast.makeText(getContext(), validPassword, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if(!(etPassS.getText().toString().equals(etPassS2.getText().toString()))){
-                Toast.makeText(getContext(), "הסיסמאות לא תואמות", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            else {
-
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailSend});
-                intent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);
-                intent.putExtra(Intent.EXTRA_TEXT, emailBody);
-                intent.setType("message/rfc822");
-
-                startActivity(Intent.createChooser(intent, "Choose an Email client :"));
-                dialog.dismiss();
-            }
+            FirebaseAuth.getInstance().sendPasswordResetEmail(emailSend)
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
         dialog.show();
-
     }
 
     @Override

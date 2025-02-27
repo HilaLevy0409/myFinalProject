@@ -228,7 +228,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
         new AlertDialog.Builder(getContext())
                 .setTitle("מחיקת סיכום")
-                .setMessage("האם אתה בטוח שברצונך למחוק סיכום זה?")
+                .setMessage("האם שברצונך למחוק סיכום זה?")
                 .setPositiveButton("כן", (dialog, which) ->
                         chooseSumPresenter.deleteSummary(summary.getSummaryId()))
                 .setNegativeButton("לא", null)

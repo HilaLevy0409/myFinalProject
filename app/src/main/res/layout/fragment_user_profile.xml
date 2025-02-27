@@ -12,26 +12,43 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnEdit"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="עריכה"
-            android:backgroundTint="@color/orange"
-            android:textStyle="bold"
-            android:textSize="15sp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
 
-        <Button
-            android:id="@+id/btnSendMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✉️"
-            android:backgroundTint="@color/orange"
-           />
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="עריכה"
+                android:backgroundTint="@color/orange"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnSaveSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="⭐"
+                android:backgroundTint="@color/orange" />
+
+            <Button
+                android:id="@+id/btnSendMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="✉️"
+                android:backgroundTint="@color/orange" />
+        </LinearLayout>
+
 
 
         <TextView
-            android:id="@+id/tvProfileTitle"
             android:layout_width="wrap_content"
             android:textColor="?android:attr/textColorPrimary"
             android:layout_height="wrap_content"

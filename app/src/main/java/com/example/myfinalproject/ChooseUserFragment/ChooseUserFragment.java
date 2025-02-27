@@ -26,10 +26,13 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
+import com.example.myfinalproject.CallBacks.OnUserClickListener;
 import com.example.myfinalproject.CallBacks.UsersCallback;
 
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.ReportFragment.ReportFragment;
 import com.example.myfinalproject.UserProfileFragment.UserProfilePresenter;
 
 import java.io.ByteArrayOutputStream;
@@ -40,6 +43,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 
 public class ChooseUserFragment extends Fragment {
@@ -54,14 +58,14 @@ public class ChooseUserFragment extends Fragment {
     private ListView listViewUsers;
     private UserAdapter userAdapter;
     private ArrayList<User> userList;
-    private UserProfilePresenter userProfilePresenter;
+    private ChooseUserPresenter presenter;
     private SearchView searchView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userList = new ArrayList<>();
-//        UserProfilePresenter = new UserProfilePresenter(this);
+        presenter = new ChooseUserPresenter(this);
         requestPermissions();
     }
 
@@ -92,7 +96,21 @@ public class ChooseUserFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView);
         imgUserProfile = new ImageView(getContext());
 
-        userAdapter = new UserAdapter(getContext(), userList);
+        userAdapter = new UserAdapter(getContext(), userList, new OnUserClickListener() {
+            @Override
+            public void onUserClick(int position) {
+                Bundle bundle = new Bundle();
+                bundle.putString("userName", userList.get(position).getUserName());
+
+                ReportFragment reportFragment = new ReportFragment();
+                reportFragment.setArguments(bundle);
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, reportFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
         listViewUsers.setAdapter(userAdapter);
     }
 
@@ -121,7 +139,7 @@ public class ChooseUserFragment extends Fragment {
 
 
     private void loadUsers() {
-        userProfilePresenter.loadUsers(new UsersCallback() {
+        presenter.loadUsers(new UsersCallback() {
             @Override
             public void onSuccess(List<User> users) {
                 if (getActivity() == null) return;

@@ -19,20 +19,20 @@ public class ChooseUserPresenter {
         this.userDatabase = new UserDatabase();
     }
 
-//    public void loadUsers(UsersCallback callback) {
-//        userDatabase.getAllUsers(new UsersCallback() {
-//
-//            @Override
-//            public void onSuccess(List<User> users) {
-//                callback.onSuccess(users);
-//            }
-//
-//            @Override
-//            public void onError(String message) {
-//                callback.onError(message);
-//            }
-//        });
-//    }
+    public void loadUsers(UsersCallback callback) {
+        userDatabase.getAllUsers(new UsersCallback() {
+
+           @Override
+          public void onSuccess(List<User> users) {
+                callback.onSuccess(users);
+            }
+
+            @Override
+            public void onError(String message) {
+                 callback.onError(message);
+            }
+      });
+    }
 
 //    public void updateUser(User user) {
 //        userDatabase.updateUser(user, new UserCallback() {
