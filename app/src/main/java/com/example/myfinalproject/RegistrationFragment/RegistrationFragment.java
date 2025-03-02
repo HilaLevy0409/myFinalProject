@@ -58,8 +58,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
     private StorageReference mStorage;
 
-    private Button btnUploadPhoto, btnN, btnDialogBirthday;
-    private EditText etEmail, etUser, etPassword, etPassword2, etPhone;
+    private Button btnUploadPhoto, btnN;
+    private EditText etEmail, etUser, etPassword, etPassword2, etPhone, etDialogBirthday;
     private Uri imageUri;
     private RegisterUserPresenter presenter;
 
@@ -95,12 +95,11 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         presenter = new RegisterUserPresenter(this);
         btnN = view.findViewById(R.id.btnN);
         btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
-        btnDialogBirthday = view.findViewById(R.id.btnDialogBirthday);
+        etDialogBirthday = view.findViewById(R.id.etDialogBirthday);
 
         imageViewProfile = view.findViewById(R.id.imageViewProfile);
 
         btnUploadPhoto.setOnClickListener(this);
-        btnDialogBirthday.setOnClickListener(this);
         btnN.setOnClickListener(this);
 
         etEmail = view.findViewById(R.id.etEmail);
@@ -113,6 +112,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //        userReference = user.getReference();
 //        requestCameraPermission();
 //        requestStoragePermission();
+
+        etDialogBirthday.setOnClickListener(v -> openDialog());
+
 
     }
 
@@ -127,12 +129,25 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             String password2 = etPassword2.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
+            String birthDate =  etDialogBirthday.getText().toString();
+
+//        Uri imageUri = (Uri) imageViewProfile.getTag();
+//        String imageProfile = imageUri.toString();
+//
+//        BitmapDrawable drawable = (BitmapDrawable) imageViewProfile.getDrawable();
+//        Bitmap bitmap = drawable.getBitmap();
+//
+//        String imageViewProfile = imageUri != null ? imageUri.toString() : "";
 
 
 
             String validPassword = Validator.isValidPassword(password);
             String validEmail = Validator.isValidEmail(email);
             String validUsername = Validator.isValidUsername(username);
+            String validPhone = Validator.isValidPhone(phone);
+            String validBirthDate = Validator.isValidBirthDate(birthDate);
+
+
             if(!validEmail.isEmpty()){
                 Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
                 return;
@@ -153,6 +168,16 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 return;
             }
 
+            if(!validPhone.isEmpty()){
+                Toast.makeText(getContext(), validPhone, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(!validBirthDate.isEmpty()){
+                Toast.makeText(getContext(), validBirthDate, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
 
             saveUserData(imageUri != null ? imageUri.toString() : "");
 
@@ -161,7 +186,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                     .replace(R.id.flFragment, new ChooseClassFragment.ChooseClassFragment())
                     .commit();
         }
-        if (v == btnDialogBirthday) {
+        if (v == etDialogBirthday) {
             openDialog();
         }
 
@@ -378,6 +403,17 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         String username = etUser.getText().toString();
         String password = etPassword.getText().toString();
         String phone = etPhone.getText().toString();
+        String birthDate =  etDialogBirthday.getText().toString();
+
+//        Uri imageUri = (Uri) imageViewProfile.getTag();
+//        String imageProfile = imageUri.toString();
+//
+//        BitmapDrawable drawable = (BitmapDrawable) imageViewProfile.getDrawable();
+//        Bitmap bitmap = drawable.getBitmap();
+//
+//        String imageViewProfile = imageUri != null ? imageUri.toString() : "";
+
+
         User user = new User(username, password, email, phone);
         submitClicked(user);
 
@@ -400,14 +436,14 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 (view, year1, month1, dayOfMonth) -> {
                     String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
 
-                    btnDialogBirthday.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
+                    etDialogBirthday.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
 
                 },
                 year, month, day
         );
 
-        btnDialogBirthday.setOnClickListener(new View.OnClickListener() {
-            @Override
+        etDialogBirthday.setOnClickListener(new View.OnClickListener() {
+           @Override
             public void onClick(View v) {
                 datePickerDialog.show();
             }

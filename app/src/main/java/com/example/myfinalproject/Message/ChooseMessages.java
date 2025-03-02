@@ -10,9 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myfinalproject.R;
 
-public class ChooseMessages extends AppCompatActivity implements View.OnClickListener {
+public class ChooseMessages extends AppCompatActivity {
 
-   Button btnReviews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,21 +19,10 @@ public class ChooseMessages extends AppCompatActivity implements View.OnClickLis
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_choose_messages);
 
-   //     btnReviews = findViewById(R.id.btnReviews);
-     //   btnReviews.setOnClickListener(this);
+
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view == btnReviews){
-            createCustomDialog();
-        }
-    }
 
-    private void createCustomDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.setTitle("ביקורות");
-  //      dialog.setContentView(R.layout.reviews_about_sum);
-        dialog.show();
-    }
+
+
 }

@@ -73,7 +73,6 @@
             tools:text=" "
             android:textSize="18sp"/>
 
-        <!-- Make the RatingBar take up available space and ensure proper alignment -->
         <RatingBar
             android:id="@+id/ratingBarSum"
             android:layout_width="match_parent"

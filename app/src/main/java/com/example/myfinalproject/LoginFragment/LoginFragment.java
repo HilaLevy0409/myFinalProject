@@ -42,7 +42,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
     private Button btnNext, btnForgotPass, btnFinish;
     private EditText etUsername, etPassword;
-    private EditText etEmailS, etPassS, etPassS2;
+    private EditText etEmailS;
     private DatabaseReference mDatabase;
     private LoginUserPresenter presenter;
 
@@ -199,7 +199,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
     @Override
     public void showLoginSuccess(User user) {
-        Toast.makeText(getContext(), "logged in", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "התחברת בהצלחה!", Toast.LENGTH_SHORT).show();
         saveUserToLocalStorage(user);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()

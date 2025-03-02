@@ -166,7 +166,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("ניהול סיכום");
-        String[] options = {"עריכה", "מחיקה", "ביטול"};
+        String[] options = {"עריכה, מעבר לסיכום", "מחיקה", "ביטול"};
 
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
@@ -179,6 +179,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 case 2:
                     dialog.dismiss();
                     break;
+
             }
         });
         builder.show();
@@ -234,6 +235,8 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 .setNegativeButton("לא", null)
                 .show();
     }
+
+
 
     private void showPictureDialog() {
         if (getContext() == null) return;

@@ -30,8 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfinalproject.LoginFragment.LoginFragment;
+import com.example.myfinalproject.Message.ChooseMessages;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.SaveSummaryFragment;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import java.io.ByteArrayOutputStream;
@@ -42,7 +44,7 @@ import java.util.Calendar;
 
 public class UserProfileFragment extends Fragment implements View.OnClickListener {
     private TextView tvEmail, tvPhoneNumber, tvBirthDate, tvUsername, tvBadPoints, tvSumNum;
-    private Button btnShowSums, btnDeleteUser, btnLogOut, btnEdit, btnBirthDate, btnFinish, btnUploadPhoto;
+    private Button btnShowSums, btnDeleteUser, btnLogOut, btnEdit, btnFinish, btnUploadPhoto, btnSaveSummary, btnSendMessage;
     private ImageView imageView, imageViewProfile;
     private UserProfilePresenter presenter;
     private EditText etEmail, etPhoneNumber, etUsername, etBirthDate;
@@ -110,7 +112,9 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         imageViewProfile = view.findViewById(R.id.imageViewProfile);
         btnFinish = view.findViewById(R.id.btnFinish);
 
-
+        btnSendMessage = view.findViewById(R.id.btnSendMessage);
+        btnSaveSummary = view.findViewById(R.id.btnSaveSummary);
+//        btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
 
         btnShowSums.setOnClickListener(this);
         btnDeleteUser.setOnClickListener(this);
@@ -118,6 +122,10 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         btnEdit.setOnClickListener(this);
 
 //        btnFinish.setOnClickListener(v -> saveUserData());
+
+//        btnUploadPhoto.setOnClickListener(this);
+        btnSaveSummary.setOnClickListener(this);
+        btnSendMessage.setOnClickListener(this);
 
     }
 
@@ -131,7 +139,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         EditText etEditPhone = dialog.findViewById(R.id.etPhoneNumber);
         EditText etEditUsername = dialog.findViewById(R.id.etUsername);
         Button btnFinishDialog = dialog.findViewById(R.id.btnFinish);
-        btnBirthDate = dialog.findViewById(R.id.btnBirthDate);
+        etBirthDate = dialog.findViewById(R.id.etBirthDate);
 
         // Pre-populate fields with current user data if available.
         if (currentUser != null) {
@@ -143,11 +151,15 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         }
 
         // Set a click listener on the birth date button (if needed).
-        btnBirthDate.setOnClickListener(new View.OnClickListener() {
+        etBirthDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 openDialog(); // This opens the DatePickerDialog.
             }
+
+
+
         });
 
         // When the finish button is clicked, update the user.
@@ -157,8 +169,10 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
                 String newEmail = etEditEmail.getText().toString().trim();
                 String newPhone = etEditPhone.getText().toString().trim();
                 String newUsername = etEditUsername.getText().toString().trim();
+                String newBirthDate = etBirthDate.getText().toString();
+//                String imageViewProfile = imageViewProfile.
 
-                if(newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty()){
+                if(newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty() || newBirthDate.isEmpty()) {
                     showError("יש למלא את כל השדות!");
                     return;
                 }
@@ -221,6 +235,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         this.currentUser = user;
         tvEmail.setText("אימייל: " + user.getUserEmail());
         tvPhoneNumber.setText("מספר טלפון: " + user.getPhone());
+        tvBirthDate.setText("תאריך לידה: " + user.getUserBirthDate());
         tvUsername.setText("שם משתמש: " + user.getUserName());
         tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
         tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
@@ -238,10 +253,18 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
             presenter.logOut();
         } else if (view == btnEdit) {
             createCustomDialog();
-        } else if (view == btnBirthDate) {
+        } else if (view == etBirthDate) {
             openDialog();
         } else if (view == btnUploadPhoto) {
             showPictureDialog();
+        } else if (view == btnSaveSummary) {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new SaveSummaryFragment())
+                    .commit();
+        } else if (view == btnSendMessage) {
+            Intent intent = new Intent(getContext(), ChooseMessages.class);
+            startActivity(intent);
         }
     }
     public void submitClicked(User userChange) {
@@ -395,7 +418,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
                 (view, year1, month1, dayOfMonth) -> {
                     String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
 
-                    btnBirthDate.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
+                    etBirthDate.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
 
                 },
                 year, month, day

@@ -12,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
@@ -26,8 +28,9 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     private String mParam2;
 
     private int badPoints = 0;
-    private TextView tvBadPoints;
+    private TextView tvBadPoints, tvEmail, tvPhone, tvBirthDate, tvSumNum, tvUsername;
     private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage;
+    private User currentUser;
 
 
     public ManageUserFragment() {
@@ -61,6 +64,14 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
+        tvEmail = view.findViewById(R.id.tvEmail);
+        tvPhone = view.findViewById(R.id.tvPhone);
+        tvBirthDate = view.findViewById(R.id.tvBirthDate);
+        tvSumNum = view.findViewById(R.id.tvSumNum);
+        tvUsername = view.findViewById(R.id.tvUsername);
+
+
+
         btnShowSums = view.findViewById(R.id.btnShowSums);
 
         btnAddPoint = view.findViewById(R.id.btnAddPoint);
@@ -105,4 +116,14 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         tvBadPoints.setText("נקודות לרעה: " + badPoints);
     }
 
+
+    public void displayUserData(User user) {
+        this.currentUser = user;
+        tvEmail.setText("אימייל: " + user.getUserEmail());
+        tvPhone.setText("מספר טלפון: " + user.getPhone());
+        tvBirthDate.setText("תאריך לידה: " + user.getUserBirthDate());
+        tvUsername.setText("שם משתמש: " + user.getUserName());
+        tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
+        tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
+    }
 }
