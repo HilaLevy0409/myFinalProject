@@ -19,12 +19,10 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
     private EditText etAdmin, etPasswordA;
 
     public AdminLoginFragment() {
-        // Required empty public constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_admin_login, container, false);
     }
 
@@ -40,19 +38,19 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == btnContinue) {
-            String username = etAdmin.getText().toString().trim();
+            String name = etAdmin.getText().toString().trim();
             String password = etPasswordA.getText().toString().trim();
 
 
-            if (username.equals("admin") && password.equals("Admin123!")) {
-                Toast.makeText(getContext(), "התחברת בהצלחה", Toast.LENGTH_SHORT).show();
+            if (name.equals("admin") && password.equals("Admin")) {
+                Toast.makeText(getContext(), "התחברת בהצלחה!", Toast.LENGTH_SHORT).show();
 
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, new AdminFragment())
                         .commit();
             } else {
-                Toast.makeText(getContext(), "שם משתמש או סיסמה לא נכונים", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "שם או סיסמה לא נכונים", Toast.LENGTH_SHORT).show();
             }
         }
     }

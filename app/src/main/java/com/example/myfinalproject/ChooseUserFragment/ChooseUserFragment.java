@@ -10,6 +10,8 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -26,14 +28,16 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
+import com.example.myfinalproject.Adapters.SummaryAdapter;
+import com.example.myfinalproject.Adapters.UserAdapter;
 import com.example.myfinalproject.CallBacks.OnUserClickListener;
 import com.example.myfinalproject.CallBacks.UsersCallback;
 
+import com.example.myfinalproject.Message.MessageFragment;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.ReportFragment.ReportFragment;
-import com.example.myfinalproject.UserProfileFragment.UserProfilePresenter;
+import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,7 +47,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 
 public class ChooseUserFragment extends Fragment {
@@ -61,6 +64,8 @@ public class ChooseUserFragment extends Fragment {
     private ChooseUserPresenter presenter;
     private SearchView searchView;
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,51 +77,41 @@ public class ChooseUserFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_user, container, false);
-        initializeViews(view);
-        setupListeners();
         loadUsers();
         return view;
     }
 
-    private void requestPermissions() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        }
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_STORAGE_PERMISSION);
-        }
-    }
-
-    private void initializeViews(View view) {
-
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         listViewUsers = view.findViewById(R.id.listViewUsers);
         searchView = view.findViewById(R.id.searchView);
         imgUserProfile = new ImageView(getContext());
 
-        userAdapter = new UserAdapter(getContext(), userList, new OnUserClickListener() {
-            @Override
-            public void onUserClick(int position) {
-                Bundle bundle = new Bundle();
-                bundle.putString("userName", userList.get(position).getUserName());
+        OnUserClickListener reportClickListener = position -> {
+            navigateToReportFragment(userList.get(position));
+        };
 
-                ReportFragment reportFragment = new ReportFragment();
-                reportFragment.setArguments(bundle);
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flFragment, reportFragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });
+        OnUserClickListener summaryClickListener = position -> {
+            navigateToSummaryByUserFragment(userList.get(position));
+        };
+
+        OnUserClickListener messageClickListener = position -> {
+            navigateToMessagesFragment(userList.get(position));
+        };
+
+        userAdapter = new UserAdapter(
+                getContext(),
+                userList,
+                reportClickListener,
+                summaryClickListener,
+                messageClickListener
+        );
+
         listViewUsers.setAdapter(userAdapter);
-    }
 
-    private void setupListeners() {
 
-        listViewUsers.setOnItemClickListener((parent, view, position, id) -> {
+
+        listViewUsers.setOnItemClickListener((parent, view1, position, id) -> {
             User selectedUser = userList.get(position);
             showManagementDialog(selectedUser);
         });
@@ -133,7 +128,79 @@ public class ChooseUserFragment extends Fragment {
                 return true;
             }
         });
+
     }
+
+    private void requestPermissions() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION);
+        }
+    }
+
+
+
+    private void navigateToReportFragment(User user) {
+        if (getActivity() == null) return;
+
+        Bundle bundle = new Bundle();
+        bundle.putString("userName", user.getUserName());
+
+        ReportFragment reportFragment = new ReportFragment();
+        reportFragment.setArguments(bundle);
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, reportFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void navigateToSummaryByUserFragment(User user) {
+        if (getActivity() == null) return;
+
+        Bundle bundle = new Bundle();
+        bundle.putString("userId", user.getId());
+        bundle.putString("userName", user.getUserName());
+
+        SumByUserFragment sumByUserFragment = new SumByUserFragment();
+        sumByUserFragment.setArguments(bundle);
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, new SumByUserFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void navigateToMessagesFragment(User user) {
+        if (getActivity() == null) return;
+
+        Bundle bundle = new Bundle();
+        bundle.putString("receiverId", user.getId());
+        bundle.putString("receiverName", user.getUserName());
+
+        MessageFragment messagesFragment = new MessageFragment();
+     messagesFragment.setArguments(bundle);
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, messagesFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+
+//
+//    private void setupListeners() {
+//
+//
+//    }
 
 
 

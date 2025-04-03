@@ -30,11 +30,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfinalproject.LoginFragment.LoginFragment;
-import com.example.myfinalproject.Message.ChooseMessages;
+import com.example.myfinalproject.Message.ChooseMessageFragment;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SaveSummaryFragment;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
+
+import com.example.myfinalproject.MainActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,7 +46,7 @@ import java.util.Calendar;
 
 public class UserProfileFragment extends Fragment implements View.OnClickListener {
     private TextView tvEmail, tvPhoneNumber, tvBirthDate, tvUsername, tvBadPoints, tvSumNum;
-    private Button btnShowSums, btnDeleteUser, btnLogOut, btnEdit, btnFinish, btnUploadPhoto, btnSaveSummary, btnSendMessage;
+    private Button btnShowSummaries, btnDeleteUser, btnLogOut, btnEdit, btnFinish, btnUploadPhoto, btnSaveSummary, btnSendMessage;
     private ImageView imageView, imageViewProfile;
     private UserProfilePresenter presenter;
     private EditText etEmail, etPhoneNumber, etUsername, etBirthDate;
@@ -79,20 +81,14 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
-        // Initialize views
-        initializeViews(view);
-        // Initialize presenter
         presenter = new UserProfilePresenter(this);
-        // Load user data from Firestore using the stored userId
         presenter.loadUserData();
 
 //        mStorage = FirebaseStorage.getInstance().getReference("ProfileImages");
         presenter = new UserProfilePresenter(this);
-    }
 
-    private void initializeViews(View view) {
+
         tvEmail = view.findViewById(R.id.tvEmail);
         tvPhoneNumber = view.findViewById(R.id.tvPhoneNumber);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -100,7 +96,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
         tvSumNum = view.findViewById(R.id.tvSumNum);
 
-        btnShowSums = view.findViewById(R.id.btnShowSums);
+        btnShowSummaries = view.findViewById(R.id.btnShowSummaries);
         btnDeleteUser = view.findViewById(R.id.btnDeleteUser);
         btnLogOut = view.findViewById(R.id.btnLogOut);
         btnEdit = view.findViewById(R.id.btnEdit);
@@ -116,7 +112,7 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         btnSaveSummary = view.findViewById(R.id.btnSaveSummary);
 //        btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
 
-        btnShowSums.setOnClickListener(this);
+        btnShowSummaries.setOnClickListener(this);
         btnDeleteUser.setOnClickListener(this);
         btnLogOut.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
@@ -126,43 +122,38 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
 //        btnUploadPhoto.setOnClickListener(this);
         btnSaveSummary.setOnClickListener(this);
         btnSendMessage.setOnClickListener(this);
-
     }
+
 
     private void createCustomDialog() {
         final Dialog dialog = new Dialog(getContext());
         dialog.setTitle("עריכת פרטים");
         dialog.setContentView(R.layout.edit_user_profile);
 
-        // Get references from the custom dialog layout.
         EditText etEditEmail = dialog.findViewById(R.id.etEmail);
         EditText etEditPhone = dialog.findViewById(R.id.etPhoneNumber);
         EditText etEditUsername = dialog.findViewById(R.id.etUsername);
         Button btnFinishDialog = dialog.findViewById(R.id.btnFinish);
-        etBirthDate = dialog.findViewById(R.id.etBirthDate);
+        EditText etBirthDate = dialog.findViewById(R.id.etBirthDate);
 
-        // Pre-populate fields with current user data if available.
         if (currentUser != null) {
             etEditEmail.setText(currentUser.getUserEmail());
             etEditPhone.setText(currentUser.getPhone());
             etEditUsername.setText(currentUser.getUserName());
-            // Optionally pre-populate a birth date field if you have one.
-            // etEditBirthDate.setText(currentUser.getBirthDate());
+            etBirthDate.setText(currentUser.getUserBirthDate());
         }
 
-        // Set a click listener on the birth date button (if needed).
         etBirthDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                openDialog(); // This opens the DatePickerDialog.
+                openDialog();
             }
 
 
 
         });
 
-        // When the finish button is clicked, update the user.
         btnFinishDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,22 +168,18 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
                     return;
                 }
 
-                // Create a new User object with the updated fields.
                 User updatedUser = new User();
-                // Preserve the current user ID.
                 updatedUser.setId(currentUser != null ? currentUser.getId() : "");
                 updatedUser.setUserEmail(newEmail);
                 updatedUser.setPhone(newPhone);
                 updatedUser.setUserName(newUsername);
 
-                // Optionally preserve other fields from the current user.
                 if (currentUser != null) {
                     updatedUser.setBadPoints(currentUser.getBadPoints());
                     updatedUser.setSumCount(currentUser.getSumCount());
-                    // If you have a birth date field, update it here as well.
                 }
 
-                // Call the presenter to submit the update.
+
                 presenter.submitClicked(updatedUser);
                 dialog.dismiss();
             }
@@ -231,7 +218,6 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
 
 
     public void displayUserData(User user) {
-        // Cache the current user so we can pre-populate the edit dialog.
         this.currentUser = user;
         tvEmail.setText("אימייל: " + user.getUserEmail());
         tvPhoneNumber.setText("מספר טלפון: " + user.getPhone());
@@ -242,8 +228,8 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
     }
     @Override
     public void onClick(View view) {
-        if (view == btnShowSums) {
-            requireActivity().getSupportFragmentManager()
+        if (view == btnShowSummaries) {
+            getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new SumByUserFragment())
                     .commit();
@@ -258,14 +244,17 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         } else if (view == btnUploadPhoto) {
             showPictureDialog();
         } else if (view == btnSaveSummary) {
-            requireActivity().getSupportFragmentManager()
+            getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new SaveSummaryFragment())
                     .commit();
         } else if (view == btnSendMessage) {
-            Intent intent = new Intent(getContext(), ChooseMessages.class);
-            startActivity(intent);
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new ChooseMessageFragment())
+                    .commit();
         }
+
     }
     public void submitClicked(User userChange) {
         presenter.submitClicked(userChange);
@@ -394,7 +383,10 @@ private static final String AUTHORITY = "com.example.firestorepicapplication.fil
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", getContext().MODE_PRIVATE);
         sharedPreferences.edit().clear().apply();
 
-        // TODO: Replace with your login fragment
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).updateNavigationHeader();
+        }
+
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, new LoginFragment())

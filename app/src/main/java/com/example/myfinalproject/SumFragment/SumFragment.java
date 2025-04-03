@@ -1,55 +1,73 @@
 package com.example.myfinalproject.SumFragment;
 
+import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
+import android.widget.RatingBar;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.ReportFragment.ReportFragment;
+import com.example.myfinalproject.SumReviewFragment.SumReviewFragment;
+import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import android.os.AsyncTask;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import android.widget.SeekBar;
+import java.util.Locale;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SumFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class SumFragment extends Fragment implements View.OnClickListener{
+public class SumFragment extends Fragment implements View.OnClickListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "SumFragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private Button btnReport;
+    private Button btnReport, btnSaveSummary, btnStart, btnStopContinue, btnReset;
+    private RatingBar ratingBarSum;
+    private TextView tvText, tvTopic, tvAuthor, tvAverage;
+    private ImageView sumImage;
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+    private String summaryId;
+    private boolean isFavorite = false;
+
+    private TextToSpeech textToSpeech;
+    private boolean isSpeaking = false;
+    private SeekBar seekBarSpeed;
+
+    private float speechRate = 1.0f;
+    private String currentText = "";
+    private FloatingActionButton fabExport;
+
+    private int currentPosition = 0;
+    private static final int PARAGRAPH_LENGTH = 200;
 
     public SumFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SumFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SumFragment newInstance(String param1, String param2) {
+    public static SumFragment newInstance(String summaryId) {
         SumFragment fragment = new SumFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString("summaryId", summaryId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,30 +76,477 @@ public class SumFragment extends Fragment implements View.OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            summaryId = getArguments().getString("summaryId");
         }
+
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_sum, container, false);
     }
 
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         btnReport = view.findViewById(R.id.btnReport);
+        btnSaveSummary = view.findViewById(R.id.btnSaveSummary);
+        ratingBarSum = view.findViewById(R.id.ratingBarSum);
+        tvText = view.findViewById(R.id.tvText);
+        tvTopic = view.findViewById(R.id.tvTopic);
+        tvAuthor = view.findViewById(R.id.tvAuthor);
+        tvAverage = view.findViewById(R.id.tvAverage);
+        sumImage = view.findViewById(R.id.sumImage);
+
+        fabExport = view.findViewById(R.id.fabExport);
+
+        btnStart = view.findViewById(R.id.btnStart);
+        btnStopContinue = view.findViewById(R.id.btnStopContinue);
+        btnReset = view.findViewById(R.id.btnReset);
+
+        seekBarSpeed = view.findViewById(R.id.seekBarSpeed);
+
         btnReport.setOnClickListener(this);
+        btnSaveSummary.setOnClickListener(this);
+        ratingBarSum.setOnClickListener(this);
+        fabExport.setOnClickListener(this);
+        btnStart.setOnClickListener(this);
+        btnStopContinue.setOnClickListener(this);
+        btnReset.setOnClickListener(this);
+
+        initTextToSpeech();
+        setupSpeedControl();
+
+        ratingBarSum.setIsIndicator(true);
+
+        loadSummaryData();
+        checkIfFavorite();
+
+
+
+    }
+
+    private void initTextToSpeech() {
+        textToSpeech = new TextToSpeech(getContext(), status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                int langResult = textToSpeech.setLanguage(new Locale("he", "IL"));
+
+                if (langResult == TextToSpeech.LANG_MISSING_DATA ||
+                        langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Toast.makeText(getContext(), "שפה עברית אינה נתמכת במכשיר זה", Toast.LENGTH_SHORT).show();
+
+                } else {
+
+
+                    textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onStart(String utteranceId) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    isSpeaking = true;
+                                    updateButtons();
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    if (utteranceId.equals("endOfText")) {
+                                        isSpeaking = false;
+                                        currentPosition = 0;
+                                        updateButtons();
+                                    } else {
+                                        int chunkIndex = Integer.parseInt(utteranceId.replace("chunk_", ""));
+                                        currentPosition = Math.min(chunkIndex * PARAGRAPH_LENGTH, currentText.length());
+
+                                        if (isSpeaking && currentPosition < currentText.length()) {
+                                            speakFromCurrentPosition();
+                                        } else {
+                                            isSpeaking = false;
+                                            updateButtons();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onError(String utteranceId) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    isSpeaking = false;
+                                    updateButtons();
+                                    Toast.makeText(getContext(), "שגיאה בהקראה", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        }
+                    });
+                }
+            } else {
+                Toast.makeText(getContext(), "אתחול מנוע הקראה נכשל", Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+    }
+
+    private void setupSpeedControl() {
+        seekBarSpeed.setMax(20);
+        seekBarSpeed.setProgress(10);
+
+        seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                speechRate = (float) progress / 10.0f;
+                if (speechRate < 0.5f) speechRate = 0.5f;
+                textToSpeech.setSpeechRate(speechRate);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+    }
+
+    private void speakText() {
+        if (textToSpeech == null) return;
+
+        if (currentText.isEmpty() && tvText.getVisibility() == View.VISIBLE) {
+            currentText = tvText.getText().toString();
+        }
+
+        if (currentText.isEmpty()) {
+            Toast.makeText(getContext(), "אין טקסט להקראה", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnStart.setEnabled(false);
+        btnStopContinue.setEnabled(true);
+        btnReset.setEnabled(true);
+
+        speakFromCurrentPosition();
+        isSpeaking = true;
+        btnStopContinue.setText("עצור");
+    }
+
+    private void speakFromCurrentPosition() {
+        if (currentPosition >= currentText.length()) {
+            currentPosition = 0;
+        }
+
+        String textToRead;
+        if (currentPosition + PARAGRAPH_LENGTH >= currentText.length()) {
+            textToRead = currentText.substring(currentPosition);
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "endOfText");
+            textToSpeech.speak(textToRead, TextToSpeech.QUEUE_FLUSH, params);
+        } else {
+            textToRead = currentText.substring(currentPosition, currentPosition + PARAGRAPH_LENGTH);
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "chunk_" + (currentPosition + PARAGRAPH_LENGTH) / PARAGRAPH_LENGTH);
+            textToSpeech.speak(textToRead, TextToSpeech.QUEUE_FLUSH, params);
+        }
+    }
+
+    private void restartSpeech() {
+        if (textToSpeech == null) return;
+
+        textToSpeech.stop();
+        currentPosition = 0;
+        isSpeaking = false;
+        btnStopContinue.setText("עצור");
+
+        if (currentText.isEmpty() && tvText.getVisibility() == View.VISIBLE) {
+            currentText = tvText.getText().toString();
+        }
+
+        if (currentText.isEmpty()) {
+            Toast.makeText(getContext(), "אין טקסט להקראה", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        speakFromCurrentPosition();
+        isSpeaking = true;
+        updateButtons();
+    }
+
+    private void resetSpeech() {
+        if (textToSpeech == null) return;
+
+        textToSpeech.stop();
+        currentPosition = 0;
+        isSpeaking = false;
+        btnStopContinue.setText("עצור");
+
+        btnStart.setEnabled(true);
+        btnStopContinue.setEnabled(false);
+        btnReset.setEnabled(false);
+    }
+
+    private void updateButtons() {
+        boolean hasText = currentText != null && !currentText.isEmpty();
+
+        if (isSpeaking) {
+            btnStart.setEnabled(false);
+            btnStopContinue.setEnabled(true);
+            btnReset.setEnabled(true);
+        } else {
+            if (currentPosition == 0) {
+                btnStart.setEnabled(hasText);
+                btnStopContinue.setEnabled(false);
+                btnReset.setEnabled(false);
+            }
+        }
+    }
+
+    private void loadSummaryData() {
+        if (summaryId == null || summaryId.isEmpty()) {
+            Log.e(TAG, "Summary ID is null or empty");
+            return;
+        }
+
+        db.collection("summaries").document(summaryId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        displaySummaryData(documentSnapshot);
+                    } else {
+                        Log.e(TAG, "No such document");
+                        Toast.makeText(getContext(), "הסיכום לא נמצא", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error getting document", e);
+                    Toast.makeText(getContext(), "שגיאה בטעינת הסיכום", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void displaySummaryData(DocumentSnapshot document) {
+        String topic = document.getString("topic");
+        if (topic != null) {
+            tvTopic.setText(topic);
+        }
+
+
+        String authorId = document.getString("authorId");
+        if (authorId != null) {
+            db.collection("users").document(authorId)
+                    .get()
+                    .addOnSuccessListener(userDoc -> {
+                        if (userDoc.exists()) {
+                            String authorName = userDoc.getString("name");
+                            tvAuthor.setText("נכתב על ידי: " + authorName);
+                        }
+                    });
+        }
+
+        Double averageRating = document.getDouble("averageRating");
+        if (averageRating != null) {
+            ratingBarSum.setRating(averageRating.floatValue());
+            tvAverage.setText("ציון ממוצע לסיכום: " + String.format("%.1f", averageRating));
+        }
+
+        String summaryText = document.getString("text");
+        String summaryImageUrl = document.getString("imageUrl");
+
+        if (summaryImageUrl != null && !summaryImageUrl.isEmpty()) {
+            tvText.setVisibility(View.GONE);
+            sumImage.setVisibility(View.VISIBLE);
+            currentText = "";
+            currentPosition = 0;
+
+
+
+            sumImage.setImageResource(R.drawable.newlogo);
+            new DownloadImageTask(sumImage).execute(summaryImageUrl);
+        } else if (summaryText != null && !summaryText.isEmpty()) {
+            tvText.setVisibility(View.VISIBLE);
+            sumImage.setVisibility(View.GONE);
+            tvText.setText(summaryText);
+            currentText = summaryText;
+            currentPosition = 0;
+
+        } else {
+
+            tvText.setVisibility(View.VISIBLE);
+            sumImage.setVisibility(View.GONE);
+            tvText.setText("אין תוכן זמין");
+            currentText = "";
+            currentPosition = 0;
+
+        }
+
+        updateButtons();
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView imageView;
+
+        public DownloadImageTask(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            String urlDisplay = urls[0];
+            Bitmap bitmap = null;
+            try {
+                URL url = new URL(urlDisplay);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (IOException e) {
+                Log.e(TAG, "Error downloading image", e);
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result != null && imageView != null) {
+                imageView.setImageBitmap(result);
+            } else {
+                imageView.setImageResource(R.drawable.newlogo);
+            }
+        }
+    }
+
+    private void checkIfFavorite() {
+        if (mAuth.getCurrentUser() == null || summaryId == null) {
+            return;
+        }
+
+        String userId = mAuth.getCurrentUser().getUid();
+
+        db.collection("users").document(userId)
+                .collection("favorites").document(summaryId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    isFavorite = documentSnapshot.exists();
+                    updateFavoriteButton();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error checking favorite status", e);
+                });
+    }
+
+    private void updateFavoriteButton() {
+        if (isFavorite) {
+            btnSaveSummary.setText("❤️הסר ממועדפים❤️");
+        } else {
+            btnSaveSummary.setText("⭐שמירה במועדפים⭐");
+        }
+    }
+
+    private void toggleFavorite() {
+        if (mAuth.getCurrentUser() == null || summaryId == null) {
+            Toast.makeText(getContext(), "יש להתחבר כדי לשמור למועדפים", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = mAuth.getCurrentUser().getUid();
+        DocumentReference favRef = db.collection("users").document(userId)
+                .collection("favorites").document(summaryId);
+
+        if (isFavorite) {
+            favRef.delete()
+                    .addOnSuccessListener(aVoid -> {
+                        isFavorite = false;
+                        updateFavoriteButton();
+                        Toast.makeText(getContext(), "הוסר מהמועדפים", Toast.LENGTH_SHORT).show();
+
+                        db.collection("summaries").document(summaryId)
+                                .update("favoritesCount", FieldValue.increment(-1));
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error removing from favorites", e);
+                        Toast.makeText(getContext(), "שגיאה בהסרה מהמועדפים", Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            Map<String, Object> favorite = new HashMap<>();
+            favorite.put("summaryId", summaryId);
+            favorite.put("addedAt", FieldValue.serverTimestamp());
+
+            favRef.set(favorite)
+                    .addOnSuccessListener(aVoid -> {
+                        isFavorite = true;
+                        updateFavoriteButton();
+                        Toast.makeText(getContext(), "נוסף למועדפים", Toast.LENGTH_SHORT).show();
+
+                        db.collection("summaries").document(summaryId)
+                                .update("favoritesCount", FieldValue.increment(1));
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error adding to favorites", e);
+                        Toast.makeText(getContext(), "שגיאה בהוספה למועדפים", Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 
     @Override
     public void onClick(View view) {
-        if(view == btnReport){
+        if (view == btnReport) {
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, new ReportFragment())
                     .commit();
+        } else if (view == ratingBarSum) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, new SumReviewFragment())
+                    .addToBackStack(null)
+                    .commit();
+        } else if (view == btnSaveSummary) {
+            toggleFavorite();
+        } else if (view == btnStart) {
+            speakText();
+        } else if (view == btnStopContinue) {
+            if (isSpeaking) {
+                textToSpeech.stop();
+                isSpeaking = false;
+                btnStopContinue.setText("המשך");
+            } else {
+                speakFromCurrentPosition();
+                isSpeaking = true;
+                btnStopContinue.setText("עצור");
+                btnStart.setEnabled(false);
+                btnReset.setEnabled(true);
+            }
+        } else if (view == fabExport) {
+            shareSummary();
+        } else if(view == btnReset) {
+            resetSpeech();
         }
+    }
 
+    @Override
+    public void onDestroy() {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+        super.onDestroy();
+    }
+
+    private void shareSummary() {
+        if (currentText != null && !currentText.isEmpty()) {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, currentText);
+            startActivity(Intent.createChooser(shareIntent, "שתף סיכום באמצעות:"));
+        } else {
+            Toast.makeText(getContext(), "אין תוכן לשתף", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -13,10 +13,11 @@
 
 
     <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="סיכומים"
-        android:textSize="30sp"
+        android:text="סיכומים שנכתבו על ידי X"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"

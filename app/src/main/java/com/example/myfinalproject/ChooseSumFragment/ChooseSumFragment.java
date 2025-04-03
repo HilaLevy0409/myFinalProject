@@ -1,7 +1,6 @@
 package com.example.myfinalproject.ChooseSumFragment;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -28,13 +26,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.CallBacks.SummariesCallback;
 import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
+
+import com.example.myfinalproject.SumFragment.SumFragment;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,6 +60,8 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     private ArrayList<Summary> summaryList;
     private ChooseSumPresenter chooseSumPresenter;
     private SearchView searchView;
+    private String selectedClass;
+    private String selectedProfession;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,30 +69,23 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         summaryList = new ArrayList<>();
         chooseSumPresenter = new ChooseSumPresenter(this);
         requestPermissions();
+        if (getArguments() != null) {
+            selectedClass = getArguments().getString("selected_class", "");
+            selectedProfession = getArguments().getString("selected_profession", "");
+            Log.d("ChooseSumFragment", "Received: class=" + selectedClass + ", profession=" + selectedProfession);
+        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_sum, container, false);
-        initializeViews(view);
-        setupListeners();
         loadSummaries();
         return view;
     }
 
-    private void requestPermissions() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        }
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_STORAGE_PERMISSION);
-        }
-    }
-
-    private void initializeViews(View view) {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         btnAdd = view.findViewById(R.id.btnAdd);
         listViewSummaries = view.findViewById(R.id.listViewSummaries);
         searchView = view.findViewById(R.id.searchView);
@@ -97,12 +93,10 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
-    }
 
-    private void setupListeners() {
         btnAdd.setOnClickListener(this);
 
-        listViewSummaries.setOnItemClickListener((parent, view, position, id) -> {
+        listViewSummaries.setOnItemClickListener((parent, view1, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
             showManagementDialog(selectedSummary);
         });
@@ -119,7 +113,24 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 return true;
             }
         });
+
     }
+
+    private void requestPermissions() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION);
+        }
+    }
+
+
+
+
 
     @Override
     public void onClick(View view) {
@@ -129,12 +140,20 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     }
 
     private void navigateToWritingSumFragment() {
+        Bundle args = new Bundle();
+        args.putString("selected_class", selectedClass);
+        args.putString("selected_profession", selectedProfession);
+
+        WritingSumFragment writingSumFragment = new WritingSumFragment();
+        writingSumFragment.setArguments(args);
+
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.flFragment, new WritingSumFragment())
+                .replace(R.id.flFragment, writingSumFragment)
                 .addToBackStack(null)
                 .commit();
     }
+
 
     private void loadSummaries() {
         chooseSumPresenter.loadSummaries(new SummariesCallback() {
@@ -158,7 +177,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                                 Toast.LENGTH_SHORT).show()
                 );
             }
-        });
+        }, selectedClass, selectedProfession);
     }
 
     private void showManagementDialog(Summary summary) {
@@ -166,7 +185,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("ניהול סיכום");
-        String[] options = {"עריכה, מעבר לסיכום", "מחיקה", "ביטול"};
+        String[] options = {"עריכה", "מעבר לסיכום", "מחיקה", "ביטול"};
 
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
@@ -174,15 +193,29 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                     showEditDialog(summary);
                     break;
                 case 1:
-                    showDeleteConfirmationDialog(summary);
+                    showSum(summary);
                     break;
                 case 2:
+                    showDeleteConfirmationDialog(summary);
+                    break;
+                case 3:
                     dialog.dismiss();
                     break;
-
             }
         });
+
         builder.show();
+    }
+
+
+    private void showSum(Summary summary){
+
+        if (getContext() == null) return;
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, new SumFragment())
+                .commit();
     }
 
     private void showEditDialog(Summary summary) {
@@ -355,7 +388,6 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         }
     }
 
-    // Callback methods for the presenter
     public void onSummaryUpdated(Summary summary) {
         if (getContext() == null) return;
         Toast.makeText(getContext(), "הסיכום עודכן בהצלחה", Toast.LENGTH_SHORT).show();

@@ -1,13 +1,14 @@
-package com.example.myfinalproject;
+package com.example.myfinalproject.Event;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.NotificationChannel;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
+
+import com.example.myfinalproject.R;
 
 public class EventReminderReceiver extends BroadcastReceiver {
 

@@ -13,16 +13,21 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.myfinalproject.AdminFragment.AdminFragment;
+import com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment;
+import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -31,30 +36,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
 import java.util.Objects;
-
-import ChooseClassFragment.ChooseClassFragment;
 
 
 public class LoginFragment extends Fragment implements View.OnClickListener, LoginView {
 
-
-
-    private Button btnNext, btnForgotPass, btnFinish;
+    private Button btnNext, btnForgotPass, btnFinish, btnRegisterNow;
     private EditText etUsername, etPassword;
     private EditText etEmailS;
     private DatabaseReference mDatabase;
     private LoginUserPresenter presenter;
 
-
-
-
     public LoginFragment() {
-        // Required empty public constructor
     }
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,19 +59,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        btnNext = view.findViewById(R.id. btnNext);
+        btnNext = view.findViewById(R.id.btnNext);
         etUsername = view.findViewById(R.id.etUser);
         etPassword = view.findViewById(R.id.etPassword);
         btnForgotPass = view.findViewById(R.id.btnForgotPass);
+        btnRegisterNow = view.findViewById(R.id.btnRegisterNow);
 
         mDatabase = FirebaseDatabase.getInstance().getReference("users");
         presenter = new LoginUserPresenter(this);
 
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
-
-
-
+        btnRegisterNow.setOnClickListener(this);
     }
 
     @Override
@@ -96,104 +90,72 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                 return;
             }
 
-
             presenter.loginUser(username, password);
-
-
-
         }
-            if(view == btnForgotPass){
-                 createCustomDialog();
-            }
-
-
-
-
-
-
-/*
-            mDatabase.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                            String storedPassword = userSnapshot.child("password").getValue(String.class);
-
-                            if (storedPassword != null && storedPassword.equals(password)) {
-                                getActivity().getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.flFragment, new ChooseClassFragment())
-                                        .commit();
-                            }
-                        }
-
-
-                    } else {
-                        Toast.makeText(getActivity(), "משתמש לא נמצא", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            ChooseClassFragment fragment = new ChooseClassFragment();
-            transaction.replace(R.id.main, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
-            return;
-
-
+        if (view == btnForgotPass) {
+            createCustomDialog();
         }
-         */
-
+        if (view == btnRegisterNow) {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, new RegistrationFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
-
-//    @Override
-//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-//        super.onViewCreated(view, savedInstanceState);
-//
-//        // Find the button in the layout
-//        Button button = view.findViewById(R.id.btnForgotPass);
-//
-//        // Set up a click listener for the button
-//        button.setOnClickListener(v -> {
-//            // Start the DialogActivity when the button is clicked
-//            Intent intent = new Intent(getContext(), .class);
-//            startActivity(intent);
-//        });
-//    }
-
 
     private void createCustomDialog() {
         Dialog dialog = new Dialog(getContext());
         dialog.setTitle("שחזור סיסמה");
         dialog.setContentView(R.layout.pass_dialog);
 
-
         etEmailS = dialog.findViewById(R.id.etEmailS);
         btnFinish = dialog.findViewById(R.id.btnFinish);
+        ProgressBar progressBar = dialog.findViewById(R.id.progressBar);
 
         btnFinish.setOnClickListener(v -> {
             String emailSend = etEmailS.getText().toString().trim();
+
+            if (emailSend.isEmpty()) {
+                Toast.makeText(getContext(), "נא להזין אימייל", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String validEmail = Validator.isValidEmail(emailSend);
-            if (!validEmail.isEmpty()){
+            if (!validEmail.isEmpty()) {
                 Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
                 return;
             }
-            FirebaseAuth.getInstance().sendPasswordResetEmail(emailSend)
-                    .addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_SHORT).show();
+
+            btnFinish.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            auth.sendPasswordResetEmail(emailSend)
+                    .addOnCompleteListener(resetTask -> {
+                        progressBar.setVisibility(View.GONE);
+                        btnFinish.setVisibility(View.VISIBLE);
+
+                        if (resetTask.isSuccessful()) {
+                            Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                         } else {
-                            Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה", Toast.LENGTH_SHORT).show();
+                            Exception exception = resetTask.getException();
+                            if (exception != null) {
+                                String errorMessage = exception.getMessage();
+
+                                if (errorMessage != null && errorMessage.contains("no user record")) {
+                                    Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה: " + errorMessage, Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(getContext(), "שגיאה בלתי ידועה בשליחת המייל לשחזור סיסמה", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
         });
+        dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
 
@@ -201,17 +163,25 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     public void showLoginSuccess(User user) {
         Toast.makeText(getContext(), "התחברת בהצלחה!", Toast.LENGTH_SHORT).show();
         saveUserToLocalStorage(user);
+
+        // Update navigation header in MainActivity
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).updateNavigationHeader();
+        }
+
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, new ChooseClassFragment())
                 .commit();
-
     }
 
     private void saveUserToLocalStorage(User user) {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+
         editor.putString("userId", user.getId());
+        editor.putString("username", user.getUserName());
+        editor.putBoolean("isLoggedIn", true);
 
 
         editor.apply();

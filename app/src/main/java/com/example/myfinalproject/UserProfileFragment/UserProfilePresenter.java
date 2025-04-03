@@ -17,14 +17,12 @@ public class UserProfilePresenter {
     }
 
     public void loadUserData() {
-        // Retrieve stored userId from SharedPreferences
         SharedPreferences sp = view.getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String userId = sp.getString("userId", "");
         if (userId.isEmpty()) {
             view.showError("משתמש לא מזוהה, אנא התחבר מחדש.");
             return;
         }
-        // Get user data using the userId
         database.getUserById(userId, new UserCallback() {
             @Override
             public void onUserReceived(User user) {
@@ -42,7 +40,6 @@ public class UserProfilePresenter {
     }
 
     public void logOut() {
-        // Clear shared prefs and update the view
         view.onLogOutSuccess();
     }
 
@@ -67,7 +64,6 @@ public class UserProfilePresenter {
     }
 
     public void submitClicked(User updatedUser) {
-        // Update user details in Firestore
         database.updateUser(updatedUser, new UserCallback() {
             @Override
             public void onUserReceived(User user) {

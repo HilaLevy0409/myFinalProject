@@ -1,5 +1,6 @@
-package ChooseClassFragment;
+package com.example.myfinalproject.ChooseClassFragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,48 +10,32 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.Spinner;
+import android.widget.Toast;
 
+import com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment;
+import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import Adapters.ClassAdapter;
+import java.util.HashMap;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChooseClassFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
+import com.example.myfinalproject.Adapters.ClassAdapter;
+
+
 public class ChooseClassFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public ChooseClassFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChooseClassFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ChooseClassFragment newInstance(String param1, String param2) {
         ChooseClassFragment fragment = new ChooseClassFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,17 +44,16 @@ public class ChooseClassFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_choose_class, container, false);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         GridView gridView = view.findViewById(R.id.gridView);
@@ -78,11 +62,132 @@ public class ChooseClassFragment extends Fragment {
         ClassAdapter adapter = new ClassAdapter(getContext(), classes);
         gridView.setAdapter(adapter);
 
-
+        gridView.setOnItemClickListener((parent, view1, position, id) -> {
+            String selectedClass = classes[position];
+            showClassNotificationDialog(selectedClass);
+        });
     }
 
+    private void showClassNotificationDialog(String className) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("עדכונים על סיכומים")
+                .setMessage("האם ברצונך לקבל עדכונים בעת עליית סיכום בכיתה " + className + "?")
+                .setPositiveButton("כן, אשמח!", (dialog, which) -> {
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    if (auth.getCurrentUser() == null) {
+                        showAuthRequiredDialog(className);
+                    } else {
+                        Toast.makeText(getContext(), "נרשמת לקבלת עדכונים עבור כיתה " + className, Toast.LENGTH_SHORT).show();
+                        subscribeToProfessionNotifications(className);
+                        goToProfessionScreen(className, false);
+                    }
+                })
+                .setNegativeButton("לא, רוצה לעבור למסך הבא", (dialog, which) -> {
+                    goToProfessionScreen(className, false);
+                })
+                .setNeutralButton("לא רוצה לקבל עדכונים יותר", (dialog, which) -> {
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    if (auth.getCurrentUser() == null) {
+                        Toast.makeText(getContext(), "אינך רשום לקבלת עדכונים", Toast.LENGTH_SHORT).show();
+                        goToProfessionScreen(className, false);
+                    } else {
+                        unsubscribeFromProfessionNotifications(className);
+                        unsubscribeFromFCMTopic(className);
+                        goToProfessionScreen(className, false);
+                    }
+                })
+                .show();
+    }
 
+    private void showAuthRequiredDialog(String className) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("נדרשת הזדהות")
+                .setMessage("נדרשת התחברות כדי לקבל עדכונים על סיכומים בכיתה " + className)
+                .setPositiveButton("התחברות", (dialog, which) -> {
+                    navigateToLoginScreen();
+                })
+                .setNegativeButton("הרשמה", (dialog, which) -> {
+                    navigateToRegisterScreen();
+                })
+                .setNeutralButton("המשך כאורח", (dialog, which) -> {
+                    goToProfessionScreen(className, true);
+                })
+                .show();
+    }
 
+    private void navigateToLoginScreen() {
+        Toast.makeText(getContext(), "מעבר למסך התחברות", Toast.LENGTH_SHORT).show();
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.flFragment, new LoginFragment())
+                .commit();
+    }
 
+    private void navigateToRegisterScreen() {
+        Toast.makeText(getContext(), "מעבר למסך הרשמה", Toast.LENGTH_SHORT).show();
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.flFragment, new RegistrationFragment())
+                .commit();
+    }
 
+    private void subscribeToProfessionNotifications(String className) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() == null) {
+            showAuthRequiredDialog(className);
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = auth.getCurrentUser().getUid();
+
+        db.collection("notifications_subscriptions")
+                .document(userId)
+                .set(new HashMap<String, Object>() {{
+                    put("className", className);
+                }})
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "נרשמת לקבלת התראות עבור כיתה " + className, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בהרשמה", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void unsubscribeFromProfessionNotifications(String className) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = auth.getCurrentUser().getUid();
+
+        db.collection("notifications_subscriptions")
+                .document(userId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "הסרת הרשמה מהתראות עבור " + className, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בהסרת ההרשמה", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void unsubscribeFromFCMTopic(String className) {
+    }
+
+    private void goToProfessionScreen(String className, boolean isGuest) {
+        Bundle args = new Bundle();
+        args.putString("selected_class", className);
+        args.putBoolean("is_guest", isGuest);
+
+        ChooseProfessionFragment fragment = new ChooseProfessionFragment();
+
+        fragment.setArguments(args);
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, fragment)
+                .commit();
+    }
 }

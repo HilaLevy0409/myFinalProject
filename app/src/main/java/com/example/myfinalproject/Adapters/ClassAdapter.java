@@ -1,4 +1,5 @@
-package Adapters;
+ package com.example.myfinalproject.Adapters;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -46,7 +47,6 @@ public class ClassAdapter extends BaseAdapter {
         TextView textViewClass = convertView.findViewById(R.id.textViewClass);
         textViewClass.setText(classes[position]);
 
-        // Generate a random color for the background
         int color = Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
         convertView.setBackgroundColor(color);
 

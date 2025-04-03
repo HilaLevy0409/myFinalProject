@@ -13,7 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.myfinalproject.AdminFragment.AdminFragment;
+import com.example.myfinalproject.Message.MessageFragment;
 import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
@@ -21,27 +24,19 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
 
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
-
     private int badPoints = 0;
     private TextView tvBadPoints, tvEmail, tvPhone, tvBirthDate, tvSumNum, tvUsername;
-    private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage;
+    private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnBack;
     private User currentUser;
 
 
     public ManageUserFragment() {
-        // Required empty public constructor
     }
 
     public static ManageUserFragment newInstance(String param1, String param2) {
         ManageUserFragment fragment = new ManageUserFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,8 +45,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
@@ -63,6 +57,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
         tvEmail = view.findViewById(R.id.tvEmail);
         tvPhone = view.findViewById(R.id.tvPhone);
@@ -70,18 +66,34 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         tvSumNum = view.findViewById(R.id.tvSumNum);
         tvUsername = view.findViewById(R.id.tvUsername);
 
-
-
         btnShowSums = view.findViewById(R.id.btnShowSums);
-
         btnAddPoint = view.findViewById(R.id.btnAddPoint);
         btnRemovePoint = view.findViewById(R.id.btnRemovePoint);
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
+        btnBack = view.findViewById(R.id.btnBack);
 
+        btnBack.setOnClickListener(this);
         btnAddPoint.setOnClickListener(this);
         btnRemovePoint.setOnClickListener(this);
         btnShowSums.setOnClickListener(this);
         btnSendMessage.setOnClickListener(this);
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String userName = bundle.getString("userName");
+            String userEmail = bundle.getString("userEmail");
+            String userPhone = bundle.getString("userPhone");
+            String userBirthDate = bundle.getString("userBirthDate");
+            int badPoints = bundle.getInt("badPoints", 0);
+            int sumCount = bundle.getInt("sumCount", 0);
+
+            tvUsername.setText("שם משתמש: " + userName);
+            tvEmail.setText("אימייל: " + userEmail);
+            tvPhone.setText("מספר טלפון: " + userPhone);
+            tvBirthDate.setText("תאריך לידה: " + userBirthDate);
+            tvBadPoints.setText("נקודות לרעה: " + badPoints);
+            tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
+        }
     }
 
 
@@ -104,12 +116,28 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .commit();
         } else if (view.getId() == R.id.btnSendMessage) {
             btnSendMessage.setOnClickListener(v -> {
-                Intent intent = new Intent(getActivity(), Message.class);
-                startActivity(intent);
+                MessageFragment messageFragment = new MessageFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("userName", currentUser.getUserName());
+                bundle.putString("userProfilePic", currentUser.getImageProfile());
+                messageFragment.setArguments(bundle);
+
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, new MessageFragment())
+                        .addToBackStack(null)
+                        .commit();
             });
-
         }
-
+        else if (view.getId() == R.id.btnBack) {
+            btnBack.setOnClickListener(v -> {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, new AdminFragment())
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
     }
 
     private void updateBadPointsText() {
@@ -117,13 +145,5 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     }
 
 
-    public void displayUserData(User user) {
-        this.currentUser = user;
-        tvEmail.setText("אימייל: " + user.getUserEmail());
-        tvPhone.setText("מספר טלפון: " + user.getPhone());
-        tvBirthDate.setText("תאריך לידה: " + user.getUserBirthDate());
-        tvUsername.setText("שם משתמש: " + user.getUserName());
-        tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
-        tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
-    }
+
 }

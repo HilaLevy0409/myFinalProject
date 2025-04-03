@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+
+   <item
+       android:title="אפשרויות כניסה">
+
+   <menu>
+
+       <group
+           android:checkableBehavior="single">
+
+           <item
+               android:id="@+id/login"
+               android:title="התחברות"
+               android:icon="@drawable/ic_l"
+               />
+
+           <item
+               android:id="@+id/registration"
+               android:title="הרשמה"
+               android:icon="@drawable/ic_r"/>
+
+           <item
+               android:id="@+id/visitor"
+               android:title="אורח"
+               android:icon="@drawable/ic_v"/>
+
+       </group>
+
+   </menu>
+
+ </item>
+
+    <item
+        android:title="שונות">
+
+        <menu>
+
+            <group
+                android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/chooseClass"
+                    android:title="סיכומים"
+                    android:icon="@drawable/ic_sum"/>
+
+            <item
+                android:id="@+id/chooseUser"
+                android:title="בחירת משתמש"
+                android:icon="@drawable/ic_users"/>
+
+
+            <item
+                android:id="@+id/reminder"
+                android:title="הוספת תזכורת"
+                android:icon="@drawable/ic_n"/>
+
+                <item
+                    android:id="@+id/timer"
+                    android:title="טיימר למידה"
+                    android:icon="@android:drawable/ic_lock_idle_alarm"/>
+
+            </group>
+
+
+        </menu>
+
+    </item>
+
+
+    <item
+        android:title="תמיכה ומידע נוסף">
+
+        <menu>
+
+            <group
+                android:checkableBehavior="single">
+
+
+            <item
+                android:id="@+id/questions"
+                android:title="שאלות נפוצות"
+                android:icon="@drawable/ic_q"
+                />
+
+            <item
+                android:id="@+id/contact"
+                android:title="יצירת קשר"
+                android:icon="@drawable/ic_c"
+                />
+
+
+            <item
+                android:id="@+id/about"
+                android:title="אודות"
+                android:icon="@drawable/ic_i"
+                 />
+
+            </group>
+
+        </menu>
+
+    </item>
+
+    <item
+        android:title="ניהול תוכן">
+
+        <menu>
+
+            <group
+                android:checkableBehavior="single">
+
+            <item
+                android:id="@+id/admin"
+                android:title="התחברות להנהלה"
+                android:icon="@drawable/ic_m"
+                 />
+
+            </group>
+
+        </menu>
+
+    </item>
+
+
+
+    <item
+        android:id="@+id/user"
+        android:title="פרופיל משתמש" />
+
+    <item
+        android:id="@+id/logout"
+        android:title="התנתקות"
+        android:icon="@drawable/ic_logout"/>
+
+
+
+
+
+
+
+
+
+
+
+</menu>

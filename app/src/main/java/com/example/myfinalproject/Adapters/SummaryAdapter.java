@@ -1,4 +1,4 @@
-package com.example.myfinalproject.ChooseSumFragment;
+package com.example.myfinalproject.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -66,12 +66,12 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.imageSum.setImageBitmap(decodedByte);
             } catch (Exception e) {
-                Toast.makeText(context, "test1", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "test", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
-                holder.imageSum.setImageResource(R.drawable.newlogo); // Set default image
+                holder.imageSum.setImageResource(R.drawable.newlogo);
             }
         } else {
-            Toast.makeText(context, "test2", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "", Toast.LENGTH_LONG).show();
             holder.imageSum.setImageResource(R.drawable.newlogo);
         }
 

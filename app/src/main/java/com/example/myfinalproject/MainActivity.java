@@ -1,137 +1,192 @@
 package com.example.myfinalproject;
 
+import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
-import com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment;
+import com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment;
 import com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment;
 import com.example.myfinalproject.ContactUsFragment.ContactUsFragment;
+import com.example.myfinalproject.Event.AlarmManagerFragment;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.QuestionsFragment.QuestionsFragment;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
+import com.example.myfinalproject.Timer.TimerFragment;
 import com.example.myfinalproject.UserProfileFragment.UserProfileFragment;
-import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 
-import ChooseClassFragment.ChooseClassFragment;
+import androidx.appcompat.widget.Toolbar;
 
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
-    BottomNavigationView bottomNavigationView;
+    private DrawerLayout drawerLayout;
+
+    public void updateNavigationHeader() {
+        NavigationView navigationView = findViewById(R.id.navView);
+        View headerView = navigationView.getHeaderView(0);
+        TextView tvUserName = headerView.findViewById(R.id.tvUserName);
+        ImageView imageViewProfile = headerView.findViewById(R.id.imageViewProfile);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+        String username = sharedPreferences.getString("username", "שם משתמש");
+
+        if (isLoggedIn && username != null && !username.isEmpty()) {
+            tvUserName.setText(username);
+        } else {
+            tvUserName.setText("");
+            imageViewProfile.setImageResource(R.drawable.newlogo);
+
+        }
+
+        tvUserName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                boolean userLoggedIn = prefs.getBoolean("isLoggedIn", false);
+
+                if (userLoggedIn) {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.flFragment, new UserProfileFragment())
+                            .commit();
+                } else {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.flFragment, new LoginFragment())
+                            .commit();
+                }
+
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       
         setContentView(R.layout.activity_main);
-
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(this);
-
 
         FirebaseApp.initializeApp(this);
 
-
-        if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.login);
-        }
-
-        bottomNavigationView
-                .setOnNavigationItemSelectedListener(this);
-        bottomNavigationView.setSelectedItemId(R.id.login);
-
-
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-    }
-    @Override
-    public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        getMenuInflater().inflate(R.menu.option_menu, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.admin) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new AdminLoginFragment())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.contact) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new ContactUsFragment())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.questions) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new QuestionsFragment())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.user) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new UserProfileFragment())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.chooseSum) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new ChooseSumFragment())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.chooseUser) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flFragment, new ChooseUserFragment())
-                .addToBackStack(null)
-                .commit();
-        return true;
-    } else if(item.getItemId() == R.id.addSum) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new WritingSumFragment())
-                    .addToBackStack(null)
-                    .commit();
-        }
 
-        return super.onOptionsItemSelected(item);
+        drawerLayout = findViewById(R.id.drawerLayout);
+        NavigationView navigationView = findViewById(R.id.navView);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        updateNavigationHeader();
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        if (savedInstanceState == null) {
+            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+
+            if (isLoggedIn) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new UserProfileFragment()).commit();
+                navigationView.setCheckedItem(R.id.user);
+            } else {
+                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new LoginFragment()).commit();
+                navigationView.setCheckedItem(R.id.login);
+            }
+        }
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.login) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new LoginFragment())
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.registration) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new RegistrationFragment())
-                    .commit();
-            return true;
-        } else if (item.getItemId() == R.id.visitor) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new ChooseClassFragment())
-                    .commit();
-            return true;
+        int id = item.getItemId();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+
+        if (isLoggedIn) {
+            if (id == R.id.registration || id == R.id.visitor || id == R.id.login) {
+                new android.app.AlertDialog.Builder(MainActivity.this)
+                        .setTitle("לא ניתן לבצע פעולה")
+                        .setMessage("כדי לבחור אפשרות כניסה אחרת, יש להתנתק קודם.")
+                        .setPositiveButton("סגירה", null)
+                        .show();
+                return false;
+            }
         }
-        return false;
+
+
+        if (id == R.id.login) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new LoginFragment()).commit();
+        } else if (id == R.id.about) {
+            Dialog dialog = new Dialog(this);
+            dialog.setTitle("אודות על האפליקציה");
+            dialog.setContentView(R.layout.about);
+            dialog.setCancelable(true);
+            dialog.show();
+        } else if (id == R.id.registration) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new RegistrationFragment()).commit();
+        } else if (id == R.id.visitor) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ChooseClassFragment()).commit();
+        } else if (id == R.id.chooseUser) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ChooseUserFragment()).commit();
+        } else if (id == R.id.reminder) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new AlarmManagerFragment()).commit();
+        } else if (id == R.id.questions) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new QuestionsFragment()).commit();
+        } else if (id == R.id.contact) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ContactUsFragment()).commit();
+        } else if (id == R.id.admin) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new AdminLoginFragment()).commit();
+        } else if (id == R.id.user) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new UserProfileFragment()).commit();
+        } else if (id == R.id.timer) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new TimerFragment()).commit();
+        } else if (id == R.id.logout) {
+            new android.app.AlertDialog.Builder(MainActivity.this)
+                    .setTitle("התנתקות")
+                    .setMessage("האם ברצונך להתנתק?")
+                    .setPositiveButton("כן", (dialog, which) -> {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.clear();
+                        editor.apply();
+
+
+                        updateNavigationHeader();
+
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flFragment, new LoginFragment())
+                                .commit();
+                    })
+                    .setNegativeButton("לא", null)
+                    .setCancelable(false)
+                    .show();
+        } else if (id == R.id.chooseClass) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ChooseClassFragment()).commit();
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

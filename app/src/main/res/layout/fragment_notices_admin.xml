@@ -1,64 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
     android:background="@color/white"
+    android:layoutDirection="rtl"
+    android:padding="16dp"
     tools:context=".NoticesAdminFragment.NoticesAdminFragment">
 
     <Button
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="חזרה למסך הנהלה"
-        android:textStyle="bold"
-        android:padding="10dp"
-        android:textSize="18sp"
-        android:layout_gravity="end"
-        android:textColor="#FFFFFF"
         android:backgroundTint="@color/orange"
-        />
+        app:icon="@android:drawable/ic_menu_revert"
+        app:iconSize="32dp"
+        app:cornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="הודעות ודיווחים"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="30sp"
         android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:textColor="?android:attr/textColorPrimary"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnBack" />
 
-    <TextView
-        android:id="@+id/tvMessages"
+
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="הודעות:"
-        android:textSize="20sp"
-        android:layout_marginTop="40dp"
-        android:padding="10dp"
-        android:background="#FFFFFF"
-        android:gravity="center_vertical"
-        android:textColor="@color/black" />
+        android:layout_marginTop="16dp"
+        android:background="@color/white"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/orange"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/orange"
+        app:tabTextColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
-    <TextView
-        android:id="@+id/tvReports"
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="הכל" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="הודעות" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabReport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="דיווחים" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerNotifications"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="דיווחים:"
-        android:textSize="20sp"
-        android:layout_marginTop="40dp"
-        android:padding="10dp"
-        android:background="#FFFFFF"
-        android:gravity="center_vertical"
-        android:textColor="@color/black" />
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintBaseline_toBottomOf="parent"/>
 
 
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

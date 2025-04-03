@@ -1,5 +1,6 @@
 package com.example.myfinalproject.RegistrationFragment;
 
+import com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.Database.UserDatabase;
@@ -183,7 +184,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new ChooseClassFragment.ChooseClassFragment())
+                    .replace(R.id.flFragment, new ChooseClassFragment())
                     .commit();
         }
         if (v == etDialogBirthday) {
@@ -371,13 +372,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //    public void onSuccess(User user) {
 //        Toast.makeText(getContext(), user.getUserName() + " added", Toast.LENGTH_SHORT).show();
 //    }
-
-
-
-
-
-
-
 
 
 

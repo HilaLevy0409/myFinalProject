@@ -9,49 +9,40 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.myfinalproject.ManageUserFragment.ManageUserFragment;
+import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
 import com.example.myfinalproject.R;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AdminFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class AdminFragment extends Fragment implements View.OnClickListener{
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private Button btnSend;
+    private TextView tvNumUsers;
 
     public AdminFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AdminProductFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static AdminFragment newInstance(String param1, String param2) {
         AdminFragment fragment = new AdminFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,41 +51,100 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_admin, container, false);
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Spinner spinner = view.findViewById(R.id.spinner);
+        btnSend = view.findViewById(R.id.btnSend);
+        tvNumUsers = view.findViewById(R.id.tvNumUsers);
 
-        String[] arraySpinner = new String[] {
-                "1", "2", "3", "4", "5", "6", "7"
-        };
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                android.R.layout.simple_spinner_dropdown_item, arraySpinner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
 
-        btnSend = view.findViewById(R.id. btnSend);
         btnSend.setOnClickListener(this);
 
 
+        List<String> usersList = new ArrayList<>();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_dropdown_item, usersList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String username = document.getString("userName");
+                        if (username != null) {
+                            usersList.add(username);
+                        }
+                    }
+                    tvNumUsers.setText(tvNumUsers.getText().toString() + usersList.size());
+                    adapter.notifyDataSetChanged();
+                    spinner.setSelection(0);
+
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error loading users", Toast.LENGTH_SHORT).show());
+        spinner.setAdapter(adapter);
+
+
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (position > 0) {
+                    String selectedUser = (String) parentView.getItemAtPosition(position);
+                    navigateToUserProfile(selectedUser);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+        });
     }
 
+    private void navigateToUserProfile(String username) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .whereEqualTo("userName", username)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        User user = document.toObject(User.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("userName", user.getUserName());
+                        bundle.putString("userEmail", user.getUserEmail());
+                        bundle.putString("userPhone", user.getPhone());
+                        bundle.putString("userBirthDate", user.getUserBirthDate());
+                        bundle.putInt("badPoints", user.getBadPoints());
+                        bundle.putInt("sumCount", user.getSumCount());
+                        ManageUserFragment manageUserFragment = new ManageUserFragment();
+                        manageUserFragment.setArguments(bundle);
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flFragment, manageUserFragment)
+                                .commit();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error loading user profile", Toast.LENGTH_SHORT).show());
+    }
+
+
+
     public void onClick(View v) {
-        if(v == btnSend ) {
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new NoticesAdminFragment())
-                    .commit();
+            if(v == btnSend ) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, new NoticesAdminFragment())
+                        .commit();
         }
     }
 }

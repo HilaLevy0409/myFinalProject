@@ -44,4 +44,25 @@ public class Validator {
         }
         return "";
     }
+
+    public static String isValidPhone(String phone) {
+        if (phone == null) {
+            return "נא להזין מספר טלפון";
+        }
+        return "";
+    }
+
+    public static String isValidBirthDate(String birthDate) {
+        if (birthDate == null) {
+            return "נא להזין תאריך לידה";
+        }
+        return "";
+    }
+
+    public static String isValidImageProfile(String imageProfile) {
+        if (imageProfile == null) {
+            return "נא להעלות תמונת פרופיל";
+        }
+        return "";
+    }
 }

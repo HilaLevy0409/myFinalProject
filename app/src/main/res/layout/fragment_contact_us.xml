@@ -1,55 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
-
-    android:padding="16dp"
+    android:fillViewport="true"
     tools:context=".ContactUsFragment.ContactUsFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="יצירת קשר "
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp" />
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="איזה כיף לשמור על קשר! כתבו לנו..."
-        android:textSize="25sp"
-        android:textColor="@color/black"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="90dp" />
-
-    <EditText
-        android:id="@+id/etText"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="כתיבת הודעה..."
-        android:textSize="20sp"
-        android:background="@android:drawable/edit_text"
-        android:padding="15dp"
-        android:inputType="textMultiLine"
-        android:minLines="5"
-        android:layout_marginTop="150dp"/>
+        android:padding="16dp"
+        android:background="@color/white">
 
-    <Button
-        android:id="@+id/btnSendTo"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="70dp"
-        android:backgroundTint="@color/orange"
-        android:text="שליחה"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-</FrameLayout>
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="יצירת קשר"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/contactInfoCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            android:layout_marginTop="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="פרטי יצירת קשר"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="שם משתמש">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUserName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="סוג הפנייה"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp"/>
+
+                <RadioGroup
+                    android:id="@+id/contactReasonGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp">
+
+                    <RadioButton
+                        android:id="@+id/rbTechnical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="בעיה טכנית"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbSupport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="תמיכה ועזרה"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbFeedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="משוב וייעול"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="אחר"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+                </RadioGroup>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilCustomReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="פירוט סיבה אחרת"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCustomReason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilContactDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="פירוט נוסף">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etContactDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:minLines="3"
+                        android:gravity="top|start" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btnSendContact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="שליחת פנייה"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="12dp"
+            android:backgroundTint="@color/orange"
+            app:layout_constraintTop_toBottomOf="@id/contactInfoCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tvSubmitStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="הפנייה נשלחה בהצלחה!"
+            android:textColor="@color/orange"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/btnSendContact"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

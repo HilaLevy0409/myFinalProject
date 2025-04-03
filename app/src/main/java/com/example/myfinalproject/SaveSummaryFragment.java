@@ -1,64 +1,120 @@
 package com.example.myfinalproject;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SaveSummaryFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.example.myfinalproject.Adapters.SummaryAdapter;
+import com.example.myfinalproject.Models.Summary;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class SaveSummaryFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "SaveSummaryFragment";
+    private ListView listViewSummaries;
+    private SearchView searchView;
+    private SummaryAdapter summaryAdapter;
+    private List<Summary> savedSummaries;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public SaveSummaryFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SaveSummaryFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SaveSummaryFragment newInstance(String param1, String param2) {
-        SaveSummaryFragment fragment = new SaveSummaryFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_save_summary, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        listViewSummaries = view.findViewById(R.id.listViewSummaries);
+        searchView = view.findViewById(R.id.searchView);
+
+        savedSummaries = new ArrayList<>();
+        summaryAdapter = new SummaryAdapter(getContext(), savedSummaries);
+        listViewSummaries.setAdapter(summaryAdapter);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        loadSavedSummaries();
+
+        setupSearchView();
+    }
+
+    private void loadSavedSummaries() {
+        if (mAuth.getCurrentUser() == null) {
+            return;
+        }
+
+        String userId = mAuth.getCurrentUser().getUid();
+        db.collection("users").document(userId)
+                .collection("favorites")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        String summaryId = document.getString("summaryId");
+                        if (summaryId != null) {
+                            loadSummaryData(summaryId);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error getting saved summaries", e);
+                    Toast.makeText(getContext(), "שגיאה בטעינת הסיכומים השמורים", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void loadSummaryData(String summaryId) {
+        db.collection("summaries").document(summaryId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Summary summary = documentSnapshot.toObject(Summary.class);
+                        if (summary != null) {
+                            savedSummaries.add(summary);
+                            summaryAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading summary", e);
+                });
+    }
+
+    private void setupSearchView() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                List<Summary> filteredList = new ArrayList<>();
+                for (Summary summary : savedSummaries) {
+                    if (summary.getSummaryTitle().toLowerCase().contains(newText.toLowerCase())) {
+                        filteredList.add(summary);
+                    }
+                }
+                summaryAdapter.updateSummaries(filteredList);
+                return true;
+            }
+        });
     }
 }

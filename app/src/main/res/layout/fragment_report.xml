@@ -1,64 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
-    android:background="@color/white"
+    android:fillViewport="true"
     tools:context=".ReportFragment.ReportFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="דיווח"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:textColor="?android:attr/textColorPrimary" />
-
-
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="פרטי הסיכום / המשתמש המדווח "
-        android:layout_marginTop="30dp"
-        android:padding="10dp"
-        android:textSize="20sp" />
+        android:padding="16dp"
+        android:background="@color/white">
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="הסיכום / המשתמש המדווח"
-        android:layout_marginTop="30dp"
-        android:id="@+id/userName"
-        android:padding="10dp"
-        android:textSize="20sp" />
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="דיווח"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp" />
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/reportInfoCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            android:layout_marginTop="24dp">
 
-    <EditText
-        android:id="@+id/etReport"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="סיבת הדיווח"
-        android:background="@android:drawable/edit_text"
-        android:padding="12dp"
-        android:minHeight="100dp"
-        android:gravity="top"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="16dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <Button
-        android:id="@+id/btnSendReport"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="שליחה"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="@color/orange" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="פרטי הדיווח"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
 
-</LinearLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilUserOrTopic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="הסיכום / המשתמש המדווח">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUserNameOrTopic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:enabled="false"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="סיבת הדיווח"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp"/>
+
+                <RadioGroup
+                    android:id="@+id/reportReasonGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp">
+
+                    <RadioButton
+                        android:id="@+id/rbInappropriate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="תוכן לא ראוי"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbSpam"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="תוכן ספאם"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbIncorrectInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="מידע שגוי/לא מדויק"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="אחר"
+                        android:textSize="16sp"
+                        android:padding="8dp"/>
+                </RadioGroup>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilCustomReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="פירוט סיבה אחרת"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCustomReason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilReportDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="פירוט נוסף">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etReport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:minLines="3"
+                        android:gravity="top|start" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btnSendReport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="שליחת דיווח"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="12dp"
+            android:backgroundTint="@color/orange"
+            app:layout_constraintTop_toBottomOf="@id/reportInfoCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tvSubmitStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="הדיווח נשלח בהצלחה!"
+            android:textColor="@color/orange"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/btnSendReport"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

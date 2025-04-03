@@ -2,14 +2,19 @@ package com.example.myfinalproject;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.os.Handler;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class FirstActivity extends AppCompatActivity {
+
+    private ProgressBar progressBar;
+    private TextView tvLoading;
+    private int progressStatus = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,19 +22,28 @@ public class FirstActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_first);
 
+        progressBar = findViewById(R.id.progressBar);
+        tvLoading = findViewById(R.id.tvLoading);
+        ImageView imageView = findViewById(R.id.imageView2);
+        animateImageView(imageView);
 
-        Thread t=new Thread() {
+        Thread t = new Thread() {
             public void run() {
-
                 try {
-
-                    sleep(3500);
-
-
-                    Intent i=new Intent(FirstActivity.this,MainActivity.class);
+                    while (progressStatus < 100) {
+                        progressStatus++;
+                        Thread.sleep(35);
+                        new Handler(getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setProgress(progressStatus);
+                                tvLoading.setText(progressStatus + "%");
+                            }
+                        });
+                    }
+                    sleep(500);
+                    Intent i = new Intent(FirstActivity.this, MainActivity.class);
                     startActivity(i);
-
-
                     finish();
 
                 } catch (Exception e) {
@@ -39,5 +53,13 @@ public class FirstActivity extends AppCompatActivity {
         };
 
         t.start();
+    }
+
+    private void animateImageView(ImageView imageView) {
+        Animation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        fadeIn.setDuration(1500);
+        fadeIn.setRepeatCount(Animation.INFINITE);
+        fadeIn.setRepeatMode(Animation.REVERSE);
+        imageView.startAnimation(fadeIn);
     }
 }

@@ -38,14 +38,11 @@ public class UserDatabase {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        // Use the Firebase Auth UID as the document ID
                         String userId = firebaseUser.getUid();
                         user.setId(userId);
 
-                        // Create document with specific UID
                         DocumentReference userRef = database.collection("users").document(userId);
 
-                        // Set user data only once
                         userRef.set(user)
                                 .addOnSuccessListener(aVoid -> {
                                     callback.onUserAdd(user);
@@ -66,7 +63,6 @@ public class UserDatabase {
                     if (documentSnapshot.exists()) {
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null) {
-                            // Set the ID since it's not automatically mapped
                             user.setId(documentSnapshot.getId());
                             callback.onUserReceived(user);
                         } else {
@@ -101,9 +97,8 @@ public class UserDatabase {
                 })
                 .addOnFailureListener(e -> {
                     String errorMessage = "Database error: " + e.getMessage();
-                    // Optionally log the error
                     Log.e("FirestoreError", errorMessage);
-                    callback.onError(errorMessage); // Provide detailed error to the callback
+                    callback.onError(errorMessage);
                 });
     }
 
@@ -196,6 +191,8 @@ public class UserDatabase {
 //                .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
 //                .addOnFailureListener(e -> callback.onError(e.getMessage()));
 //    }
+
+
 
 
 }

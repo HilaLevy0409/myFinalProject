@@ -25,6 +25,8 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                 android:textStyle="bold" />
 
 
+
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -47,10 +49,16 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     app:endIconMode="clear_text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
 
 
-
-            <com.google.android.material.button.MaterialButton
+    <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFinish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -62,6 +70,17 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="8dp" />
+
+    <TextView
+        android:id="@+id/tvPasswordGuidelines"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#20E720"
+        android:text="הסיסמה החדשה חייבת לכלול לפחות 8 תווים, תו מיוחד, אות גדולה, אות קטנה וספרה."
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:padding="5dp"/>
+
 
 </LinearLayout>
 

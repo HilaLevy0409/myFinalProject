@@ -5,157 +5,295 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
     android:background="@color/white"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:layoutDirection="rtl"
+    tools:context=".WritingSumFragment.WritingSumFragment">
 
 
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="16dp">
 
-        <Button
-            android:id="@+id/btnTips"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/actionBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
-            android:layout_gravity="center_horizontal"
-            android:text="💡"
-            android:layout_marginRight="150dp"
-            android:textStyle="bold"
-            android:textSize="26sp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
-        android:id="@+id/btnSaveSummary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="⭐ "
-        android:backgroundTint="@color/orange"/>
+            <Button
+                android:id="@+id/btnTips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:text="💡"
+                android:textSize="22sp"
+                app:strokeColor="@color/orange"
+                app:strokeWidth="1dp"
+                app:cornerRadius="24dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnSaveSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐"
+                android:textSize="22sp"
+                android:backgroundTint="@color/white"
+                app:strokeColor="@color/orange"
+                app:strokeWidth="1dp"
+                app:cornerRadius="24dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/sumImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/newlogo" />
+            android:layout_marginTop="16dp"
+            android:src="@drawable/newlogo"
+            app:layout_constraintTop_toBottomOf="@id/actionBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-
-        <TextView
-            android:id="@+id/tvClassTitle"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/basicInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="כיתה"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="1dp"
+            app:layout_constraintTop_toBottomOf="@id/sumImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/etClass"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="כיתה"
+                    android:layout_marginBottom="12dp"
+                    android:enabled="false"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etClass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="מקצוע"
+                    android:layout_marginBottom="12dp"
+                    android:enabled="false"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etProfession"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="נושא"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSummaryTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/summaryOptionButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="כיתה"
-            android:textSize="15sp"
-            android:inputType="text"
-            android:gravity="start"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/basicInfoCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/tvProfessionTitle"
+            <Button
+                android:id="@+id/btnWriteSummary"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="כתיבת סיכום"
+                android:textSize="16sp"
+                android:backgroundTint="@color/orange"
+                app:cornerRadius="8dp" />
+
+            <Button
+                android:id="@+id/btnUploadSummary"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="העלאת סיכום"
+                android:textSize="16sp"
+                android:backgroundTint="@color/orange"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/writeSummaryCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="מקצוע"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="1dp"
+            app:layout_constraintTop_toBottomOf="@id/summaryOptionButtons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/etProfession"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="כתיבת סיכום"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:drawablePadding="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E0E0E0"
+                    app:strokeWidth="1dp">
+
+                    <EditText
+                        android:id="@+id/etSummaryContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:background="@null"
+                        android:gravity="top|start"
+                        android:hint="הקלדת הסיכום כאן..."
+                        android:inputType="textMultiLine"
+                        android:padding="12dp"
+                        android:scrollbars="vertical"
+                        android:textSize="16sp" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/uploadSummaryCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint=" מקצוע"
-            android:textSize="15sp"
-            android:inputType="text"
-            android:gravity="start"/>
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="1dp"
+            app:layout_constraintTop_toBottomOf="@id/summaryOptionButtons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/tvSummaryTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="נושא"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="תמונה מצורפת"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
 
-        <EditText
-            android:id="@+id/etSummaryTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="נושא"
-            android:textSize="15sp"
-            android:inputType="text"
-            android:gravity="start"/>
+                <ImageView
+                    android:id="@+id/imageViewSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:scaleType="centerInside"
+                    android:background="#F5F5F5"
+                    tools:srcCompat="@tools:sample/avatars"
+                    android:layout_marginBottom="8dp"/>
 
-
-        <TextView
-            android:id="@+id/tvSummaryContentTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="כתיבת סיכום"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
-
-        <EditText
-            android:id="@+id/etSummaryContent"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:textSize="16sp"
-            android:background="@android:drawable/edit_text"
-
-            android:inputType="textMultiLine"
-            android:gravity="top|start"
-            android:scrollbars="vertical"/>
-
-        <ImageView
-            android:id="@+id/imageViewSummary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <Button
-            android:id="@+id/btnUploadPhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/orange"
-            android:layout_gravity="center_horizontal"
-            android:text="העלאת תמונה"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+                <Button
+                    android:id="@+id/btnUploadPhoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="העלאת תמונה"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/orange"
+                    android:layout_gravity="center"
+                    app:cornerRadius="8dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
             android:text="שליחת סיכום"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:backgroundTint="@color/orange"/>
+            android:backgroundTint="@color/orange"
+            app:cornerRadius="8dp"
+            app:layout_constraintTop_toBottomOf="@id/writeSummaryCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:elevation="4dp" />
 
 
-
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -10,6 +10,28 @@ public class Summary {
     private String summaryTitle;
     private String summaryContent;
     private String image;
+    private String createdDate;
+    private float rating;
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+
+
+    public String getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
+
 
 
 
@@ -26,8 +48,9 @@ public class Summary {
     }
 
 
-    // Empty constructor required for Firestore
-    public Summary() {}
+    public Summary() {
+
+    }
 
     public Summary(String classOption, String profession, String summaryTitle, String summaryContent) {
         this.summaryId = java.util.UUID.randomUUID().toString();
@@ -41,7 +64,6 @@ public class Summary {
 
 
 
-// Getters and setters
     public String getSummaryId() { return summaryId; }
     public void setSummaryId(String summaryId) { this.summaryId = summaryId; }
 
@@ -56,4 +78,6 @@ public class Summary {
 
     public String getSummaryContent() { return summaryContent; }
     public void setSummaryContent(String summaryContent) { this.summaryContent = summaryContent; }
+
+
 }

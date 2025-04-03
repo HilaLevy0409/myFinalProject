@@ -21,7 +21,7 @@ public class LoginUserPresenter {
                 if (user.getUserPass().equals(password)) {
                     view.showLoginSuccess(user);
                 } else {
-                    view.showLoginFailure("Invalid password.");
+                    view.showLoginFailure("סיסמה שגויה.");
                 }
             }
 

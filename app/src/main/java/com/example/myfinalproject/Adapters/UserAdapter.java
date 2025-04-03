@@ -1,4 +1,4 @@
-package com.example.myfinalproject.ChooseUserFragment;
+package com.example.myfinalproject.Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -26,13 +26,18 @@ import java.util.List;
 public class UserAdapter extends ArrayAdapter<User> {
     private Context context;
     private List<User> users;
-    OnUserClickListener onClickedReport;
+    private OnUserClickListener onClickedReport;
+    private OnUserClickListener onClickedSummaryByUser;
+    private OnUserClickListener onClickedSendMessage;
 
-    public UserAdapter(Context context, List<User> users, OnUserClickListener onClickedReport) {
-        super(context,  R.layout.onerow_user, users);
+    public UserAdapter(Context context, List<User> users, OnUserClickListener onClickedReport, OnUserClickListener onClickedSummaryByUser,
+                       OnUserClickListener onClickedSendMessage) {
+        super(context, R.layout.onerow_user, users);
         this.context = context;
         this.users = users;
         this.onClickedReport = onClickedReport;
+        this.onClickedSummaryByUser = onClickedSummaryByUser;
+        this.onClickedSendMessage = onClickedSendMessage;
     }
 
     @SuppressLint("SetTextI18n")
@@ -48,13 +53,12 @@ public class UserAdapter extends ArrayAdapter<User> {
             holder.tvUserName = convertView.findViewById(R.id.tvUserName);
             holder.tvSumNumTitle = convertView.findViewById(R.id.tvSumNumTitle);
             holder.btnReport = convertView.findViewById(R.id.btnReport);
-            holder.btnReport.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onClickedReport.onUserClick(position);
-                }
-            });
+            holder.btnSummaryByUser = convertView.findViewById(R.id.btnSummaryByUser);
+            holder.btnSendMessage = convertView.findViewById(R.id.btnSendMessage);
 
+            holder.btnReport.setOnClickListener(v -> onClickedReport.onUserClick(position));
+            holder.btnSummaryByUser.setOnClickListener(v -> onClickedSummaryByUser.onUserClick(position));
+            holder.btnSendMessage.setOnClickListener(v -> onClickedSendMessage.onUserClick(position));
 
             convertView.setTag(holder);
         } else {
@@ -65,6 +69,24 @@ public class UserAdapter extends ArrayAdapter<User> {
 
         holder.tvUserName.setText(user.getUserName());
         holder.tvSumNumTitle.setText("מספר סיכומים שנכתבו: " + (user.getSumCount() > 0 ? user.getSumCount() : "0"));
+
+        holder.btnReport.setOnClickListener(v -> {
+            if (onClickedReport != null) {
+                onClickedReport.onUserClick(position);
+            }
+        });
+
+        holder.btnSummaryByUser.setOnClickListener(v -> {
+            if (onClickedSummaryByUser != null) {
+                onClickedSummaryByUser.onUserClick(position);
+            }
+        });
+
+        holder.btnSendMessage.setOnClickListener(v -> {
+            if (onClickedSendMessage != null) {
+                onClickedSendMessage.onUserClick(position);
+            }
+        });
 
         if (user.getImageProfile() != null) {
             try {
@@ -86,8 +108,7 @@ public class UserAdapter extends ArrayAdapter<User> {
     private static class ViewHolder {
         ImageView imgUserProfile;
         TextView tvUserName, tvSumNumTitle;
-        Button btnReport;
-
+        Button btnReport, btnSummaryByUser, btnSendMessage;
     }
 
     public void updateUsers(List<User> newUsers) {
@@ -95,5 +116,4 @@ public class UserAdapter extends ArrayAdapter<User> {
         users.addAll(newUsers);
         notifyDataSetChanged();
     }
-
 }

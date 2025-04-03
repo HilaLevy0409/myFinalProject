@@ -33,6 +33,8 @@ public class SummaryDatabase {
                         Summary summary = documentSnapshot.toObject(Summary.class);
                         if (summary != null) {
                             summary.setSummaryId(documentSnapshot.getId());
+
+
                             callback.onSuccess(summary);
                         } else {
                             callback.onError("Invalid summary data");
