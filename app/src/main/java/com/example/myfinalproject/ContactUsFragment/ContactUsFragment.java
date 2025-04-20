@@ -22,23 +22,24 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
+
 public class ContactUsFragment extends Fragment {
 
-    private EditText etUserName;
-    private EditText etContactDetails;
+    private EditText etUserName, etContactDetails, etCustomReason;
     private RadioGroup contactReasonGroup;
     private RadioButton rbOther;
     private TextInputLayout tilCustomReason;
-    private EditText etCustomReason;
     private Button btnSendContact;
     private TextView tvSubmitStatus;
     private NotificationAdminDatabase notificationRepository;
 
     public ContactUsFragment() {
-        // Required empty public constructor
     }
 
     public static ContactUsFragment newInstance() {
+
         return new ContactUsFragment();
     }
 
@@ -49,7 +50,6 @@ public class ContactUsFragment extends Fragment {
 
 
         notificationRepository = new NotificationAdminDatabase();
-        setupListeners();
 
         return view;
     }
@@ -65,16 +65,18 @@ public class ContactUsFragment extends Fragment {
         etCustomReason = view.findViewById(R.id.etCustomReason);
         btnSendContact = view.findViewById(R.id.btnSendContact);
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
-    }
 
 
-    private void setupListeners() {
         contactReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
         });
 
         btnSendContact.setOnClickListener(v -> sendMessage());
+
     }
+
+
+
 
     private void sendMessage() {
         String contactDetails = etContactDetails.getText().toString().trim();
@@ -113,12 +115,15 @@ public class ContactUsFragment extends Fragment {
             userName = "משתמש";
         }
 
+
         NotificationAdmin message = new NotificationAdmin(
                 userId,
                 userName,
                 contactDetails,
-                reason
+                reason,
+                "CONTACT"
         );
+
 
         btnSendContact.setEnabled(false);
         notificationRepository.addNotification(message)

@@ -13,6 +13,22 @@ public class Summary {
     private String createdDate;
     private float rating;
 
+
+    public Summary(String classOption, String profession, String summaryTitle, String summaryContent) {
+        this.summaryId = java.util.UUID.randomUUID().toString();
+        this.classOption = classOption;
+        this.profession = profession;
+        this.summaryTitle = summaryTitle;
+        this.summaryContent = summaryContent;
+
+
+    }
+
+    public Summary() {
+
+    }
+
+
     public float getRating() {
         return rating;
     }
@@ -31,14 +47,6 @@ public class Summary {
         this.createdDate = createdDate;
     }
 
-
-
-
-
-
-
-
-
     public String getImage() {
         return image;
     }
@@ -46,22 +54,6 @@ public class Summary {
     public void setImage(String image) {
         this.image = image;
     }
-
-
-    public Summary() {
-
-    }
-
-    public Summary(String classOption, String profession, String summaryTitle, String summaryContent) {
-        this.summaryId = java.util.UUID.randomUUID().toString();
-        this.classOption = classOption;
-        this.profession = profession;
-        this.summaryTitle = summaryTitle;
-        this.summaryContent = summaryContent;
-
-
-    }
-
 
 
     public String getSummaryId() { return summaryId; }

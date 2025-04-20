@@ -13,7 +13,6 @@ public class Message {
 
     private String messageId;
 
-    // Constructor for new messages
     public Message(String text, boolean isSent) {
         this.text = text;
         this.isSent = isSent;
@@ -21,7 +20,6 @@ public class Message {
         formatTimestamp();
     }
 
-    // Constructor for messages from Firestore
     public Message(String text, boolean isSent, Date timestampDate) {
         this.text = text;
         this.isSent = isSent;
@@ -29,11 +27,9 @@ public class Message {
         formatTimestamp();
     }
 
-    // Format timestamp for display using Israel timezone
     private void formatTimestamp() {
         if (timestampDate != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            // Set timezone to Israel (UTC+2)
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
             this.timestamp = sdf.format(timestampDate);
         } else {

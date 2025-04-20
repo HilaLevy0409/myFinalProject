@@ -58,9 +58,10 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
     }
 
     public void addNotification(NotificationAdmin notification) {
-        notificationsList.add(notification);
-        notifyItemInserted(notificationsList.size() - 1);
+        notificationsList.add(0, notification);
+        notifyItemInserted(0);
     }
+
 
     public void removeNotification(NotificationAdmin notification) {
         int position = notificationsList.indexOf(notification);

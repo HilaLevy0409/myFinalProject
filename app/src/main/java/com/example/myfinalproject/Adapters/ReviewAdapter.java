@@ -34,7 +34,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         Review review = reviewList.get(position);
-        holder.tvReviewName.setText(review.getName());
+        holder.tvUser.setText(review.getName());
         holder.rbReviewRating.setRating(review.getRating());
         holder.tvWritingReview.setText(review.getWriting());
     }
@@ -45,12 +45,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
-        TextView tvReviewName, tvWritingReview;
+        TextView tvUser, tvWritingReview;
         RatingBar rbReviewRating;
 
         public ReviewViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvReviewName = itemView.findViewById(R.id.tvReviewName);
+            tvUser = itemView.findViewById(R.id.tvUser);
             rbReviewRating = itemView.findViewById(R.id.rbReviewRating);
             tvWritingReview = itemView.findViewById(R.id.tvWritingReview);
         }

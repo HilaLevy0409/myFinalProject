@@ -23,7 +23,7 @@ public class QuestionsFragment extends Fragment implements View.OnClickListener 
     }
 
 
-    public static QuestionsFragment newInstance(String param1, String param2) {
+    public static QuestionsFragment newInstance() {
         QuestionsFragment fragment = new QuestionsFragment();
         Bundle args = new Bundle();
 
@@ -34,15 +34,12 @@ public class QuestionsFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
 
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_questions, container, false);
     }
 

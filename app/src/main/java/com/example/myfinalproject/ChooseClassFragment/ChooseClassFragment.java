@@ -32,7 +32,7 @@ public class ChooseClassFragment extends Fragment {
     public ChooseClassFragment() {
     }
 
-    public static ChooseClassFragment newInstance(String param1, String param2) {
+    public static ChooseClassFragment newInstance() {
         ChooseClassFragment fragment = new ChooseClassFragment();
         Bundle args = new Bundle();
 
@@ -43,9 +43,6 @@ public class ChooseClassFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
     }
 
     @Override
@@ -176,18 +173,18 @@ public class ChooseClassFragment extends Fragment {
     private void unsubscribeFromFCMTopic(String className) {
     }
 
-    private void goToProfessionScreen(String className, boolean isGuest) {
+    private void goToProfessionScreen(String className, boolean isVisitor) {
         Bundle args = new Bundle();
         args.putString("selected_class", className);
-        args.putBoolean("is_guest", isGuest);
+        args.putBoolean("is_visitor", isVisitor);
 
-        ChooseProfessionFragment fragment = new ChooseProfessionFragment();
+        ChooseProfessionFragment chooseProfessionFragment = new ChooseProfessionFragment();
 
-        fragment.setArguments(args);
+        chooseProfessionFragment.setArguments(args);
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.flFragment, fragment)
+                .replace(R.id.flFragment, chooseProfessionFragment)
                 .commit();
     }
 }

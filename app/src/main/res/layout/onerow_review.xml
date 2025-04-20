@@ -1,71 +1,101 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:padding="10dp"
-
-    android:background="@color/white"
-    android:gravity="center_vertical">
-
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layoutDirection="rtl"
+    android:textDirection="rtl"
+    android:background="@color/white">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/white"
-        android:layout_weight="1">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/tvUser"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="שם משתמש"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:textSize="15sp"
-            android:layout_marginBottom="4dp"/>
+            android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/tvReviewName"
-            android:layout_width="match_parent"
+
+        <ImageButton
+            android:id="@+id/btnEditReview"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text=" "
-            android:textSize="12sp"
-            />
+            android:src="@android:drawable/ic_menu_edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="ערוך"
+            android:tint="@android:color/holo_blue_dark"
+            android:visibility="gone" />
 
-
-        <TextView
-            android:id="@+id/tvWritingReview"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/btnDeleteReview"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text=" "
-            android:background="@android:drawable/edit_text"
-            android:minHeight="120dp"
-            android:layout_marginTop="10dp"
-            android:textSize="15sp"
-            />
-
-
-        <RatingBar
-            android:id="@+id/rbReviewRating"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:isIndicator="true"
-            android:layout_marginTop="5dp" />
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/orange"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="מחיקת ביקורת"
+            android:tint="@android:color/holo_red_dark"
+            android:visibility="visible" />
     </LinearLayout>
 
 
+    <TextView
+        android:id="@+id/tvWritingReview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="תוכן הביקורת..."
+        android:background="@android:drawable/edit_text"
+        android:minHeight="100dp"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp" />
+
+    <RatingBar
+        android:id="@+id/rbReviewRating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:isIndicator="true"
+        android:layout_marginTop="5dp" />
+
+    <Button
+        android:id="@+id/btnSaveChanges"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="שמירת שינויים"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/orange"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:textStyle="bold"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textSize="14sp"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="start"
+        android:elevation="4dp"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/tvReviewTimestamp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="00/00/0000 - 00:00"
+        android:textSize="12sp"
+        android:textColor="@color/black"
+        android:gravity="end"
+        android:layout_marginTop="6dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/orange" />
 </LinearLayout>

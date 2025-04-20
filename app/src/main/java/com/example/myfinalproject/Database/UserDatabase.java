@@ -76,6 +76,7 @@ public class UserDatabase {
     }
 
 
+
     public void getUser(final String username, final UserCallback callback) {
 
         Query userQuery = database.collection("users").whereEqualTo("userName", username);
@@ -89,7 +90,7 @@ public class UserDatabase {
                         if (user != null) {
                             callback.onUserReceived(user);
                         } else {
-                            callback.onError("User data is invalid.");
+                            callback.onError("נתוני המשתמש אינם חוקיים");
                         }
                     } else {
                         callback.onError("לא נמצא משתמש");
@@ -102,26 +103,39 @@ public class UserDatabase {
                 });
     }
 
-    //
-//    public void loadUsers(UsersCallback callback) {
-//        database.collection("user")
-//                .get()
-//                .addOnSuccessListener(queryDocumentSnapshots -> {
-//                    List<User> products = new ArrayList<>();
-//                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-//                        User user = document.toObject(User.class);
-//                        if (user != null) {
-//                            user.setId(document.getId());
-//                            products.add(user);
-//                        }
-//                    }
-//                    callback.onSuccess(users);
-//                })
-//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-//    }
-//
+
+    public void updateUserPassword(String userEmail, String newPassword, UserCallback callback) {
+        // Find the user by email
+        database.collection("users")
+                .whereEqualTo("userEmail", userEmail)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            // Update password
+                            user.setUserPass(newPassword);
+
+                            // Save updated user
+                            database.collection("users").document(user.getId())
+                                    .set(user)
+                                    .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
+                                    .addOnFailureListener(e -> callback.onError(e.getMessage()));
+                        } else {
+                            callback.onError("Invalid user data");
+                        }
+                    } else {
+                        callback.onError("User not found");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+
+
     public void updateUser(User user, UserCallback callback) {
-        database.collection("user").document(user.getId())
+        database.collection("users").document(user.getId())
                 .set(user)
                .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
                .addOnFailureListener(e -> callback.onError(e.getMessage()));
@@ -134,6 +148,7 @@ public class UserDatabase {
                .addOnSuccessListener(aVoid -> callback.onUserReceived(null))
                .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
+
     public void getAllUsers(UsersCallback callback) {
         database.collection("users")
                 .get()
@@ -150,47 +165,7 @@ public class UserDatabase {
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
-//
-//
-//
-//
-//    public void getUser(User user) {
-//
-//
-//    }
-//
-//
-//
-//
-//
-//
-//    public interface UserCallback {
-//        void onSuccess(User user);
-//        void onError(String message);
-//    }
-//
-//
-//    public interface UsersCallback {
-//        void onSuccess(List<User> users);
-//        void onError(String message);
-//    }
-//
-//
-//
-//
 
-//    public void updateUser(String userId, User user, UserCallback callback) {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//        db.collection("Users").document(userId)
-//                .update(
-//                        "userEmail", user.getUserEmail(),
-//                        "phone", user.getPhone(),
-//                        "userName", user.getUserName()
-//                )
-//                .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
-//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-//    }
 
 
 

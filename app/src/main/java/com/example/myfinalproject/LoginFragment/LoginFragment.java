@@ -34,6 +34,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
@@ -43,9 +45,9 @@ import java.util.Objects;
 public class LoginFragment extends Fragment implements View.OnClickListener, LoginView {
 
     private Button btnNext, btnForgotPass, btnFinish, btnRegisterNow;
-    private EditText etUsername, etPassword;
-    private EditText etEmailS;
+    private EditText etUsername, etPassword, etEmailS;
     private DatabaseReference mDatabase;
+    private FirebaseFirestore database;
     private LoginUserPresenter presenter;
 
     public LoginFragment() {
@@ -54,7 +56,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
@@ -66,7 +67,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         btnRegisterNow = view.findViewById(R.id.btnRegisterNow);
 
         mDatabase = FirebaseDatabase.getInstance().getReference("users");
+        database = FirebaseFirestore.getInstance();
         presenter = new LoginUserPresenter(this);
+
 
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
@@ -131,28 +134,51 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             progressBar.setVisibility(View.VISIBLE);
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
-            auth.sendPasswordResetEmail(emailSend)
-                    .addOnCompleteListener(resetTask -> {
+
+            database.collection("users")
+                    .whereEqualTo("userEmail", emailSend)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            // Email exists, now send the password reset
+                            auth.sendPasswordResetEmail(emailSend)
+                                    .addOnCompleteListener(resetTask -> {
+                                        progressBar.setVisibility(View.GONE);
+                                        btnFinish.setVisibility(View.VISIBLE);
+
+                                        if (resetTask.isSuccessful()) {
+                                            Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
+
+                                            // Store the reset state for this email
+                                            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("PasswordResetPrefs", Context.MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putBoolean(emailSend, true);
+                                            editor.apply();
+
+                                            dialog.dismiss();
+                                        } else {
+                                            Exception exception = resetTask.getException();
+                                            if (exception != null) {
+                                                String errorMessage = exception.getMessage();
+
+                                                if (errorMessage != null && errorMessage.contains("no user record")) {
+                                                    Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה: " + errorMessage, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        }
+                                    });
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            btnFinish.setVisibility(View.VISIBLE);
+                            Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
                         progressBar.setVisibility(View.GONE);
                         btnFinish.setVisibility(View.VISIBLE);
-
-                        if (resetTask.isSuccessful()) {
-                            Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
-                            dialog.dismiss();
-                        } else {
-                            Exception exception = resetTask.getException();
-                            if (exception != null) {
-                                String errorMessage = exception.getMessage();
-
-                                if (errorMessage != null && errorMessage.contains("no user record")) {
-                                    Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה: " + errorMessage, Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(getContext(), "שגיאה בלתי ידועה בשליחת המייל לשחזור סיסמה", Toast.LENGTH_SHORT).show();
-                            }
-                        }
+                        Toast.makeText(getContext(), "שגיאה בבדיקת האימייל: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         });
         dialog.setCanceledOnTouchOutside(true);
@@ -164,7 +190,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         Toast.makeText(getContext(), "התחברת בהצלחה!", Toast.LENGTH_SHORT).show();
         saveUserToLocalStorage(user);
 
-        // Update navigation header in MainActivity
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateNavigationHeader();
         }

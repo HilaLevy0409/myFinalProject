@@ -23,13 +23,13 @@ import java.util.List;
 public class SummaryAdapter extends ArrayAdapter<Summary> {
 
     private Context context;
-    private List<Summary> Summaries;
+    private List<Summary> summaries;
 
 
-    public SummaryAdapter(Context context, List<Summary> Summaries) {
-        super(context, R.layout.onerow_summary, Summaries);
+    public SummaryAdapter(Context context, List<Summary> summaries) {
+        super(context, R.layout.onerow_summary, summaries);
         this.context = context;
-        this.Summaries = Summaries;
+        this.summaries = summaries;
     }
 
 
@@ -52,7 +52,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         }
 
 
-        Summary summary = Summaries.get(position);
+        Summary summary = summaries.get(position);
 
         holder.tvClass.setText("כיתה: " + summary.getClassOption());
         holder.tvProfessional.setText("מקצוע: " + summary.getProfession());
@@ -60,21 +60,35 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
 
 
 
-        if (summary.getImage() != null) {
+        if (summary.getImage() != null && !summary.getImage().isEmpty()) {
             try {
                 byte[] decodedString = Base64.decode(summary.getImage(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.imageSum.setImageBitmap(decodedByte);
             } catch (Exception e) {
-                Toast.makeText(context, "test", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "שגיאה בטעינת התמונה", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
-                holder.imageSum.setImageResource(R.drawable.newlogo);
+                holder.imageSum.setImageResource(R.drawable.newlogo); // מציגה את הלוגו אם יש בעיה בתמונה
             }
         } else {
-            Toast.makeText(context, "", Toast.LENGTH_LONG).show();
-            holder.imageSum.setImageResource(R.drawable.newlogo);
+            holder.imageSum.setImageResource(R.drawable.newlogo); // אם אין תמונה, מציגה את הלוגו
         }
 
+
+
+//        if (summary.getImage() != null) {
+//            try {
+//                byte[] decodedString = Base64.decode(summary.getImage(), Base64.DEFAULT);
+//                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//                holder.imageSum.setImageBitmap(decodedByte);
+//            } catch (Exception e) {
+//                Toast.makeText(context, "שגיאה בטעינת התמונה", Toast.LENGTH_LONG).show();
+//                e.printStackTrace();
+//                holder.imageSum.setImageResource(R.drawable.newlogo);
+//            }
+//        } else {
+//            holder.imageSum.setImageResource(R.drawable.newlogo);
+//        }
 
         return convertView;
     }
@@ -89,8 +103,8 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
 
 
     public void updateSummaries(List<Summary> newSummaries) {
-        Summaries.clear();
-        Summaries.addAll(newSummaries);
+        summaries.clear();
+        summaries.addAll(newSummaries);
         notifyDataSetChanged();
     }
 

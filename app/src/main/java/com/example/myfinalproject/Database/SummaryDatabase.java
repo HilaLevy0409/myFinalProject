@@ -13,6 +13,7 @@ public class SummaryDatabase {
     private FirebaseFirestore database;
 
     public SummaryDatabase() {
+
         database = FirebaseFirestore.getInstance();
     }
 
@@ -37,10 +38,10 @@ public class SummaryDatabase {
 
                             callback.onSuccess(summary);
                         } else {
-                            callback.onError("Invalid summary data");
+                            callback.onError("נתוני סיכום לא חוקיים");
                         }
                     } else {
-                        callback.onError("Summary not found");
+                        callback.onError("הסיכום לא נמצא");
                     }
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));

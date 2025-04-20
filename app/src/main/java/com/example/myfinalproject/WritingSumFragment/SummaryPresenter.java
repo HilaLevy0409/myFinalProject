@@ -21,33 +21,12 @@ public class SummaryPresenter {
 
     }
 
-//    public void loadSummaries(SummaryDatabase.SummariesCallback callback) {
-//        SummaryDatabase.loadSummaries(callback);
-//    }
-//
-//
-//    public void updateSummary(Summary summary) {
-//        SummaryDatabase.updateSummary(summary, new SummaryDatabase.SummaryCallback() {
-//            @Override
-//            public void onSuccess(Summary summary) {
-//                view.onSummaryUpdated(summary);
-//            }
-//
-//
-//            @Override
-//            public void onError(String message) {
-//                view.onError(message);
-//            }
-//        });
-//    }
-//
-//
-//
+
    public void deleteSummary(String summaryId) {
        summaryDb.deleteSummary(summaryId, new SummaryCallback() {
            @Override
            public void onSuccess(Summary summary) {
-               view.onSummaryDeleted();
+//               view.onSummaryDeleted();
            }
 
            @Override
@@ -56,24 +35,7 @@ public class SummaryPresenter {
             }
        });
     }
-//
-//
-//
-//
-//    public void submitClicked(Summary summary) {
-//     SummaryDatabase.addSummary(summary, new SummaryDatabase.SummaryCallback() {
-//            @Override
-//            public void onSuccess(Summary summary) {
-//                // Product added successfully, update UI or display a message
-//                view.onSuccess(summary);
-//            }
-//
-//
-//            public void onError(String message) {
-//            }
-//        });
-//    }
-//}
+
 
 
 

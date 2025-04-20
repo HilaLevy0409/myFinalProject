@@ -5,6 +5,6 @@ import com.example.myfinalproject.Models.Summary;
 import java.util.List;
 
 public interface SummariesCallback {
-    public void onSuccess(List<Summary> summaries);
-    public void onError(String message);
+     void onSuccess(List<Summary> summaries);
+     void onError(String message);
 }

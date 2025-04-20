@@ -12,6 +12,16 @@ public class User {
     private int sumCount;
 
 
+    public User() {}
+
+    public User(String userName, String userPass, String userEmail, String phone) {
+        this.userName = userName;
+        this.userPass = userPass;
+        this.userEmail = userEmail;
+        this.phone = phone;
+    }
+
+
     public String getUserBirthDate() {
         return userBirthDate;
     }
@@ -44,15 +54,7 @@ public class User {
 
 
 
-    public User() {}
 
-    public User(String userName, String userPass, String userEmail, String phone) {
-        this.userName = userName;
-        this.userPass = userPass;
-        this.userEmail = userEmail;
-        this.phone = phone;
-
-    }
 
     public String getUserEmail() {
 

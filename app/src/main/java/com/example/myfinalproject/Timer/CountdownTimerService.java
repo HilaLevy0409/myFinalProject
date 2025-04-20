@@ -14,6 +14,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.example.myfinalproject.CallBacks.TimeCallback;
 import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.R;
 
@@ -30,15 +31,14 @@ public class CountdownTimerService extends Service {
     private boolean notificationSent = false;
     private boolean notificationsEnabled = true;
 
-    private TimerUpdateListener timerUpdateListener;
+    private TimeCallback timerUpdateCallback;
 
-    public interface TimerUpdateListener {
-        void onTimerUpdate(long millisUntilFinished);
-        void onTimerFinish();
-    }
+
+
 
     public class LocalBinder extends Binder {
         CountdownTimerService getService() {
+
             return CountdownTimerService.this;
         }
     }
@@ -88,8 +88,8 @@ public class CountdownTimerService extends Service {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeRemaining = millisUntilFinished;
-                if (timerUpdateListener != null) {
-                    timerUpdateListener.onTimerUpdate(millisUntilFinished);
+                if (timerUpdateCallback != null) {
+                    timerUpdateCallback.onTimerUpdate(millisUntilFinished);
                 }
 
                 if (notificationsEnabled && !notificationSent && notificationMinutes > 0 &&
@@ -106,8 +106,8 @@ public class CountdownTimerService extends Service {
             public void onFinish() {
                 timeRemaining = 0;
                 isTimerRunning = false;
-                if (timerUpdateListener != null) {
-                    timerUpdateListener.onTimerFinish();
+                if (timerUpdateCallback != null) {
+                    timerUpdateCallback.onTimerFinish();
                 }
 
                 if (notificationsEnabled) {
@@ -156,13 +156,14 @@ public class CountdownTimerService extends Service {
         return notificationsEnabled;
     }
 
-    public void setTimerUpdateListener(TimerUpdateListener listener) {
-        this.timerUpdateListener = listener;
+    public void setTimerUpdateCallback(TimeCallback callback) {
+        this.timerUpdateCallback = callback;
     }
 
-    public void removeTimerUpdateListener() {
-        this.timerUpdateListener = null;
+    public void removeTimerUpdateCallback() {
+        this.timerUpdateCallback = null;
     }
+
 
     private String formatTime(long millis) {
         int hours = (int) (millis / (1000 * 60 * 60));

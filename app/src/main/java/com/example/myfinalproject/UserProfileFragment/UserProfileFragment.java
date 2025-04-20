@@ -33,7 +33,7 @@ import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.Message.ChooseMessageFragment;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
-import com.example.myfinalproject.SaveSummaryFragment;
+import com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import com.example.myfinalproject.MainActivity;
@@ -56,11 +56,11 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     final int REQUEST_CODE_GALLERY = 999;
     private User currentUser;
 
-//    private StorageReference mStorage;
+    //    private StorageReference mStorage;
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     private static final int REQUEST_GALLERY_PICK = 102;
-//    private Uri imageUri;
-private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
+    //    private Uri imageUri;
+    private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
 
 //    private Uri filePath;
 //    private final int PICK_IMAGE_REQUEST = 71;

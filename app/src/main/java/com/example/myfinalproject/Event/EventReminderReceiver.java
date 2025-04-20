@@ -22,7 +22,7 @@ public class EventReminderReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.bell)
                 .setContentTitle("תזכורת לאירוע")
-                .setContentText("תזכורת: " + eventTitle + " מחר!")
+                .setContentText("תזכורת: " + eventTitle + "מחר!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
 

@@ -47,7 +47,6 @@ public class MessageFragment extends Fragment {
     private ImageButton imgBtnBack;
 
     public MessageFragment() {
-        // Required empty public constructor
     }
 
     @Override

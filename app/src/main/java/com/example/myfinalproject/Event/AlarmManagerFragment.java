@@ -55,7 +55,6 @@ public class AlarmManagerFragment extends Fragment {
     private static final String TAG = "AlarmManagerFragment";
 
     public AlarmManagerFragment() {
-        // Required empty public constructor
     }
 
     @Override

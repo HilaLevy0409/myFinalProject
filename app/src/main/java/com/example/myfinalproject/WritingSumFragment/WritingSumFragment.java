@@ -62,8 +62,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private List<Profession> professions;
 
 
-    private String selectedClass;
-    private String selectedProfession;
+    private String selectedClass, selectedProfession;
 
     private Summary summary;
     private boolean isWriteMode = true;
@@ -158,9 +157,9 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnSubmit.setVisibility(View.VISIBLE);
     }
 
-    public void onSummaryDeleted() {
-        showToast("הסיכום נמחק בהצלחה");
-    }
+//    public void onSummaryDeleted() {
+//        showToast("הסיכום נמחק בהצלחה");
+//    }
 
     public void onError(String message) {
         showToast("שגיאה: " + message);

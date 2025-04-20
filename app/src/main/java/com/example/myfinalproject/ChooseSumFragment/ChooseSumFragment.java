@@ -60,8 +60,9 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     private ArrayList<Summary> summaryList;
     private ChooseSumPresenter chooseSumPresenter;
     private SearchView searchView;
-    private String selectedClass;
-    private String selectedProfession;
+    private String selectedClass, selectedProfession;
+    private ArrayList<Summary> fullSummaryList = new ArrayList<>();
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,7 +110,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                chooseSumPresenter.filterSummaries(newText, summaryList, summaryAdapter);
+                filterSummariesByTitle(newText);
                 return true;
             }
         });
@@ -127,8 +128,6 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                     REQUEST_STORAGE_PERMISSION);
         }
     }
-
-
 
 
 
@@ -163,10 +162,13 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
                 getActivity().runOnUiThread(() -> {
                     summaryList.clear();
+                    fullSummaryList.clear();
+                    fullSummaryList.addAll(summaries); // ← שמירת המקור
                     summaryList.addAll(summaries);
                     summaryAdapter.notifyDataSetChanged();
                 });
             }
+
 
             @Override
             public void onError(String message) {
@@ -404,4 +406,20 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         if (getContext() == null) return;
         Toast.makeText(getContext(), "שגיאה: " + message, Toast.LENGTH_SHORT).show();
     }
+
+    private void filterSummariesByTitle(String query) {
+        summaryList.clear();
+        if (query.isEmpty()) {
+            summaryList.addAll(fullSummaryList);
+        } else {
+            String lowerCaseQuery = query.toLowerCase().trim();
+            for (Summary summary : fullSummaryList) {
+                if (summary.getSummaryTitle().toLowerCase().contains(lowerCaseQuery)) {
+                    summaryList.add(summary);
+                }
+            }
+        }
+        summaryAdapter.notifyDataSetChanged();
+    }
+
 }

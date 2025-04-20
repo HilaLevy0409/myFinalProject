@@ -44,8 +44,8 @@ public class ClassAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.grid_item, parent, false);
         }
 
-        TextView textViewClass = convertView.findViewById(R.id.textViewClass);
-        textViewClass.setText(classes[position]);
+        TextView tvClass = convertView.findViewById(R.id.tvClass);
+        tvClass.setText(classes[position]);
 
         int color = Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
         convertView.setBackgroundColor(color);

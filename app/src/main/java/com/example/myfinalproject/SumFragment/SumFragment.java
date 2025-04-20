@@ -111,20 +111,27 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
         btnReport.setOnClickListener(this);
         btnSaveSummary.setOnClickListener(this);
-        ratingBarSum.setOnClickListener(this);
         fabExport.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         btnStopContinue.setOnClickListener(this);
         btnReset.setOnClickListener(this);
 
         initTextToSpeech();
-        setupSpeedControl();
+        speedControl();
 
         ratingBarSum.setIsIndicator(true);
 
         loadSummaryData();
         checkIfFavorite();
 
+        ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+            if (fromUser) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, new SumReviewFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
 
     }
@@ -195,7 +202,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void setupSpeedControl() {
+    private void speedControl() {
         seekBarSpeed.setMax(20);
         seekBarSpeed.setProgress(10);
 
@@ -445,7 +452,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
     private void updateFavoriteButton() {
         if (isFavorite) {
-            btnSaveSummary.setText("❤️הסר ממועדפים❤️");
+            btnSaveSummary.setText("❤️הסרה ממועדפים❤️");
         } else {
             btnSaveSummary.setText("⭐שמירה במועדפים⭐");
         }
@@ -502,11 +509,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, new ReportFragment())
                     .commit();
-        } else if (view == ratingBarSum) {
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, new SumReviewFragment())
-                    .addToBackStack(null)
-                    .commit();
         } else if (view == btnSaveSummary) {
             toggleFavorite();
         } else if (view == btnStart) {
@@ -549,4 +551,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getContext(), "אין תוכן לשתף", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

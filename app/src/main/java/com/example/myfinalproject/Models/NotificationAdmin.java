@@ -11,30 +11,58 @@ public class NotificationAdmin {
     private String content;
     private String type; //הודעה או דיווח
     private String reportReason;
+    private String contactReason;
     private Timestamp timestamp;
     private boolean isRead;
+
 
     public NotificationAdmin() {
     }
 
-    public NotificationAdmin(String userId, String userName, String content) {
+//    public NotificationAdmin(String userId, String userName, String content) {
+//        this.userId = userId;
+//        this.userName = userName;
+//        this.content = content;
+//        this.type = "MESSAGE";
+//        this.timestamp = Timestamp.now();
+//        this.isRead = false;
+//    }
+//
+//    public NotificationAdmin(String userId, String userName, String content, String reportReason) {
+//        this.userId = userId;
+//        this.userName = userName;
+//        this.content = content;
+//        this.reportReason = reportReason;
+//        this.type = "REPORT";
+//        this.timestamp = Timestamp.now();
+//        this.isRead = false;
+//    }
+
+
+    public NotificationAdmin(String userId, String userName, String content, String reason, String type) {
         this.userId = userId;
         this.userName = userName;
         this.content = content;
-        this.type = "MESSAGE";
+        this.type = type;
         this.timestamp = Timestamp.now();
         this.isRead = false;
+
+        if (type.equals("REPORT")) {
+            this.reportReason = reason;
+        } else if (type.equals("CONTACT")) {
+            this.contactReason = reason;
+        }
     }
 
-    public NotificationAdmin(String userId, String userName, String content, String reportReason) {
-        this.userId = userId;
-        this.userName = userName;
-        this.content = content;
-        this.reportReason = reportReason;
-        this.type = "REPORT";
-        this.timestamp = Timestamp.now();
-        this.isRead = false;
+
+    public String getContactReason() {
+        return contactReason;
     }
+
+    public void setContactReason(String contactReason) {
+        this.contactReason = contactReason;
+    }
+
 
     public String getId() {
         return id;

@@ -34,44 +34,4 @@ public class ChooseUserPresenter {
       });
     }
 
-//    public void updateUser(User user) {
-//        userDatabase.updateUser(user, new UserCallback() {
-//            @Override
-//            public void onSuccess(User user1) {
-//                //     view.onUserUpdated(users1);
-//            }
-//
-//            @Override
-//            public void onError(String message) {
-//                view.onError(message);
-//            }
-//        });
-//    }
-
-//    public void deleteUser(String userId) {
-//       userDatabase.deleteUser(userId, new UserCallback() {
-//            @Override
-//            public void onSuccess(User user1) {
-//
-//            }
-
-//            @Override
-//            public void onError(String message) {
-//                view.onError(message);
-//            }
-//        });
-//    }
-
-//    public void filterUsers(String query, ArrayList<User> originalList, UserAdapter adapter) {
-//        ArrayList<User> filteredList = new ArrayList<>();
-//
-//        for (User user : originalList) {
-//            if (user.getUserName().toLowerCase().contains(query.toLowerCase()) ||
-//                    user.getSumCount().toLowerCase().contains(query.toLowerCase())) {
-//                filteredList.add(user);
-//            }
-//        }
-//
-//        adapter.updateUsers(filteredList);
-//    }
 }

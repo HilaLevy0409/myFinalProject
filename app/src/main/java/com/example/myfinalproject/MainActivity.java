@@ -32,7 +32,7 @@ import androidx.appcompat.widget.Toolbar;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
-
+    private PasswordResetHandler passwordResetHandler;
     public void updateNavigationHeader() {
         NavigationView navigationView = findViewById(R.id.navView);
         View headerView = navigationView.getHeaderView(0);
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         FirebaseApp.initializeApp(this);
-
+        passwordResetHandler = new PasswordResetHandler(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -189,4 +189,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        passwordResetHandler.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        passwordResetHandler.stopListening();
+    }
+
 }

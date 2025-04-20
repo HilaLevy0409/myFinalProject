@@ -437,7 +437,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         );
 
         etDialogBirthday.setOnClickListener(new View.OnClickListener() {
-           @Override
+            @Override
             public void onClick(View v) {
                 datePickerDialog.show();
             }

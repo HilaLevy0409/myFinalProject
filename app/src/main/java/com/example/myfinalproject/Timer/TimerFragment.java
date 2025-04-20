@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.myfinalproject.CallBacks.TimeCallback;
 import com.example.myfinalproject.R;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -40,7 +41,8 @@ public class TimerFragment extends Fragment {
             timerService = binder.getService();
             isBound = true;
 
-            timerService.setTimerUpdateListener(new CountdownTimerService.TimerUpdateListener() {
+            timerService.setTimerUpdateCallback(new TimeCallback() {
+
                 @Override
                 public void onTimerUpdate(long millisUntilFinished) {
                     updateTimerDisplay(millisUntilFinished);
@@ -144,7 +146,7 @@ public class TimerFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if (isBound) {
-            timerService.removeTimerUpdateListener();
+            timerService.removeTimerUpdateCallback();
             getActivity().unbindService(serviceConnection);
             isBound = false;
         }

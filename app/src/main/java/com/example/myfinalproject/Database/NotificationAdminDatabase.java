@@ -46,4 +46,8 @@ public class NotificationAdminDatabase {
     public Task<Void> markAsRead(String notificationId) {
         return notificationsRef.document(notificationId).update("read", true);
     }
+
+    public Task<Void> deleteNotification(String notificationId) {
+        return notificationsRef.document(notificationId).delete();
+    }
 }

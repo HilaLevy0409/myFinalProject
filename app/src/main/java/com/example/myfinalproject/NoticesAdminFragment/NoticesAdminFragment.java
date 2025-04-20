@@ -60,18 +60,32 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
         tabLayout = view.findViewById(R.id.tabLayout);
         recyclerNotifications = view.findViewById(R.id.recyclerNotifications);
 
-        setupRecyclerView();
-        setupTabListener();
-    }
-
-    private void setupRecyclerView() {
         recyclerNotifications.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new NotificationsAdminAdapter(new ArrayList<>(), this);
         recyclerNotifications.setAdapter(adapter);
 
         loadNotifications(TAB_ALL);
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                loadNotifications(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // אין צורך
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // אין צורך
+            }
+        });
     }
+
+
 
     private void loadNotifications(int tabPosition) {
         switch (tabPosition) {
@@ -103,24 +117,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
         }
     }
 
-    private void setupTabListener() {
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                loadNotifications(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                // Not needed
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                // Not needed
-            }
-        });
-    }
 
     @Override
     public void onClick(View v) {
@@ -134,13 +130,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onNotificationClick(NotificationAdmin notification) {
-        if (!notification.isRead()) {
-            notificationRepository.markAsRead(notification.getId());
-
-            notification.setRead(true);
-            adapter.notifyDataSetChanged();
-        }
-
         showNotificationDetailsDialog(notification);
     }
 
@@ -153,6 +142,9 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
         if ("REPORT".equals(notification.getType())) {
             messageBuilder.append("סיבת דיווח: ").append(notification.getReportReason()).append("\n\n");
         }
+        else if ("MESSAGE".equals(notification.getType())) {
+            messageBuilder.append("סיבת פנייה: ").append(notification.getContactReason()).append("\n\n");
+        }
 
         messageBuilder.append("תוכן:\n").append(notification.getContent());
 
@@ -160,8 +152,17 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 .setTitle(title)
                 .setMessage(messageBuilder.toString())
                 .setPositiveButton("סגור", null)
+                .setNeutralButton("סימון כטופל", (dialog, which) -> {
+                    notificationRepository.markAsRead(notification.getId())
+                            .addOnSuccessListener(aVoid -> {
+                                adapter.removeNotification(notification);
+                                notificationRepository.deleteNotification(notification.getId());
+                            });
+                })
                 .show();
+
     }
+
 
     @Override
     public void onStart() {

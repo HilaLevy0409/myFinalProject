@@ -23,6 +23,8 @@ import com.example.myfinalproject.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
     public ChooseProfessionFragment() {
     }
 
-    public static ChooseProfessionFragment newInstance(String param1, String param2) {
+    public static ChooseProfessionFragment newInstance() {
         ChooseProfessionFragment fragment = new ChooseProfessionFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -57,33 +59,30 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
 
-
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choose_professional, container, false);
+        return inflater.inflate(R.layout.fragment_choose_professional, container, false);
+    }
+
+
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         recyclerProfessions = view.findViewById(R.id.recyclerSubjects);
         tabLayout = view.findViewById(R.id.tabLayout);
         searchView = view.findViewById(R.id.searchViewPro);
         progressBar = view.findViewById(R.id.progressBar);
         emptyState = view.findViewById(R.id.emptyState);
-
         tvSubtitle = view.findViewById(R.id.tvSubtitle);
-        tvSubtitle.setText("כיתה " + selectedClass );
+        tvSubtitle.setText("כיתה " + selectedClass);
 
-
-
-        setupEmptyState(view);
-        setupRecyclerView();
-        setupFilters();
-        return view;
-    }
-
-    private void setupEmptyState(View view) {
         ImageView emptyStateImage = emptyState.findViewById(R.id.emptyStateImage);
         if (emptyStateImage != null) {
             emptyStateImage.setImageResource(android.R.drawable.ic_menu_search);
@@ -98,50 +97,14 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
                 tab.select();
             }
         });
-    }
 
-    private void setupRecyclerView() {
         List<Profession> professions = createProfessionsList();
-
         adapter = new ProfessionAdapter(requireContext(), professions, this);
-
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         recyclerProfessions.setLayoutManager(layoutManager);
         recyclerProfessions.setAdapter(adapter);
-
         showContent();
-    }
 
-    private List<Profession> createProfessionsList() {
-        List<Profession> professions = new ArrayList<>();
-
-        String mandatoryCategory = "מקצועות חובה";
-        professions.add(new Profession("לשון", mandatoryCategory));
-        professions.add(new Profession("היסטוריה", mandatoryCategory));
-        professions.add(new Profession("אזרחות", mandatoryCategory));
-        professions.add(new Profession("מתמטיקה", mandatoryCategory));
-        professions.add(new Profession("אנגלית", mandatoryCategory));
-        professions.add(new Profession("ספרות", mandatoryCategory));
-        professions.add(new Profession("תנ״ך", mandatoryCategory));
-
-        String majorsCategory = "מגמות";
-        professions.add(new Profession("מדעי המחשב", majorsCategory));
-        professions.add(new Profession("כימיה", majorsCategory));
-        professions.add(new Profession("פיזיקה", majorsCategory));
-        professions.add(new Profession("ביולוגיה", majorsCategory));
-        professions.add(new Profession("מנהל וכלכלה", majorsCategory));
-        professions.add(new Profession("גיאוגרפיה", majorsCategory));
-        professions.add(new Profession("מדעי החברה", majorsCategory));
-        professions.add(new Profession("ערבית", majorsCategory));
-        professions.add(new Profession("קולנוע ותקשורת", majorsCategory));
-        professions.add(new Profession("רפואה", majorsCategory));
-        professions.add(new Profession("עיצוב", majorsCategory));
-        professions.add(new Profession("מדעי הספורט", majorsCategory));
-        professions.add(new Profession("משפטים", majorsCategory));
-
-        return professions;
-    }
-    private void setupFilters() {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -178,6 +141,38 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
             }
         });
     }
+
+
+    private List<Profession> createProfessionsList() {
+        List<Profession> professions = new ArrayList<>();
+
+        String mandatoryCategory = "מקצועות חובה";
+        professions.add(new Profession("לשון", mandatoryCategory));
+        professions.add(new Profession("היסטוריה", mandatoryCategory));
+        professions.add(new Profession("אזרחות", mandatoryCategory));
+        professions.add(new Profession("מתמטיקה", mandatoryCategory));
+        professions.add(new Profession("אנגלית", mandatoryCategory));
+        professions.add(new Profession("ספרות", mandatoryCategory));
+        professions.add(new Profession("תנ״ך", mandatoryCategory));
+
+        String majorsCategory = "מגמות";
+        professions.add(new Profession("מדעי המחשב", majorsCategory));
+        professions.add(new Profession("כימיה", majorsCategory));
+        professions.add(new Profession("פיזיקה", majorsCategory));
+        professions.add(new Profession("ביולוגיה", majorsCategory));
+        professions.add(new Profession("מנהל וכלכלה", majorsCategory));
+        professions.add(new Profession("גיאוגרפיה", majorsCategory));
+        professions.add(new Profession("מדעי החברה", majorsCategory));
+        professions.add(new Profession("ערבית", majorsCategory));
+        professions.add(new Profession("קולנוע ותקשורת", majorsCategory));
+        professions.add(new Profession("רפואה", majorsCategory));
+        professions.add(new Profession("עיצוב", majorsCategory));
+        professions.add(new Profession("מדעי הספורט", majorsCategory));
+        professions.add(new Profession("משפטים", majorsCategory));
+
+        return professions;
+    }
+
     private void checkForEmptyState() {
         if (adapter.getItemCount() == 0) {
             recyclerProfessions.setVisibility(View.GONE);
@@ -256,7 +251,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
     private void unsubscribeFromProfessionNotifications(String professionName) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = auth.getCurrentUser().getUid(); // מזהה המשתמש
+        String userId = auth.getCurrentUser().getUid();
 
         db.collection("notifications_subscriptions")
                 .document(userId)

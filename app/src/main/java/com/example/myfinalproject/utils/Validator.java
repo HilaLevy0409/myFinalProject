@@ -3,7 +3,7 @@ package com.example.myfinalproject.Utils;
 public class Validator {
     public static String isValidUsername(String username) {
         if (username.length() < 3) {
-            return "שם משתמש חייב להכיל לפחות 3 תווים ";
+            return "שם משתמש חייב להכיל לפחות 3 תווים";
         }
         return "";
     }
@@ -45,12 +45,25 @@ public class Validator {
         return "";
     }
 
+//    public static String isValidPhone(String phone) {
+//        if (phone == null) {
+//            return "נא להזין מספר טלפון";
+//        }
+//        return "";
+//    }
+
     public static String isValidPhone(String phone) {
-        if (phone == null) {
+        if (phone == null || phone.trim().isEmpty()) {
             return "נא להזין מספר טלפון";
         }
+
+        if (!phone.startsWith("05")) {
+            return "מספר טלפון חייב להתחיל ב-05";
+        }
+
         return "";
     }
+
 
     public static String isValidBirthDate(String birthDate) {
         if (birthDate == null) {

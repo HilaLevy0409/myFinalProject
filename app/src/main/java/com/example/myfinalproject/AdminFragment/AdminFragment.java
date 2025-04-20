@@ -39,7 +39,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
     }
 
 
-    public static AdminFragment newInstance(String param1, String param2) {
+    public static AdminFragment newInstance() {
         AdminFragment fragment = new AdminFragment();
         Bundle args = new Bundle();
 
@@ -49,10 +49,8 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
 
-        }
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -90,11 +88,8 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                     spinner.setSelection(0);
 
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error loading users", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "שגיאה בטעינת משתמשים", Toast.LENGTH_SHORT).show());
         spinner.setAdapter(adapter);
-
-
-
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -134,7 +129,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                                 .commit();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error loading user profile", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "שגיאה בטעינת פרטי משתמש", Toast.LENGTH_SHORT).show());
     }
 
 

@@ -1,13 +1,13 @@
 package com.example.myfinalproject.ManageUserFragment;
 
-import android.content.Intent;
+import android.app.AlertDialog;
 import android.os.Bundle;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,9 +16,10 @@ import androidx.fragment.app.Fragment;
 import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.Message.MessageFragment;
 import com.example.myfinalproject.Models.User;
-import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class ManageUserFragment extends Fragment implements View.OnClickListener {
 
@@ -26,14 +27,14 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
     private int badPoints = 0;
     private TextView tvBadPoints, tvEmail, tvPhone, tvBirthDate, tvSumNum, tvUsername;
-    private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnBack;
+    private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnBack, btnDeleteUser;
     private User currentUser;
 
 
     public ManageUserFragment() {
     }
 
-    public static ManageUserFragment newInstance(String param1, String param2) {
+    public static ManageUserFragment newInstance() {
         ManageUserFragment fragment = new ManageUserFragment();
         Bundle args = new Bundle();
 
@@ -44,9 +45,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
 
-        }
     }
 
     @Override
@@ -57,7 +56,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
 
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
         tvEmail = view.findViewById(R.id.tvEmail);
@@ -71,12 +69,16 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         btnRemovePoint = view.findViewById(R.id.btnRemovePoint);
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
         btnBack = view.findViewById(R.id.btnBack);
+        btnDeleteUser = view.findViewById(R.id.btnDeleteUser);
+
 
         btnBack.setOnClickListener(this);
         btnAddPoint.setOnClickListener(this);
         btnRemovePoint.setOnClickListener(this);
         btnShowSums.setOnClickListener(this);
         btnSendMessage.setOnClickListener(this);
+        btnDeleteUser.setOnClickListener(this);
+
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -113,21 +115,37 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new SumByUserFragment())
+                    .addToBackStack(null)
                     .commit();
         } else if (view.getId() == R.id.btnSendMessage) {
-            btnSendMessage.setOnClickListener(v -> {
-                MessageFragment messageFragment = new MessageFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("userName", currentUser.getUserName());
-                bundle.putString("userProfilePic", currentUser.getImageProfile());
-                messageFragment.setArguments(bundle);
+//            btnSendMessage.setOnClickListener(v -> {
+//                MessageFragment messageFragment = new MessageFragment();
+//                Bundle bundle = new Bundle();
+//                bundle.putString("userName", currentUser.getUserName());
+//                messageFragment.setArguments(bundle);
+//
+//                getActivity().getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.flFragment, new MessageFragment())
+//                        .addToBackStack(null)
+//                        .commit();
+//            });
 
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flFragment, new MessageFragment())
-                        .addToBackStack(null)
-                        .commit();
-            });
+            MessageFragment messageFragment = new MessageFragment();
+            Bundle bundle = new Bundle();
+
+            if (currentUser != null) {
+                bundle.putString("userName", currentUser.getUserName());
+            }
+
+            messageFragment.setArguments(bundle);
+
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, messageFragment)
+                    .addToBackStack(null)
+                    .commit();
+
         }
         else if (view.getId() == R.id.btnBack) {
             btnBack.setOnClickListener(v -> {
@@ -137,10 +155,49 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                         .addToBackStack(null)
                         .commit();
             });
+        } else if (view.getId() == R.id.btnDeleteUser) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("אישור מחיקה")
+                    .setMessage("האם ברצונך למחוק לצמיתות את המשתמש " + tvUsername.getText().toString() + "?")
+                    .setPositiveButton("כן", (dialog, which) -> {
+                        deleteUser();
+                    })
+                    .setNegativeButton("לא", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
         }
     }
 
+    private void deleteUser() {
+        String userId = currentUser.getId();
+
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(userId)
+                .removeValue()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        auth.getCurrentUser().delete()
+                                .addOnCompleteListener(authTask -> {
+                                    if (authTask.isSuccessful()) {
+                                        FirebaseAuth.getInstance().signOut();
+
+                                        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getContext(), "הייתה שגיאה במחיקת המשתמש מה-authentication", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(getContext(), "הייתה שגיאה במחיקת המשתמש מה-database", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
     private void updateBadPointsText() {
+
         tvBadPoints.setText("נקודות לרעה: " + badPoints);
     }
 

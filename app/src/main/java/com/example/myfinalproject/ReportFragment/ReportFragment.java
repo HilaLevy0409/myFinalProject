@@ -27,8 +27,7 @@ public class ReportFragment extends Fragment {
     private RadioGroup reportReasonGroup;
     private RadioButton rbOther;
     private TextInputLayout tilCustomReason;
-    private EditText etCustomReason;
-    private EditText etReportDetails;
+    private EditText etCustomReason, etReportDetails;
     private Button btnSendReport;
     private TextView tvSubmitStatus;
     private NotificationAdminDatabase notificationRepository;
@@ -36,7 +35,7 @@ public class ReportFragment extends Fragment {
     public ReportFragment() {
     }
 
-    public static ReportFragment newInstance(String param1, String param2) {
+    public static ReportFragment newInstance() {
         ReportFragment fragment = new ReportFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -114,8 +113,10 @@ public class ReportFragment extends Fragment {
                 userId,
                 etUserNameOrTopic.getText().toString().trim(),
                 reportDetails,
-                reason
+                reason,
+                "REPORT"
         );
+
 
         btnSendReport.setEnabled(false);
         notificationRepository.addNotification(report)

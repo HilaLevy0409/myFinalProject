@@ -39,27 +39,24 @@ public class SumByUserFragment extends Fragment {
 
 
     public SumByUserFragment() {
-        // Required empty public constructor
     }
 
 
-    public static SumByUserFragment newInstance(String param1, String param2) {
+
+    public static SumByUserFragment newInstance(String userName) {
         SumByUserFragment fragment = new SumByUserFragment();
         Bundle args = new Bundle();
-
+        args.putString("userName", userName);  // העברת שם המשתמש
         fragment.setArguments(args);
         return fragment;
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-
-            userName = getArguments().getString("userName");
-//            summaryList = new ArrayList<>();
-//            chooseSumPresenter = new ChooseSumPresenter(this);
-//            requestPermissions();
+            userName = getArguments().getString("userName");  // קבלת שם המשתמש מה־Bundle
         }
         summaryList = new ArrayList<>();
     }
@@ -71,6 +68,7 @@ public class SumByUserFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_sum_by_user, container, false);
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -79,15 +77,12 @@ public class SumByUserFragment extends Fragment {
         listViewSummaries = view.findViewById(R.id.listViewSummaries);
         searchView = view.findViewById(R.id.searchView);
 
+        // הצגת שם המשתמש בכותרת
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
-
 
         summaryList = new ArrayList<>();
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
-
-
-        // chooseSumPresenter = new ChooseSumPresenter();
 
         listViewSummaries.setOnItemClickListener((parent, viewItem, position, id) -> {
             Summary selectedSummary = summaryList.get(position);

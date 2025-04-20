@@ -40,23 +40,7 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
 
-            <Button
-                android:id="@+id/btnSaveSummary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⭐"
-                android:textSize="22sp"
-                android:backgroundTint="@color/white"
-                app:strokeColor="@color/orange"
-                app:strokeWidth="1dp"
-                app:cornerRadius="24dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
         </LinearLayout>
 
         <ImageView

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UsersCallback {
 
-    public void onSuccess(List<User> users);
-    public void onError(String message);
+     void onSuccess(List<User> users);
+     void onError(String message);
 
 }

@@ -28,7 +28,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.Adapters.UserAdapter;
 import com.example.myfinalproject.CallBacks.OnUserClickListener;
 import com.example.myfinalproject.CallBacks.UsersCallback;
@@ -63,6 +62,7 @@ public class ChooseUserFragment extends Fragment {
     private ArrayList<User> userList;
     private ChooseUserPresenter presenter;
     private SearchView searchView;
+    private ArrayList<User> fullUserList = new ArrayList<>();
 
 
 
@@ -124,10 +124,11 @@ public class ChooseUserFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-//                userProfilePresenter.filterUsers(newText, userList, userAdapter);
+                filterUsersByName(newText);
                 return true;
             }
         });
+
 
     }
 
@@ -195,12 +196,22 @@ public class ChooseUserFragment extends Fragment {
                 .commit();
     }
 
+    private void filterUsersByName(String query) {
+        userList.clear();
+        if (query.isEmpty()) {
+            userList.addAll(fullUserList);
+        } else {
+            String lowerCaseQuery = query.toLowerCase().trim();
+            for (User user : fullUserList) {
+                if (user.getUserName().toLowerCase().contains(lowerCaseQuery)) {
+                    userList.add(user);
+                }
+            }
+        }
+        userAdapter.notifyDataSetChanged();
+    }
 
-//
-//    private void setupListeners() {
-//
-//
-//    }
+
 
 
 
@@ -212,11 +223,14 @@ public class ChooseUserFragment extends Fragment {
                 if (getActivity() == null) return;
 
                 getActivity().runOnUiThread(() -> {
-                   userList.clear();
+                    userList.clear();
+                    fullUserList.clear();
+                    fullUserList.addAll(users); // ← שומר את המקור
                     userList.addAll(users);
                     userAdapter.notifyDataSetChanged();
                 });
             }
+
 
             @Override
             public void onError(String message) {
@@ -443,11 +457,10 @@ public class ChooseUserFragment extends Fragment {
 
 
     public ChooseUserFragment() {
-        // Required empty public constructor
     }
 
 
-    public static ChooseUserFragment newInstance(String param1, String param2) {
+    public static ChooseUserFragment newInstance() {
         ChooseUserFragment fragment = new ChooseUserFragment();
         Bundle args = new Bundle();
 
