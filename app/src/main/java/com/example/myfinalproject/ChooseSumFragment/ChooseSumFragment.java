@@ -210,13 +210,23 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     }
 
 
-    private void showSum(Summary summary){
-
+    private void showSum(Summary summary) {
         if (getContext() == null) return;
 
+        // Create a new instance of SumFragment
+        SumFragment sumFragment = new SumFragment();
+
+        // Create a Bundle to store the summary ID
+        Bundle args = new Bundle();
+        args.putString("summaryId", summary.getSummaryId());
+
+        // Set the arguments to the fragment
+        sumFragment.setArguments(args);
+
+        // Replace the current fragment with the new SumFragment
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.flFragment, new SumFragment())
+                .replace(R.id.flFragment, sumFragment)
                 .commit();
     }
 

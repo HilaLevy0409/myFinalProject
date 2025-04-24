@@ -1,5 +1,7 @@
 package com.example.myfinalproject.ContactUsFragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,12 +36,13 @@ public class ContactUsFragment extends Fragment {
     private Button btnSendContact;
     private TextView tvSubmitStatus;
     private NotificationAdminDatabase notificationRepository;
+    private boolean isUserLoggedIn = false;
+    private String loggedInUsername = "";
 
     public ContactUsFragment() {
     }
 
     public static ContactUsFragment newInstance() {
-
         return new ContactUsFragment();
     }
 
@@ -48,12 +51,23 @@ public class ContactUsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_us, container, false);
 
-
         notificationRepository = new NotificationAdminDatabase();
+
+        // Check if user is logged in and get username from SharedPreferences
+        checkUserLoginStatus();
 
         return view;
     }
 
+    private void checkUserLoginStatus() {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+
+        if (isUserLoggedIn) {
+            // Get username from SharedPreferences
+            loggedInUsername = sharedPreferences.getString("username", "");
+        }
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -66,20 +80,44 @@ public class ContactUsFragment extends Fragment {
         btnSendContact = view.findViewById(R.id.btnSendContact);
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
 
+        if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
+            // Set the username field with the logged-in username
+            etUserName.setText(loggedInUsername);
 
+            // Make the username field non-editable
+            etUserName.setEnabled(false);
+            etUserName.setFocusable(false);
+            etUserName.setFocusableInTouchMode(false);
+
+            // Optional: Change the appearance to indicate it's non-editable
+            etUserName.setBackgroundResource(android.R.drawable.edit_text);
+            etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        } else {
+            // For non-logged-in users, keep the field editable
+            etUserName.setEnabled(true);
+            etUserName.setFocusable(true);
+            etUserName.setFocusableInTouchMode(true);
+
+            // Set a hint for non-logged-in users
+            etUserName.setHint("שם משתמש");
+        }
         contactReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
         });
 
         btnSendContact.setOnClickListener(v -> sendMessage());
-
     }
 
 
-
-
     private void sendMessage() {
+        String userName = etUserName.getText().toString().trim();
         String contactDetails = etContactDetails.getText().toString().trim();
+
+        // Validate username only if the user is not logged in
+        if (!isUserLoggedIn && userName.isEmpty()) {
+            Toast.makeText(getContext(), "נא להזין שם משתמש", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (contactDetails.isEmpty()) {
             Toast.makeText(getContext(), "נא להזין את פרטי הפנייה", Toast.LENGTH_SHORT).show();
@@ -109,12 +147,11 @@ public class ContactUsFragment extends Fragment {
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser != null ? currentUser.getUid() : "anonymous";
-        String userName = currentUser != null ? currentUser.getDisplayName() : "משתמש אנונימי";
 
-        if (userName == null || userName.isEmpty()) {
-            userName = "משתמש";
+        // Use the username from the field (either entered by the user or set from SharedPreferences)
+        if (userName.isEmpty()) {
+            userName = "משתמש אנונימי";
         }
-
 
         NotificationAdmin message = new NotificationAdmin(
                 userId,
@@ -123,7 +160,6 @@ public class ContactUsFragment extends Fragment {
                 reason,
                 "CONTACT"
         );
-
 
         btnSendContact.setEnabled(false);
         notificationRepository.addNotification(message)
@@ -139,6 +175,11 @@ public class ContactUsFragment extends Fragment {
     }
 
     private void clearForm() {
+        // Don't clear the username if user is logged in
+        if (!isUserLoggedIn) {
+            etUserName.setText("");
+        }
+
         contactReasonGroup.clearCheck();
         etCustomReason.setText("");
         etContactDetails.setText("");

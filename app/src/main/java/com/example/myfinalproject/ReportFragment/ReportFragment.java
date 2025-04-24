@@ -115,6 +115,7 @@ public class ReportFragment extends Fragment {
                 reportDetails,
                 reason,
                 "REPORT"
+
         );
 
 

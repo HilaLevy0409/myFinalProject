@@ -57,11 +57,6 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
         notifyDataSetChanged();
     }
 
-    public void addNotification(NotificationAdmin notification) {
-        notificationsList.add(0, notification);
-        notifyItemInserted(0);
-    }
-
 
     public void removeNotification(NotificationAdmin notification) {
         int position = notificationsList.indexOf(notification);
@@ -77,7 +72,6 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
         private final TextView tvContent;
         private final TextView tvType;
         private final TextView tvReason;
-        private final View unreadIndicator;
         private final MaterialCardView cardNotification;
 
         public NotificationViewHolder(@NonNull View itemView) {
@@ -87,7 +81,6 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
             tvContent = itemView.findViewById(R.id.tvContent);
             tvType = itemView.findViewById(R.id.tvType);
             tvReason = itemView.findViewById(R.id.tvReason);
-            unreadIndicator = itemView.findViewById(R.id.unreadIndicator);
             cardNotification = itemView.findViewById(R.id.cardNotification);
         }
 
@@ -115,7 +108,6 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
                 tvReason.setVisibility(View.GONE);
             }
 
-            unreadIndicator.setVisibility(notification.isRead() ? View.INVISIBLE : View.VISIBLE);
 
             cardNotification.setOnClickListener(v -> {
                 if (listener != null) {

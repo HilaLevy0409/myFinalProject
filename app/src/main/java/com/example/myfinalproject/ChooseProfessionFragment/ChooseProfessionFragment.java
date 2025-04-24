@@ -183,11 +183,11 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
         }
     }
 
-    private void showLoading() {
-        progressBar.setVisibility(View.VISIBLE);
-        recyclerProfessions.setVisibility(View.GONE);
-        emptyState.setVisibility(View.GONE);
-    }
+//    private void showLoading() {
+//        progressBar.setVisibility(View.VISIBLE);
+//        recyclerProfessions.setVisibility(View.GONE);
+//        emptyState.setVisibility(View.GONE);
+//    }
 
     private void showContent() {
         progressBar.setVisibility(View.GONE);

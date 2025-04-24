@@ -13,30 +13,12 @@ public class NotificationAdmin {
     private String reportReason;
     private String contactReason;
     private Timestamp timestamp;
-    private boolean isRead;
 
 
-    public NotificationAdmin() {
-    }
 
-//    public NotificationAdmin(String userId, String userName, String content) {
-//        this.userId = userId;
-//        this.userName = userName;
-//        this.content = content;
-//        this.type = "MESSAGE";
-//        this.timestamp = Timestamp.now();
-//        this.isRead = false;
-//    }
-//
-//    public NotificationAdmin(String userId, String userName, String content, String reportReason) {
-//        this.userId = userId;
-//        this.userName = userName;
-//        this.content = content;
-//        this.reportReason = reportReason;
-//        this.type = "REPORT";
-//        this.timestamp = Timestamp.now();
-//        this.isRead = false;
-//    }
+
+
+
 
 
     public NotificationAdmin(String userId, String userName, String content, String reason, String type) {
@@ -45,7 +27,6 @@ public class NotificationAdmin {
         this.content = content;
         this.type = type;
         this.timestamp = Timestamp.now();
-        this.isRead = false;
 
         if (type.equals("REPORT")) {
             this.reportReason = reason;
@@ -53,6 +34,7 @@ public class NotificationAdmin {
             this.contactReason = reason;
         }
     }
+
 
 
     public String getContactReason() {
@@ -120,11 +102,4 @@ public class NotificationAdmin {
         this.timestamp = timestamp;
     }
 
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
-    }
 }

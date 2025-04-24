@@ -42,9 +42,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
         String username = sharedPreferences.getString("username", "שם משתמש");
+        String profileImage = sharedPreferences.getString("imageProfile", "");
 
         if (isLoggedIn && username != null && !username.isEmpty()) {
             tvUserName.setText(username);
+
+            if (profileImage != null && !profileImage.isEmpty()) {
+                try {
+                    if (profileImage.startsWith("/9j/") || profileImage.startsWith("iVBOR")) {
+                        byte[] decodedString = android.util.Base64.decode(profileImage, android.util.Base64.DEFAULT);
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        if (bitmap != null) {
+                            imageViewProfile.setImageBitmap(bitmap);
+                        } else {
+                            imageViewProfile.setImageResource(R.drawable.newlogo);
+                        }
+                    } else {
+                        // Try as URI
+                        android.net.Uri imageUri = android.net.Uri.parse(profileImage);
+                        android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                        imageViewProfile.setImageBitmap(bitmap);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    imageViewProfile.setImageResource(R.drawable.newlogo);
+                }
+            } else {
+                imageViewProfile.setImageResource(R.drawable.newlogo);
+            }
         } else {
             tvUserName.setText("");
             imageViewProfile.setImageResource(R.drawable.newlogo);

@@ -90,8 +90,8 @@ public class TimerFragment extends Fragment {
         btnStopContinue = view.findViewById(R.id.btnStopContinue);
         btnReset = view.findViewById(R.id.btnReset);
 
-        setupInputValidation(etMinutes);
-        setupInputValidation(etSeconds);
+        inputValidation(etMinutes);
+        inputValidation(etSeconds);
 
         switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
             etNotificationTime.setEnabled(isChecked);
@@ -110,7 +110,9 @@ public class TimerFragment extends Fragment {
         return view;
     }
 
-    private void setupInputValidation(final EditText editText) {
+    //לשים ב - ViewCreatw
+
+    private void inputValidation(final EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

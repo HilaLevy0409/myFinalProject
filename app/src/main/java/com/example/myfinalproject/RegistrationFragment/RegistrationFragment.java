@@ -399,17 +399,14 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         String phone = etPhone.getText().toString();
         String birthDate =  etDialogBirthday.getText().toString();
 
-//        Uri imageUri = (Uri) imageViewProfile.getTag();
-//        String imageProfile = imageUri.toString();
-//
-//        BitmapDrawable drawable = (BitmapDrawable) imageViewProfile.getDrawable();
-//        Bitmap bitmap = drawable.getBitmap();
-//
-//        String imageViewProfile = imageUri != null ? imageUri.toString() : "";
 
+        String base64Image = imageViewToBase64(imageViewProfile);
 
         User user = new User(username, password, email, phone);
+        user.setImageProfile(base64Image);
         submitClicked(user);
+
+
 
 
 //        mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(user)
@@ -556,18 +553,19 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 //        }
 //    }
 
-    private byte[] imageViewToByte(ImageView image) {
-        Bitmap bitmap=((BitmapDrawable)image.getDrawable()).getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 0, stream);
-        byte[]byteArray=stream.toByteArray();
-        return byteArray;
+    private String imageViewToBase64(ImageView imageView) {
+        try {
+            Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream); // 70 = איכות בינונית
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    private void chooseImage() {
-
-
-    }
 
 
 //    @Override

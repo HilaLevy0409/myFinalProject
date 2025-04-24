@@ -1,5 +1,5 @@
-package com.example.myfinalproject.NoticesAdminFragment;
 
+ package com.example.myfinalproject.NoticesAdminFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -142,7 +142,7 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
         if ("REPORT".equals(notification.getType())) {
             messageBuilder.append("סיבת דיווח: ").append(notification.getReportReason()).append("\n\n");
         }
-        else if ("MESSAGE".equals(notification.getType())) {
+        else if ("CONTACT".equals(notification.getType())) {
             messageBuilder.append("סיבת פנייה: ").append(notification.getContactReason()).append("\n\n");
         }
 
@@ -153,11 +153,8 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 .setMessage(messageBuilder.toString())
                 .setPositiveButton("סגור", null)
                 .setNeutralButton("סימון כטופל", (dialog, which) -> {
-                    notificationRepository.markAsRead(notification.getId())
-                            .addOnSuccessListener(aVoid -> {
-                                adapter.removeNotification(notification);
-                                notificationRepository.deleteNotification(notification.getId());
-                            });
+                    adapter.removeNotification(notification);
+                    notificationRepository.deleteNotification(notification.getId());
                 })
                 .show();
 

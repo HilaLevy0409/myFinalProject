@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RatingBar;
 import com.example.myfinalproject.R;
+
 import com.example.myfinalproject.ReportFragment.ReportFragment;
 import com.example.myfinalproject.SumReviewFragment.SumReviewFragment;
 import android.util.Log;
@@ -99,7 +100,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         tvTopic = view.findViewById(R.id.tvTopic);
         tvAuthor = view.findViewById(R.id.tvAuthor);
         tvAverage = view.findViewById(R.id.tvAverage);
-        sumImage = view.findViewById(R.id.sumImage);
+        sumImage = view.findViewById(R.id.imgSum);
 
         fabExport = view.findViewById(R.id.fabExport);
 
@@ -340,11 +341,10 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     }
 
     private void displaySummaryData(DocumentSnapshot document) {
-        String topic = document.getString("topic");
+        String topic = document.getString("summaryTitle");
         if (topic != null) {
             tvTopic.setText(topic);
         }
-
 
         String authorId = document.getString("authorId");
         if (authorId != null) {
@@ -364,34 +364,47 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             tvAverage.setText("ציון ממוצע לסיכום: " + String.format("%.1f", averageRating));
         }
 
-        String summaryText = document.getString("text");
-        String summaryImageUrl = document.getString("imageUrl");
+        String summaryContent = document.getString("summaryContent");
+        String imageData = document.getString("image");
 
-        if (summaryImageUrl != null && !summaryImageUrl.isEmpty()) {
+        if (imageData != null && !imageData.isEmpty()) {
+            // Handle image content
             tvText.setVisibility(View.GONE);
             sumImage.setVisibility(View.VISIBLE);
             currentText = "";
             currentPosition = 0;
 
+            try {
+                // It's a Base64 encoded image
+                Log.d(TAG, "Loading Base64 image");
+                byte[] decodedString = android.util.Base64.decode(imageData, android.util.Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-
-            sumImage.setImageResource(R.drawable.newlogo);
-            new DownloadImageTask(sumImage).execute(summaryImageUrl);
-        } else if (summaryText != null && !summaryText.isEmpty()) {
+                if (bitmap != null) {
+                    sumImage.setImageBitmap(bitmap);
+                    Log.d(TAG, "Base64 image set successfully");
+                } else {
+                    Log.d(TAG, "Failed to decode bitmap from Base64");
+                    sumImage.setImageResource(R.drawable.newlogo);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling image", e);
+                sumImage.setImageResource(R.drawable.newlogo);
+            }
+        } else if (summaryContent != null && !summaryContent.isEmpty()) {
+            // Handle text content
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
-            tvText.setText(summaryText);
-            currentText = summaryText;
+            tvText.setText(summaryContent);
+            currentText = summaryContent;
             currentPosition = 0;
-
         } else {
-
+            // No content available
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText("אין תוכן זמין");
             currentText = "";
             currentPosition = 0;
-
         }
 
         updateButtons();

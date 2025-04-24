@@ -43,9 +43,6 @@ public class NotificationAdminDatabase {
                 .orderBy("timestamp", Query.Direction.DESCENDING);
     }
 
-    public Task<Void> markAsRead(String notificationId) {
-        return notificationsRef.document(notificationId).update("read", true);
-    }
 
     public Task<Void> deleteNotification(String notificationId) {
         return notificationsRef.document(notificationId).delete();

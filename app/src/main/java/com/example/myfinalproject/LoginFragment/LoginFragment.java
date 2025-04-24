@@ -207,6 +207,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         editor.putString("userId", user.getId());
         editor.putString("username", user.getUserName());
         editor.putBoolean("isLoggedIn", true);
+        editor.putString("imageProfile", user.getImageProfile());
 
 
         editor.apply();

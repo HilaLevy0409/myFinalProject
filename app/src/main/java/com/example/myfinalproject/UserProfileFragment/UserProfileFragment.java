@@ -225,6 +225,39 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         tvUsername.setText("שם משתמש: " + user.getUserName());
         tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
         tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
+
+        String imageProfileData = user.getImageProfile();
+        if (imageProfileData != null && !imageProfileData.isEmpty()) {
+            try {
+                // Check if the string starts with data that looks like a Base64 image
+                if (imageProfileData.startsWith("/9j/") || imageProfileData.startsWith("iVBOR")) {
+                    Log.d("USER_PROFILE_TAG", "Decoding Base64 image");
+                    // Decode the Base64 string to a bitmap
+                    byte[] decodedString = android.util.Base64.decode(imageProfileData, android.util.Base64.DEFAULT);
+                    Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    if (bitmap != null) {
+                        imageView.setImageBitmap(bitmap);
+                        Log.d("USER_PROFILE_TAG", "Base64 image set successfully");
+                    } else {
+                        Log.d("USER_PROFILE_TAG", "Failed to decode bitmap from Base64");
+                    }
+                } else {
+                    // Try to handle it as a URI as before
+                    Uri imageUri = Uri.parse(imageProfileData);
+                    try {
+                        Log.d("USER_PROFILE_TAG", "Loading image from URI");
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+                        imageView.setImageBitmap(bitmap);
+                        Log.d("USER_PROFILE_TAG", "URI image set successfully");
+                    } catch (IOException e) {
+                        Log.e("USER_PROFILE_TAG", "Error loading image from URI", e);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        } else {
+            Log.d("USER_PROFILE_TAG", "No image profile data available");
+        }
     }
     @Override
     public void onClick(View view) {

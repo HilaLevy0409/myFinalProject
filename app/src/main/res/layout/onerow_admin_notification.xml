@@ -15,12 +15,7 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <View
-            android:id="@+id/unreadIndicator"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+
 
         <TextView
             android:id="@+id/tvType"
@@ -30,7 +25,7 @@
             android:textStyle="bold"
             android:text="דיווח"
             android:layout_marginStart="8dp"
-            app:layout_constraintStart_toEndOf="@id/unreadIndicator"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
