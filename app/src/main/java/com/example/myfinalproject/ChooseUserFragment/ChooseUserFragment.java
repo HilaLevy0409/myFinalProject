@@ -225,7 +225,7 @@ public class ChooseUserFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     userList.clear();
                     fullUserList.clear();
-                    fullUserList.addAll(users); // ← שומר את המקור
+                    fullUserList.addAll(users);
                     userList.addAll(users);
                     userAdapter.notifyDataSetChanged();
                 });
@@ -237,7 +237,7 @@ public class ChooseUserFragment extends Fragment {
                 if (getActivity() == null) return;
 
                 getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error loading users: " + message,
+                        Toast.makeText(getContext(), "שגיאה בטעינת משתמשים:  " + message,
                                 Toast.LENGTH_SHORT).show()
                 );
             }

@@ -18,6 +18,7 @@ import com.example.myfinalproject.CallBacks.TimeCallback;
 import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.R;
 
+
 public class CountdownTimerService extends Service {
 
     private static final int NOTIFICATION_ID = 1;
@@ -33,12 +34,8 @@ public class CountdownTimerService extends Service {
 
     private TimeCallback timerUpdateCallback;
 
-
-
-
     public class LocalBinder extends Binder {
-        CountdownTimerService getService() {
-
+        public CountdownTimerService getService() {
             return CountdownTimerService.this;
         }
     }
@@ -163,7 +160,6 @@ public class CountdownTimerService extends Service {
     public void removeTimerUpdateCallback() {
         this.timerUpdateCallback = null;
     }
-
 
     private String formatTime(long millis) {
         int hours = (int) (millis / (1000 * 60 * 60));

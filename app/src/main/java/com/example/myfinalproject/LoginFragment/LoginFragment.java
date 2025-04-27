@@ -1,9 +1,13 @@
 package com.example.myfinalproject.LoginFragment;
 
+import static com.example.myfinalproject.Utils.Validator.isValidPassword;
+
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,13 +17,21 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfinalproject.AdminFragment.AdminFragment;
@@ -30,6 +42,7 @@ import com.example.myfinalproject.R;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -83,7 +96,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             String password = etPassword.getText().toString().trim();
 
             String validUsername = Validator.isValidUsername(username);
-            String validPassword = Validator.isValidPassword(password);
+            String validPassword = isValidPassword(password);
             if (!validUsername.isEmpty()) {
                 Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
                 return;
@@ -140,7 +153,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.isEmpty()) {
-                            // Email exists, now send the password reset
                             auth.sendPasswordResetEmail(emailSend)
                                     .addOnCompleteListener(resetTask -> {
                                         progressBar.setVisibility(View.GONE);
@@ -149,13 +161,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                                         if (resetTask.isSuccessful()) {
                                             Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
 
-                                            // Store the reset state for this email
                                             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("PasswordResetPrefs", Context.MODE_PRIVATE);
                                             SharedPreferences.Editor editor = sharedPreferences.edit();
                                             editor.putBoolean(emailSend, true);
                                             editor.apply();
 
                                             dialog.dismiss();
+
+                                            askUserToUpdatePasswordInFirestore();
+
                                         } else {
                                             Exception exception = resetTask.getException();
                                             if (exception != null) {
@@ -184,6 +198,200 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
+
+
+    //קוד מקורי, למטה חדש עם שיפורים
+
+
+//    private void askUserToUpdatePasswordInFirestore() {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        builder.setTitle("עדכון סיסמה במערכת");
+//
+//        final EditText input = new EditText(getContext());
+//        input.setHint("הקלד/י את הסיסמה החדשה");
+//        builder.setView(input);
+//
+//        builder.setPositiveButton("עידכון", (dialog, which) -> {
+//            String newPassword = input.getText().toString().trim();
+//
+//            String validation = Validator.isValidPassword(newPassword);
+//            if (!validation.isEmpty()) {
+//                Toast.makeText(getContext(), validation, Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//            if (firebaseUser != null) {
+//                FirebaseFirestore.getInstance()
+//                        .collection("users")
+//                        .document(firebaseUser.getUid())
+//                        .update("userPassword", newPassword)
+//                        .addOnSuccessListener(aVoid -> {
+//                            Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+//                        })
+//                        .addOnFailureListener(e -> {
+//                            Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                        });
+//            }
+//        });
+//
+//        builder.setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
+//        builder.show();
+//    }
+
+
+    private void askUserToUpdatePasswordInFirestore() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("עדכון סיסמה במערכת");
+
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        final EditText input = new EditText(getContext());
+        input.setHint("הקלד/י את הסיסמה החדשה");
+        input.setGravity(Gravity.RIGHT);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        final ImageView togglePasswordVisibility = new ImageView(getContext());
+        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
+        togglePasswordVisibility.setPadding(20, 20, 20, 20);
+
+        LinearLayout passwordLayout = new LinearLayout(getContext());
+        passwordLayout.setOrientation(LinearLayout.HORIZONTAL);
+        passwordLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        passwordLayout.addView(input, inputParams);
+        passwordLayout.addView(togglePasswordVisibility);
+
+        layout.addView(passwordLayout);
+
+        final TextView passwordStrength = new TextView(getContext());
+        passwordStrength.setTextSize(14);
+        passwordStrength.setPadding(0, (int)(8 * getResources().getDisplayMetrics().density), 0, 0);
+        layout.addView(passwordStrength);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("עדכון", null);
+        builder.setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(d -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(v -> {
+                String newPassword = input.getText().toString().trim();
+
+                if (TextUtils.isEmpty(newPassword)) {
+                    input.setError("יש להזין סיסמה");
+                    input.requestFocus();
+                    return;
+                }
+
+                String validationMessage = isValidPassword(newPassword);
+                if (!validationMessage.isEmpty()) {
+                    input.setError(validationMessage);
+                    input.requestFocus();
+                    return;
+                }
+
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (firebaseUser != null) {
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(firebaseUser.getUid())
+                            .update("userPass", newPassword)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                }
+            });
+
+            input.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                @Override public void afterTextChanged(Editable s) {
+                    updatePasswordStrengthView(s.toString(), passwordStrength);
+                }
+            });
+
+            togglePasswordVisibility.setOnClickListener(v -> {
+                if (input.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
+                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
+                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
+                    }).start();
+                } else {
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
+                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
+                    }).start();
+                }
+
+                input.setSelection(input.getText().length());
+            });
+
+        });
+
+        dialog.show();
+    }
+
+    private void updatePasswordStrengthView(String password, TextView passwordStrength) {
+        int strength = calculatePasswordStrength(password);
+        String strengthMessage;
+
+        if (strength < 3) {
+            strengthMessage = "סיסמה חלשה";
+            passwordStrength.setTextColor(Color.RED);
+        } else if (strength < 5) {
+            strengthMessage = "סיסמה בינונית";
+            passwordStrength.setTextColor(Color.YELLOW);
+        } else {
+            strengthMessage = "סיסמה חזקה";
+            passwordStrength.setTextColor(Color.GREEN);
+        }
+
+        passwordStrength.setText(strengthMessage);
+    }
+
+    private int calculatePasswordStrength(String password) {
+        int strength = 0;
+
+        if (password.matches(".*[A-Z].*")) {
+            strength++;
+        }
+
+        if (password.matches(".*[a-z].*")) {
+            strength++;
+        }
+
+        if (password.matches(".*\\d.*")) {
+            strength++;
+        }
+
+        if (password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            strength++;
+        }
+
+        if (password.length() >= 8) {
+            strength++;
+        }
+
+        return strength;
+    }
+
+
 
     @Override
     public void showLoginSuccess(User user) {

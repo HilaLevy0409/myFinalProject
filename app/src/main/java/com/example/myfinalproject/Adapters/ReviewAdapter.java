@@ -13,7 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myfinalproject.Models.Review;
 import com.example.myfinalproject.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
 
@@ -37,6 +40,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         holder.tvUser.setText(review.getName());
         holder.rbReviewRating.setRating(review.getRating());
         holder.tvWritingReview.setText(review.getWriting());
+
+//        if (review.getTimestamp() != null) {
+//            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+//            String formattedDate = dateFormat.format(review.getTimestamp().toDate());
+//            holder.tvReviewTimestamp.setText(formattedDate);
+//        }
     }
 
     @Override
@@ -45,7 +54,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
-        TextView tvUser, tvWritingReview;
+        TextView tvUser, tvWritingReview, tvReviewTimestamp;
         RatingBar rbReviewRating;
 
         public ReviewViewHolder(@NonNull View itemView) {
@@ -53,6 +62,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             tvUser = itemView.findViewById(R.id.tvUser);
             rbReviewRating = itemView.findViewById(R.id.rbReviewRating);
             tvWritingReview = itemView.findViewById(R.id.tvWritingReview);
+            tvReviewTimestamp = itemView.findViewById(R.id.tvReviewTimestamp);
         }
     }
 }

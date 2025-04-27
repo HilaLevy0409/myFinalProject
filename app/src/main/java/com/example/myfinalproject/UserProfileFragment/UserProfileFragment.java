@@ -33,6 +33,7 @@ import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.Message.ChooseMessageFragment;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
@@ -56,20 +57,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     final int REQUEST_CODE_GALLERY = 999;
     private User currentUser;
 
-    //    private StorageReference mStorage;
+
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     private static final int REQUEST_GALLERY_PICK = 102;
-    //    private Uri imageUri;
+
     private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
 
-//    private Uri filePath;
-//    private final int PICK_IMAGE_REQUEST = 71;
-//    FirebaseStorage storage;
-//
-//    private ListView listViewUsers;
-//    private UserAdapter userAdapter;
-//    private List<User> userList;
-//
+
 
 
 
@@ -85,7 +79,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         presenter = new UserProfilePresenter(this);
         presenter.loadUserData();
 
-//        mStorage = FirebaseStorage.getInstance().getReference("ProfileImages");
+
         presenter = new UserProfilePresenter(this);
 
 
@@ -110,16 +104,14 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
         btnSaveSummary = view.findViewById(R.id.btnSaveSummary);
-//        btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
+
 
         btnShowSummaries.setOnClickListener(this);
         btnDeleteUser.setOnClickListener(this);
         btnLogOut.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
 
-//        btnFinish.setOnClickListener(v -> saveUserData());
 
-//        btnUploadPhoto.setOnClickListener(this);
         btnSaveSummary.setOnClickListener(this);
         btnSendMessage.setOnClickListener(this);
     }
@@ -161,7 +153,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 String newPhone = etEditPhone.getText().toString().trim();
                 String newUsername = etEditUsername.getText().toString().trim();
                 String newBirthDate = etBirthDate.getText().toString();
-//                String imageViewProfile = imageViewProfile.
+
 
                 if(newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty() || newBirthDate.isEmpty()) {
                     showError("יש למלא את כל השדות!");
@@ -229,10 +221,8 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         String imageProfileData = user.getImageProfile();
         if (imageProfileData != null && !imageProfileData.isEmpty()) {
             try {
-                // Check if the string starts with data that looks like a Base64 image
                 if (imageProfileData.startsWith("/9j/") || imageProfileData.startsWith("iVBOR")) {
                     Log.d("USER_PROFILE_TAG", "Decoding Base64 image");
-                    // Decode the Base64 string to a bitmap
                     byte[] decodedString = android.util.Base64.decode(imageProfileData, android.util.Base64.DEFAULT);
                     Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                     if (bitmap != null) {
@@ -242,7 +232,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                         Log.d("USER_PROFILE_TAG", "Failed to decode bitmap from Base64");
                     }
                 } else {
-                    // Try to handle it as a URI as before
                     Uri imageUri = Uri.parse(imageProfileData);
                     try {
                         Log.d("USER_PROFILE_TAG", "Loading image from URI");
@@ -267,9 +256,35 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     .replace(R.id.flFragment, new SumByUserFragment())
                     .commit();
         } else if (view == btnDeleteUser) {
-            presenter.deleteUser();
+                new AlertDialog.Builder(getContext())
+                        .setTitle("מחיקת משתמש")
+                        .setMessage("האם ברצונך למחוק את המשתמש? פעולה זו אינה הפיכה.")
+                        .setPositiveButton("כן", (dialog, which) -> {
+                            presenter.deleteUser();
+
+                            getActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.flFragment, new RegistrationFragment())
+                                    .commit();
+                        })
+                        .setNegativeButton("לא", null)
+                        .setCancelable(false)
+                        .show();
         } else if (view == btnLogOut) {
-            presenter.logOut();
+            new AlertDialog.Builder(getContext())
+                    .setTitle("התנתקות")
+                    .setMessage("האם ברצונך להתנתק?")
+                    .setPositiveButton("כן", (dialog, which) -> {
+                        presenter.logOut();
+
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flFragment, new LoginFragment())
+                                .commit();
+                    })
+                    .setNegativeButton("לא", null)
+                    .setCancelable(false)
+                    .show();
         } else if (view == btnEdit) {
             createCustomDialog();
         } else if (view == etBirthDate) {

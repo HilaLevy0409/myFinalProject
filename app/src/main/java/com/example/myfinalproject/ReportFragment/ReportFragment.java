@@ -109,15 +109,24 @@ public class ReportFragment extends Fragment {
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid()
                 : "anonymous";
 
+        String reporterName = "";
+        if (FirebaseAuth.getInstance().getCurrentUser() != null &&
+                FirebaseAuth.getInstance().getCurrentUser().getDisplayName() != null) {
+            reporterName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        } else {
+            reporterName = "משתמש אנונימי";
+        }
+
         NotificationAdmin report = new NotificationAdmin(
                 userId,
-                etUserNameOrTopic.getText().toString().trim(),
+                reporterName,
                 reportDetails,
                 reason,
                 "REPORT"
-
         );
 
+        String reportedUserName = etUserNameOrTopic.getText().toString().trim();
+        report.setReportedUserName(reportedUserName);
 
         btnSendReport.setEnabled(false);
         notificationRepository.addNotification(report)

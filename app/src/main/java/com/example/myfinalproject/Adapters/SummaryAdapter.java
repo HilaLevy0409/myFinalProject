@@ -26,6 +26,8 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
     private List<Summary> summaries;
 
 
+
+
     public SummaryAdapter(Context context, List<Summary> summaries) {
         super(context, R.layout.onerow_summary, summaries);
         this.context = context;

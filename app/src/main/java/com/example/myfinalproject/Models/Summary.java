@@ -12,14 +12,16 @@ public class Summary {
     private String image;
     private String createdDate;
     private float rating;
+    private String userName;
 
 
-    public Summary(String classOption, String profession, String summaryTitle, String summaryContent) {
+    public Summary(String classOption, String profession, String summaryTitle, String summaryContent, String userName) {
         this.summaryId = java.util.UUID.randomUUID().toString();
         this.classOption = classOption;
         this.profession = profession;
         this.summaryTitle = summaryTitle;
         this.summaryContent = summaryContent;
+        this.userName = userName;
 
 
     }
@@ -27,7 +29,13 @@ public class Summary {
     public Summary() {
 
     }
+    public String getUserName() {
+        return userName;
+    }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public float getRating() {
         return rating;

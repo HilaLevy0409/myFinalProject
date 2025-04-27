@@ -46,7 +46,7 @@ public class SumByUserFragment extends Fragment {
     public static SumByUserFragment newInstance(String userName) {
         SumByUserFragment fragment = new SumByUserFragment();
         Bundle args = new Bundle();
-        args.putString("userName", userName);  // העברת שם המשתמש
+        args.putString("userName", userName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,7 +56,7 @@ public class SumByUserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            userName = getArguments().getString("userName");  // קבלת שם המשתמש מה־Bundle
+            userName = getArguments().getString("userName");
         }
         summaryList = new ArrayList<>();
     }
@@ -77,7 +77,6 @@ public class SumByUserFragment extends Fragment {
         listViewSummaries = view.findViewById(R.id.listViewSummaries);
         searchView = view.findViewById(R.id.searchView);
 
-        // הצגת שם המשתמש בכותרת
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
 
         summaryList = new ArrayList<>();

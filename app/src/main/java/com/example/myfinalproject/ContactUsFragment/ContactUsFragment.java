@@ -53,7 +53,6 @@ public class ContactUsFragment extends Fragment {
 
         notificationRepository = new NotificationAdminDatabase();
 
-        // Check if user is logged in and get username from SharedPreferences
         checkUserLoginStatus();
 
         return view;
@@ -64,7 +63,6 @@ public class ContactUsFragment extends Fragment {
         isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
 
         if (isUserLoggedIn) {
-            // Get username from SharedPreferences
             loggedInUsername = sharedPreferences.getString("username", "");
         }
     }
@@ -81,24 +79,19 @@ public class ContactUsFragment extends Fragment {
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
 
         if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
-            // Set the username field with the logged-in username
             etUserName.setText(loggedInUsername);
 
-            // Make the username field non-editable
             etUserName.setEnabled(false);
             etUserName.setFocusable(false);
             etUserName.setFocusableInTouchMode(false);
 
-            // Optional: Change the appearance to indicate it's non-editable
             etUserName.setBackgroundResource(android.R.drawable.edit_text);
             etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
         } else {
-            // For non-logged-in users, keep the field editable
             etUserName.setEnabled(true);
             etUserName.setFocusable(true);
             etUserName.setFocusableInTouchMode(true);
 
-            // Set a hint for non-logged-in users
             etUserName.setHint("שם משתמש");
         }
         contactReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
@@ -113,7 +106,6 @@ public class ContactUsFragment extends Fragment {
         String userName = etUserName.getText().toString().trim();
         String contactDetails = etContactDetails.getText().toString().trim();
 
-        // Validate username only if the user is not logged in
         if (!isUserLoggedIn && userName.isEmpty()) {
             Toast.makeText(getContext(), "נא להזין שם משתמש", Toast.LENGTH_SHORT).show();
             return;
@@ -148,7 +140,6 @@ public class ContactUsFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser != null ? currentUser.getUid() : "anonymous";
 
-        // Use the username from the field (either entered by the user or set from SharedPreferences)
         if (userName.isEmpty()) {
             userName = "משתמש אנונימי";
         }
@@ -175,7 +166,6 @@ public class ContactUsFragment extends Fragment {
     }
 
     private void clearForm() {
-        // Don't clear the username if user is logged in
         if (!isUserLoggedIn) {
             etUserName.setText("");
         }

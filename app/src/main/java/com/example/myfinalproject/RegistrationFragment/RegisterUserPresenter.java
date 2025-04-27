@@ -6,6 +6,8 @@ import com.example.myfinalproject.CallBacks.AddUserCallback;
 import com.example.myfinalproject.Models.User;
 import com.example.myfinalproject.Database.UserDatabase;
 
+import java.util.Objects;
+
 
 public class RegisterUserPresenter {
 
@@ -30,7 +32,7 @@ public class RegisterUserPresenter {
         userDb.addUser(user, new AddUserCallback() {
             @Override
             public void onUserAdd(User user) {
-                Toast.makeText(view.getContext(), "המשתמש " + user.getUserName() + " התווסף בהצלחה", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Objects.requireNonNull(view).getContext(), "המשתמש " + user.getUserName() + " התווסף בהצלחה", Toast.LENGTH_SHORT).show();
             }
 
             @Override

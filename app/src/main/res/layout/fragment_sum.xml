@@ -18,6 +18,19 @@
             android:layout_height="wrap_content"
             android:padding="24dp">
 
+            <ImageButton
+                android:id="@+id/ImgBtnDeleteSum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete Summary"
+                android:src="@android:drawable/ic_menu_delete"
+                android:tint="@android:color/holo_red_dark"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"/>
+
             <Button
                 android:id="@+id/btnReport"
                 android:layout_width="wrap_content"
@@ -32,6 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="נושא"
+                android:textColor="@color/black"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:gravity="center"
@@ -39,6 +53,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardContent"
@@ -85,6 +101,7 @@
                 android:text="נכתב על ידי: "
                 android:textSize="18sp"
                 android:textStyle="bold"
+                android:textColor="@color/black"
                 android:gravity="right"
                 android:textDirection="rtl"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -108,9 +125,9 @@
                     android:text="ציון ממוצע לסיכום: "
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    android:textColor="@color/black"
                     android:gravity="right"
                     android:textDirection="rtl" />
-
 
 
                 <RatingBar
@@ -132,6 +149,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="⭐שמירה במועדפים⭐"
+                android:textStyle="bold"
                 android:backgroundTint="@color/orange"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

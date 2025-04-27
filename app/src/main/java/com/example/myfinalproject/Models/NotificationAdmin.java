@@ -8,18 +8,16 @@ public class NotificationAdmin {
     private String id;
     private String userId;
     private String userName;
+    private String reportedUserId;
+    private String reportedUserName;
     private String content;
     private String type; //הודעה או דיווח
     private String reportReason;
     private String contactReason;
     private Timestamp timestamp;
 
-
-
-
-
-
-
+    public NotificationAdmin() {
+    }
 
     public NotificationAdmin(String userId, String userName, String content, String reason, String type) {
         this.userId = userId;
@@ -30,12 +28,32 @@ public class NotificationAdmin {
 
         if (type.equals("REPORT")) {
             this.reportReason = reason;
+
         } else if (type.equals("CONTACT")) {
             this.contactReason = reason;
         }
     }
 
+    public void setReportedUserInfo(String reportedUserId, String reportedUserName) {
+        this.reportedUserId = reportedUserId;
+        this.reportedUserName = reportedUserName;
+    }
 
+    public String getReportedUserId() {
+        return reportedUserId;
+    }
+
+    public void setReportedUserId(String reportedUserId) {
+        this.reportedUserId = reportedUserId;
+    }
+
+    public String getReportedUserName() {
+        return reportedUserName;
+    }
+
+    public void setReportedUserName(String reportedUserName) {
+        this.reportedUserName = reportedUserName;
+    }
 
     public String getContactReason() {
         return contactReason;
@@ -44,7 +62,6 @@ public class NotificationAdmin {
     public void setContactReason(String contactReason) {
         this.contactReason = contactReason;
     }
-
 
     public String getId() {
         return id;
@@ -101,5 +118,4 @@ public class NotificationAdmin {
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
-
 }

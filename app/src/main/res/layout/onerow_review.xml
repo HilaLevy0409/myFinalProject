@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="12dp"
     android:layoutDirection="rtl"
@@ -25,7 +26,7 @@
 
 
         <ImageButton
-            android:id="@+id/btnEditReview"
+            android:id="@+id/ImgBtnEditReview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_edit"
@@ -35,7 +36,7 @@
             android:visibility="gone" />
 
         <ImageButton
-            android:id="@+id/btnDeleteReview"
+            android:id="@+id/ImgBtnDeleteReview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_delete"
@@ -58,11 +59,15 @@
 
     <RatingBar
         android:id="@+id/rbReviewRating"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:numStars="5"
-        android:isIndicator="true"
-        android:layout_marginTop="5dp" />
+        android:stepSize="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvName" />
+
 
     <Button
         android:id="@+id/btnSaveChanges"

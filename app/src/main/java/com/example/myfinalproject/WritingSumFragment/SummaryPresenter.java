@@ -46,6 +46,10 @@ public class SummaryPresenter {
             @Override
             public void onSummaryAdd(Summary summary) {
                 Toast.makeText(view.getContext(), "הסיכום הוזן בהצלחה", Toast.LENGTH_SHORT).show();
+
+                if (view.getActivity() != null) {
+                    view.getActivity().getSupportFragmentManager().popBackStack();
+                }
             }
 
             @Override

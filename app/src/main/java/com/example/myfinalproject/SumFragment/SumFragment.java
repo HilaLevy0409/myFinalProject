@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RatingBar;
 import com.example.myfinalproject.R;
 
@@ -62,6 +63,9 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private int currentPosition = 0;
     private static final int PARAGRAPH_LENGTH = 200;
 
+    private ImageButton ImgBtnDeleteSum;
+    private boolean isAuthor = false;
+
     public SumFragment() {
     }
 
@@ -78,6 +82,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             summaryId = getArguments().getString("summaryId");
+            float rating = getArguments().getFloat("rating", 0f);
+
         }
 
         db = FirebaseFirestore.getInstance();
@@ -117,18 +123,38 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         btnStopContinue.setOnClickListener(this);
         btnReset.setOnClickListener(this);
 
+        ImgBtnDeleteSum = view.findViewById(R.id.ImgBtnDeleteSum);
+        ImgBtnDeleteSum.setOnClickListener(this);
+        ImgBtnDeleteSum.setVisibility(View.GONE);
+
         initTextToSpeech();
         speedControl();
 
-        ratingBarSum.setIsIndicator(true);
 
         loadSummaryData();
         checkIfFavorite();
 
+//        ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+//
+//            if (fromUser) {
+//                getActivity().getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.flFragment, new SumReviewFragment())
+//                        .addToBackStack(null)
+//                        .commit();
+//            }
+//        });
+
         ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
             if (fromUser) {
+                SumReviewFragment reviewFragment = new SumReviewFragment();
+
+                Bundle args = new Bundle();
+                args.putString("summaryId", summaryId);
+                args.putFloat("rating", rating);
+                reviewFragment.setArguments(args);
+
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.flFragment, new SumReviewFragment())
+                        .replace(R.id.flFragment, reviewFragment)
                         .addToBackStack(null)
                         .commit();
             }
@@ -346,16 +372,49 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             tvTopic.setText(topic);
         }
 
-        String authorId = document.getString("authorId");
-        if (authorId != null) {
-            db.collection("users").document(authorId)
-                    .get()
-                    .addOnSuccessListener(userDoc -> {
-                        if (userDoc.exists()) {
-                            String authorName = userDoc.getString("name");
-                            tvAuthor.setText("נכתב על ידי: " + authorName);
-                        }
-                    });
+        String authorName = document.getString("userName");
+        if (authorName != null && !authorName.isEmpty()) {
+            tvAuthor.setText("נכתב על ידי: " + authorName);
+            Log.d(TAG, "Author name set from summary: " + authorName);
+        } else {
+            // Fallback to getting username from user document if not in summary
+            String authorId = document.getString("userId");
+            if (authorId != null) {
+                db.collection("users").document(authorId)
+                        .get()
+                        .addOnSuccessListener(userDoc -> {
+                            if (userDoc.exists()) {
+                                String userName = userDoc.getString("userName");
+                                if (userName != null && !userName.isEmpty()) {
+                                    tvAuthor.setText("נכתב על ידי: " + userName);
+                                    Log.d(TAG, "Author name set from user document: " + userName);
+                                } else {
+                                    tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
+                                    Log.d(TAG, "Username not found in user document");
+                                }
+
+                                // Check if current user is the author
+                                if (mAuth.getCurrentUser() != null &&
+                                        authorId.equals(mAuth.getCurrentUser().getUid())) {
+                                    isAuthor = true;
+                                    ImgBtnDeleteSum.setVisibility(View.VISIBLE);
+                                } else {
+                                    isAuthor = false;
+                                    ImgBtnDeleteSum.setVisibility(View.GONE);
+                                }
+                            } else {
+                                tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
+                                Log.d(TAG, "User document not found for ID: " + authorId);
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
+                            Log.e(TAG, "Error fetching user document", e);
+                        });
+            } else {
+                tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
+                Log.d(TAG, "No author ID in summary document");
+            }
         }
 
         Double averageRating = document.getDouble("averageRating");
@@ -368,14 +427,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         String imageData = document.getString("image");
 
         if (imageData != null && !imageData.isEmpty()) {
-            // Handle image content
             tvText.setVisibility(View.GONE);
             sumImage.setVisibility(View.VISIBLE);
             currentText = "";
             currentPosition = 0;
 
             try {
-                // It's a Base64 encoded image
                 Log.d(TAG, "Loading Base64 image");
                 byte[] decodedString = android.util.Base64.decode(imageData, android.util.Base64.DEFAULT);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
@@ -392,14 +449,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 sumImage.setImageResource(R.drawable.newlogo);
             }
         } else if (summaryContent != null && !summaryContent.isEmpty()) {
-            // Handle text content
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText(summaryContent);
             currentText = summaryContent;
             currentPosition = 0;
         } else {
-            // No content available
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText("אין תוכן זמין");
@@ -408,12 +463,42 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
 
         updateButtons();
+
+
+    }
+
+    private void deleteSummary() {
+        if (!isAuthor) {
+            Toast.makeText(getContext(), "רק יוצר הסיכום יכול למחוק אותו", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle("מחיקת סיכום")
+                .setMessage("האם ברצונך למחוק את הסיכום?")
+                .setPositiveButton("כן", (dialog, which) -> {
+                    db.collection("summaries").document(summaryId)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "הסיכום נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                if (getActivity() != null) {
+                                    getActivity().getSupportFragmentManager().popBackStack();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Error deleting summary", e);
+                                Toast.makeText(getContext(), "שגיאה במחיקת הסיכום", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .setNegativeButton("לא", null)
+                .show();
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView imageView;
 
         public DownloadImageTask(ImageView imageView) {
+
             this.imageView = imageView;
         }
 
@@ -542,6 +627,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             shareSummary();
         } else if(view == btnReset) {
             resetSpeech();
+        }else if (view == ImgBtnDeleteSum) {
+            deleteSummary();
         }
     }
 
@@ -559,7 +646,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_TEXT, currentText);
-            startActivity(Intent.createChooser(shareIntent, "שתף סיכום באמצעות:"));
+            startActivity(Intent.createChooser(shareIntent, "שיתוף סיכום באמצעות:"));
         } else {
             Toast.makeText(getContext(), "אין תוכן לשתף", Toast.LENGTH_SHORT).show();
         }

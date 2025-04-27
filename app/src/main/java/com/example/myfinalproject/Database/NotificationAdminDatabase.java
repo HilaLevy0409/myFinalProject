@@ -10,10 +10,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class NotificationAdminDatabase {
     private static NotificationAdminDatabase instance;
-    private final CollectionReference notificationsRef;
+    private final CollectionReference notifications;
 
     public NotificationAdminDatabase() {
-        notificationsRef = FirebaseFirestore.getInstance().collection("notifications");
+        notifications = FirebaseFirestore.getInstance().collection("notifications");
     }
 
     public static NotificationAdminDatabase getInstance() {
@@ -24,7 +24,7 @@ public class NotificationAdminDatabase {
     }
 
     public Task<Void> addNotification(NotificationAdmin notification) {
-        return notificationsRef.add(notification)
+        return notifications.add(notification)
                 .continueWith(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         notification.setId(task.getResult().getId());
@@ -34,17 +34,17 @@ public class NotificationAdminDatabase {
     }
 
     public Query getAllNotifications() {
-        return notificationsRef.orderBy("timestamp", Query.Direction.DESCENDING);
+        return notifications.orderBy("timestamp", Query.Direction.DESCENDING);
     }
 
     public Query getNotificationsByType(String type) {
-        return notificationsRef
+        return notifications
                 .whereEqualTo("type", type)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
     }
 
 
     public Task<Void> deleteNotification(String notificationId) {
-        return notificationsRef.document(notificationId).delete();
+        return notifications.document(notificationId).delete();
     }
 }

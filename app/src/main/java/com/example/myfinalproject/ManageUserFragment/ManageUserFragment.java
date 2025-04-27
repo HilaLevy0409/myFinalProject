@@ -20,6 +20,8 @@ import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ManageUserFragment extends Fragment implements View.OnClickListener {
 
@@ -30,6 +32,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnBack, btnDeleteUser;
     private User currentUser;
 
+    private String userId;
 
     public ManageUserFragment() {
     }
@@ -105,6 +108,10 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             if (badPoints < 3) {
                 badPoints++;
                 updateBadPointsText();
+                updateBadPointsInDatabase();
+                if (badPoints == 3) {
+                    showPointsLimitDialog();
+                }
             }
         } else if (view.getId() == R.id.btnRemovePoint) {
             if (badPoints > 0) {
@@ -112,6 +119,12 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 updateBadPointsText();
             }
         } else if (view.getId() == R.id.btnShowSums) {
+
+            SumByUserFragment sumByUserFragment = new SumByUserFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("userId", userId);
+            sumByUserFragment.setArguments(bundle);
+
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new SumByUserFragment())
@@ -156,42 +169,84 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                         .commit();
             });
         } else if (view.getId() == R.id.btnDeleteUser) {
-            new AlertDialog.Builder(getContext())
-                    .setTitle("אישור מחיקה")
-                    .setMessage("האם ברצונך למחוק לצמיתות את המשתמש " + tvUsername.getText().toString() + "?")
-                    .setPositiveButton("כן", (dialog, which) -> {
-                        deleteUser();
-                    })
-                    .setNegativeButton("לא", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .show();
+            showDeleteUserConfirmation();
         }
     }
 
+    private void updateBadPointsInDatabase() {
+        if (currentUser != null && userId != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userRef = db.collection("users").document(userId);
+
+            userRef.update("badPoints", badPoints)
+                    .addOnSuccessListener(aVoid -> {
+                        updateBadPointsText();
+                        Toast.makeText(getContext(), "נקודות עודכנו בהצלחה", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "שגיאה בעדכון נקודות: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            Toast.makeText(getContext(), "לא ניתן לעדכן: מזהה משתמש חסר", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showPointsLimitDialog() {
+        String userName = currentUser != null ? currentUser.getUserName() : "משתמש";
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("התראת נקודות")
+                .setMessage("המשתמש " + userName + " הגיע ל-3 נקודות שליליות. האם למחוק את המשתמש?")
+                .setPositiveButton("כן", (dialog, which) -> {
+                    deleteUser();
+                })
+                .setNegativeButton("לא", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void showDeleteUserConfirmation() {
+        String userName = currentUser != null ? currentUser.getUserName() : "משתמש";
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("אישור מחיקה")
+                .setMessage("האם ברצונך למחוק לצמיתות את המשתמש " + userName + "?")
+                .setPositiveButton("כן", (dialog, which) -> {
+                    deleteUser();
+                })
+                .setNegativeButton("לא", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
     private void deleteUser() {
-        String userId = currentUser.getId();
+        if (currentUser != null && userId != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(userId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
 
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(userId)
-                .removeValue()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseAuth auth = FirebaseAuth.getInstance();
-                        auth.getCurrentUser().delete()
-                                .addOnCompleteListener(authTask -> {
-                                    if (authTask.isSuccessful()) {
-                                        FirebaseAuth.getInstance().signOut();
+                        try {
 
-                                        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(getContext(), "הייתה שגיאה במחיקת המשתמש מה-authentication", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    } else {
-                        Toast.makeText(getContext(), "הייתה שגיאה במחיקת המשתמש מה-database", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                            Toast.makeText(getContext(), "המשתמש " + currentUser.getUserName() + " נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+
+
+                            getActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.flFragment, new AdminFragment())
+                                    .commit();
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), "שגיאה במחיקת המשתמש מהאימות: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "שגיאה במחיקת המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            Toast.makeText(getContext(), "לא ניתן למחוק: מזהה משתמש חסר", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

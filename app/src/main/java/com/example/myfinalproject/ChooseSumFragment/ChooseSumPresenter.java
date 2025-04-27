@@ -19,6 +19,7 @@ public class ChooseSumPresenter {
     }
 
     public void loadSummaries(SummariesCallback callback) {
+
         loadSummaries(callback, null, null);
     }
 

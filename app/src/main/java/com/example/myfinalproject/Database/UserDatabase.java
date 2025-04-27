@@ -105,7 +105,6 @@ public class UserDatabase {
 
 
     public void updateUserPassword(String userEmail, String newPassword, UserCallback callback) {
-        // Find the user by email
         database.collection("users")
                 .whereEqualTo("userEmail", userEmail)
                 .get()

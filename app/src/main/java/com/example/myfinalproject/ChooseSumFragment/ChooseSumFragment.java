@@ -35,6 +35,8 @@ import com.example.myfinalproject.R;
 import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 
 import com.example.myfinalproject.SumFragment.SumFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 import java.io.ByteArrayOutputStream;
@@ -130,13 +132,28 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     }
 
 
+//
+//    @Override
+//    public void onClick(View view) {
+//        if (view.getId() == R.id.btnAdd) {
+//            navigateToWritingSumFragment();
+//
+//
+//        }
+//    }
 
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnAdd) {
-            navigateToWritingSumFragment();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                Toast.makeText(getContext(), "יש להתחבר תחילה כדי לכתוב סיכום", Toast.LENGTH_SHORT).show();
+            } else {
+                navigateToWritingSumFragment();
+            }
         }
     }
+
 
     private void navigateToWritingSumFragment() {
         Bundle args = new Bundle();
