@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.SumFragment.SumFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -55,7 +57,45 @@ public class SaveSummaryFragment extends Fragment {
 
         loadSavedSummaries();
 
-        setupSearchView();
+        listViewSummaries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Summary selectedSummary = (Summary) parent.getItemAtPosition(position);
+                navigateToSumFragment(selectedSummary);
+            }
+        });
+
+        searchView();
+    }
+
+
+    private void navigateToSumFragment(Summary summary) {
+        if (summary == null) {
+            Log.e(TAG, "Cannot navigate to SumFragment: summary is null");
+            return;
+        }
+
+        Log.d(TAG, "Navigating to SumFragment with summary ID: " + summary.getSummaryId());
+
+        SumFragment sumFragment = SumFragment.newInstance(summary.getSummaryId());
+
+
+        Bundle args = sumFragment.getArguments();
+        if (args == null) {
+            args = new Bundle();
+        }
+        args.putBoolean("fromFavorites", true);
+        sumFragment.setArguments(args);
+
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, sumFragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            Log.e(TAG, "Cannot navigate: getActivity is null");
+        }
     }
 
     private void loadSavedSummaries() {
@@ -88,8 +128,12 @@ public class SaveSummaryFragment extends Fragment {
                     if (documentSnapshot.exists()) {
                         Summary summary = documentSnapshot.toObject(Summary.class);
                         if (summary != null) {
+                            if (summary.getSummaryId() == null || summary.getSummaryId().isEmpty()) {
+                                summary.setSummaryId(documentSnapshot.getId());
+                            }
                             savedSummaries.add(summary);
                             summaryAdapter.notifyDataSetChanged();
+                            Log.d(TAG, "Loaded summary: " + summary.getSummaryTitle() + " with ID: " + summary.getSummaryId());
                         }
                     }
                 })
@@ -98,7 +142,7 @@ public class SaveSummaryFragment extends Fragment {
                 });
     }
 
-    private void setupSearchView() {
+    private void searchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

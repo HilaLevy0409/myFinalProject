@@ -130,6 +130,10 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         initTextToSpeech();
         speedControl();
 
+        if (getArguments() != null && getArguments().getBoolean("fromFavorites", false)) {
+            isFavorite = true;
+            updateFavoriteButton();
+        }
 
         loadSummaryData();
         checkIfFavorite();

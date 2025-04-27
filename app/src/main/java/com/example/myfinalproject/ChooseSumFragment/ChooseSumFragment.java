@@ -97,6 +97,13 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            btnAdd.setVisibility(View.GONE);
+        } else {
+            btnAdd.setVisibility(View.VISIBLE);
+        }
+
         btnAdd.setOnClickListener(this);
 
         listViewSummaries.setOnItemClickListener((parent, view1, position, id) -> {
@@ -145,9 +152,12 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnAdd) {
+            // Double-check user is logged in before proceeding (defensive programming)
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser == null) {
                 Toast.makeText(getContext(), "יש להתחבר תחילה כדי לכתוב סיכום", Toast.LENGTH_SHORT).show();
+                // Hide the button in case it somehow became visible
+                btnAdd.setVisibility(View.GONE);
             } else {
                 navigateToWritingSumFragment();
             }
@@ -180,7 +190,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 getActivity().runOnUiThread(() -> {
                     summaryList.clear();
                     fullSummaryList.clear();
-                    fullSummaryList.addAll(summaries); // ← שמירת המקור
+                    fullSummaryList.addAll(summaries);
                     summaryList.addAll(summaries);
                     summaryAdapter.notifyDataSetChanged();
                 });
@@ -230,17 +240,13 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     private void showSum(Summary summary) {
         if (getContext() == null) return;
 
-        // Create a new instance of SumFragment
         SumFragment sumFragment = new SumFragment();
 
-        // Create a Bundle to store the summary ID
         Bundle args = new Bundle();
         args.putString("summaryId", summary.getSummaryId());
 
-        // Set the arguments to the fragment
         sumFragment.setArguments(args);
 
-        // Replace the current fragment with the new SumFragment
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, sumFragment)

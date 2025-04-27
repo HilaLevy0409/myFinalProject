@@ -186,8 +186,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .addOnFailureListener(e -> {
                         Toast.makeText(getContext(), "שגיאה בעדכון נקודות: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
-        } else {
-            Toast.makeText(getContext(), "לא ניתן לעדכן: מזהה משתמש חסר", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -244,8 +242,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .addOnFailureListener(e -> {
                         Toast.makeText(getContext(), "שגיאה במחיקת המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
-        } else {
-            Toast.makeText(getContext(), "לא ניתן למחוק: מזהה משתמש חסר", Toast.LENGTH_SHORT).show();
         }
     }
 

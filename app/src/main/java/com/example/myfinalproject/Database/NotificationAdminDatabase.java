@@ -14,6 +14,7 @@ public class NotificationAdminDatabase {
 
     public NotificationAdminDatabase() {
         notifications = FirebaseFirestore.getInstance().collection("notifications");
+
     }
 
     public static NotificationAdminDatabase getInstance() {

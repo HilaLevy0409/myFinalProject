@@ -13,15 +13,17 @@ public class Summary {
     private String createdDate;
     private float rating;
     private String userName;
+    private String userId;
 
 
-    public Summary(String classOption, String profession, String summaryTitle, String summaryContent, String userName) {
+    public Summary(String classOption, String profession, String summaryTitle, String summaryContent, String userName, String userId) {
         this.summaryId = java.util.UUID.randomUUID().toString();
         this.classOption = classOption;
         this.profession = profession;
         this.summaryTitle = summaryTitle;
         this.summaryContent = summaryContent;
         this.userName = userName;
+        this.userId = userId;
 
 
     }
@@ -29,6 +31,17 @@ public class Summary {
     public Summary() {
 
     }
+
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+
     public String getUserName() {
         return userName;
     }
@@ -48,6 +61,7 @@ public class Summary {
 
 
     public String getCreatedDate() {
+
         return createdDate;
     }
 

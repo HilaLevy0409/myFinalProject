@@ -26,6 +26,7 @@ public class NotificationAdmin {
         this.type = type;
         this.timestamp = Timestamp.now();
 
+
         if (type.equals("REPORT")) {
             this.reportReason = reason;
 

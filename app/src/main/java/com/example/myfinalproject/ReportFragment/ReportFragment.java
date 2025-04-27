@@ -1,5 +1,7 @@
 package com.example.myfinalproject.ReportFragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ReportFragment extends Fragment {
 
-    private EditText etUserNameOrTopic;
+    private EditText etUserNameOrTopic, etUserName;
     private RadioGroup reportReasonGroup;
     private RadioButton rbOther;
     private TextInputLayout tilCustomReason;
@@ -31,6 +33,9 @@ public class ReportFragment extends Fragment {
     private Button btnSendReport;
     private TextView tvSubmitStatus;
     private NotificationAdminDatabase notificationRepository;
+
+    private boolean isUserLoggedIn = false;
+    private String loggedInUsername = "";
 
     public ReportFragment() {
     }
@@ -49,8 +54,20 @@ public class ReportFragment extends Fragment {
 
         notificationRepository = new NotificationAdminDatabase();
 
+        checkUserLoginStatus();
+
         return view;
     }
+
+    private void checkUserLoginStatus() {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+
+        if (isUserLoggedIn) {
+            loggedInUsername = sharedPreferences.getString("username", "");
+        }
+    }
+
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         etUserNameOrTopic = view.findViewById(R.id.etUserNameOrTopic);
@@ -61,12 +78,30 @@ public class ReportFragment extends Fragment {
         etReportDetails = view.findViewById(R.id.etReport);
         btnSendReport = view.findViewById(R.id.btnSendReport);
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
+        etUserName = view.findViewById(R.id.etUserName);
 
         Bundle bundle = getArguments();
         if (bundle != null) {
             String userName = bundle.getString("userName");
             etUserNameOrTopic.setText(userName);
             etUserNameOrTopic.setEnabled(false);
+        }
+
+        if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
+            etUserName.setText(loggedInUsername);
+
+            etUserName.setEnabled(false);
+            etUserName.setFocusable(false);
+            etUserName.setFocusableInTouchMode(false);
+
+            etUserName.setBackgroundResource(android.R.drawable.edit_text);
+            etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        } else {
+            etUserName.setEnabled(true);
+            etUserName.setFocusable(true);
+            etUserName.setFocusableInTouchMode(true);
+
+            etUserName.setHint("שם משתמש");
         }
 
         reportReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
@@ -109,12 +144,14 @@ public class ReportFragment extends Fragment {
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid()
                 : "anonymous";
 
-        String reporterName = "";
-        if (FirebaseAuth.getInstance().getCurrentUser() != null &&
-                FirebaseAuth.getInstance().getCurrentUser().getDisplayName() != null) {
-            reporterName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        } else {
-            reporterName = "משתמש אנונימי";
+        String reporterName = etUserName.getText().toString().trim();
+
+        if (reporterName.isEmpty()) {
+            if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
+                reporterName = loggedInUsername;
+            } else {
+                reporterName = "משתמש אנונימי";
+            }
         }
 
         NotificationAdmin report = new NotificationAdmin(
@@ -141,11 +178,11 @@ public class ReportFragment extends Fragment {
                 });
     }
 
-
-
-
-
     private void clearForm() {
+        if (!isUserLoggedIn) {
+            etUserName.setText("");
+        }
+
         reportReasonGroup.clearCheck();
         etCustomReason.setText("");
         etReportDetails.setText("");

@@ -106,10 +106,10 @@ public class ContactUsFragment extends Fragment {
         String userName = etUserName.getText().toString().trim();
         String contactDetails = etContactDetails.getText().toString().trim();
 
-        if (!isUserLoggedIn && userName.isEmpty()) {
-            Toast.makeText(getContext(), "נא להזין שם משתמש", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!isUserLoggedIn && userName.isEmpty()) {
+//            Toast.makeText(getContext(), "נא להזין שם משתמש", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         if (contactDetails.isEmpty()) {
             Toast.makeText(getContext(), "נא להזין את פרטי הפנייה", Toast.LENGTH_SHORT).show();

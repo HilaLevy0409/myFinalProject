@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -88,33 +89,39 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
 
     private void loadNotifications(int tabPosition) {
-        switch (tabPosition) {
-            case TAB_MESSAGES:
-                notificationRepository.getNotificationsByType("MESSAGE")
-                        .get()
-                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                            List<NotificationAdmin> notifications = queryDocumentSnapshots.toObjects(NotificationAdmin.class);
-                            adapter.updateData(notifications);
-                        });
-                break;
-            case TAB_REPORTS:
-                notificationRepository.getNotificationsByType("REPORT")
-                        .get()
-                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                            List<NotificationAdmin> notifications = queryDocumentSnapshots.toObjects(NotificationAdmin.class);
-                            adapter.updateData(notifications);
-                        });
-                break;
-            case TAB_ALL:
-            default:
-                notificationRepository.getAllNotifications()
-                        .get()
-                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                            List<NotificationAdmin> notifications = queryDocumentSnapshots.toObjects(NotificationAdmin.class);
-                            adapter.updateData(notifications);
-                        });
-                break;
-        }
+        // Get all notifications
+        notificationRepository.getAllNotifications()
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<NotificationAdmin> allNotifications = queryDocumentSnapshots.toObjects(NotificationAdmin.class);
+                    List<NotificationAdmin> filteredList = new ArrayList<>();
+
+                    if (tabPosition == TAB_ALL) {
+                        filteredList = allNotifications;
+                    } else if (tabPosition == TAB_MESSAGES) {
+                        for (NotificationAdmin notification : allNotifications) {
+                            if ("MESSAGE".equals(notification.getType()) ||
+                                    "CONTACT".equals(notification.getType())) {
+                                filteredList.add(notification);
+                            }
+                        }
+                    } else if (tabPosition == TAB_REPORTS) {
+                        for (NotificationAdmin notification : allNotifications) {
+                            if ("REPORT".equals(notification.getType())) {
+                                filteredList.add(notification);
+                            }
+                        }
+                    }
+
+                    adapter.updateData(filteredList);
+
+
+                })
+                .addOnFailureListener(e -> {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "שגיאה בטעינת הודעות", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 
@@ -138,40 +145,49 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
         StringBuilder messageBuilder = new StringBuilder();
 
-        // Debug log to see what's actually in the notification object
         android.util.Log.d("NotificationDialog", "UserName: " + notification.getUserName()
                 + ", UserId: " + notification.getUserId()
                 + ", Type: " + notification.getType());
 
-        // Try multiple approaches to get a valid username
-        String displayName = null;
-
-        // First try using the userName directly
-        if (notification.getUserName() != null && !notification.getUserName().isEmpty()) {
-            displayName = notification.getUserName();
-        }
-        // If that doesn't work, try getting the userName from userId (if possible)
-        else if (notification.getUserId() != null && !notification.getUserId().isEmpty()) {
-            // This could be extended to fetch the actual username from a user database
-            displayName = "User " + notification.getUserId().substring(0, Math.min(notification.getUserId().length(), 5));
-        }
-        // Last resort - use anonymous
-        else {
-            displayName = "אנונימי";
-        }
-
-        // Add the username to the message
-        messageBuilder.append("מאת: ").append(displayName).append("\n\n");
-
         if ("REPORT".equals(notification.getType())) {
+            String reporterName = notification.getUserName();
+
+            if (reporterName == null || reporterName.isEmpty()) {
+                reporterName = "משתמש אנונימי";
+            }
+
+            messageBuilder.append("מדווח על ידי: ").append(reporterName).append("\n\n");
+
             if (notification.getReportedUserName() != null && !notification.getReportedUserName().isEmpty()) {
-                messageBuilder.append("מדווח: ").append(notification.getReportedUserName()).append("\n\n");
+                messageBuilder.append("משתמש מדווח: ").append(notification.getReportedUserName()).append("\n\n");
             }
 
             messageBuilder.append("סיבת דיווח: ").append(notification.getReportReason()).append("\n\n");
         }
         else if ("CONTACT".equals(notification.getType())) {
+            String senderName = notification.getUserName();
+            if (senderName == null || senderName.isEmpty()) {
+                if (notification.getUserId() != null && !notification.getUserId().isEmpty()) {
+                    senderName = "User " + notification.getUserId().substring(0, Math.min(notification.getUserId().length(), 5));
+                } else {
+                    senderName = "אנונימי";
+                }
+            }
+
+            messageBuilder.append("מאת: ").append(senderName).append("\n\n");
             messageBuilder.append("סיבת פנייה: ").append(notification.getContactReason()).append("\n\n");
+        }
+        else {
+            String displayName = notification.getUserName();
+            if (displayName == null || displayName.isEmpty()) {
+                if (notification.getUserId() != null && !notification.getUserId().isEmpty()) {
+                    displayName = "User " + notification.getUserId().substring(0, Math.min(notification.getUserId().length(), 5));
+                } else {
+                    displayName = "אנונימי";
+                }
+            }
+
+            messageBuilder.append("מאת: ").append(displayName).append("\n\n");
         }
 
         messageBuilder.append("תוכן:\n").append(notification.getContent());
@@ -186,7 +202,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 })
                 .show();
     }
-
 
     @Override
     public void onStart() {
