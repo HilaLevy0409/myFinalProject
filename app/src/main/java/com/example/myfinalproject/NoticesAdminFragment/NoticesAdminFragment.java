@@ -1,5 +1,4 @@
-
- package com.example.myfinalproject.NoticesAdminFragment;
+package com.example.myfinalproject.NoticesAdminFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,7 +88,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
 
     private void loadNotifications(int tabPosition) {
-        // Get all notifications
         notificationRepository.getAllNotifications()
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {

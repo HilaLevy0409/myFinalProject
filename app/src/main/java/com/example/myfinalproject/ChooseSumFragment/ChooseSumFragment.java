@@ -106,10 +106,16 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
         btnAdd.setOnClickListener(this);
 
+//        listViewSummaries.setOnItemClickListener((parent, view1, position, id) -> {
+//            Summary selectedSummary = summaryList.get(position);
+//            showManagementDialog(selectedSummary);
+//        });
+
         listViewSummaries.setOnItemClickListener((parent, view1, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
-            showManagementDialog(selectedSummary);
+            showSum(selectedSummary);
         });
+
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

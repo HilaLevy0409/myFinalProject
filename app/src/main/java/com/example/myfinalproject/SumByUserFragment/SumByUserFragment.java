@@ -1,5 +1,6 @@
 package com.example.myfinalproject.SumByUserFragment;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfinalproject.CallBacks.SummariesCallback;
-import com.example.myfinalproject.ChooseSumFragment.ChooseSumPresenter;
 import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.R;
@@ -30,18 +30,15 @@ public class SumByUserFragment extends Fragment {
     private ListView listViewSummaries;
     private SummaryAdapter summaryAdapter;
     private ArrayList<Summary> summaryList;
-    private ChooseSumPresenter chooseSumPresenter;
+    private SumByUserPresenter presenter;
     private SearchView searchView;
 
     private String userName;
     private TextView tvTitle;
 
-
-
     public SumByUserFragment() {
+        // Required empty public constructor
     }
-
-
 
     public static SumByUserFragment newInstance(String userName) {
         SumByUserFragment fragment = new SumByUserFragment();
@@ -50,7 +47,6 @@ public class SumByUserFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,13 +57,11 @@ public class SumByUserFragment extends Fragment {
         summaryList = new ArrayList<>();
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_sum_by_user, container, false);
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -77,11 +71,21 @@ public class SumByUserFragment extends Fragment {
         listViewSummaries = view.findViewById(R.id.listViewSummaries);
         searchView = view.findViewById(R.id.searchView);
 
+        // Get current username if not provided
+        if (userName == null || userName.isEmpty()) {
+            SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
+            userName = prefs.getString("username", "המשתמש הנוכחי");
+        }
+
+
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
 
         summaryList = new ArrayList<>();
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
+
+        // Initialize the presenter with Firestore support
+        presenter = new SumByUserPresenter(this, userName);
 
         listViewSummaries.setOnItemClickListener((parent, viewItem, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
@@ -96,25 +100,31 @@ public class SumByUserFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (chooseSumPresenter != null) {
-                    chooseSumPresenter.filterSummaries(newText, summaryList, summaryAdapter);
+                if (presenter != null) {
+                    presenter.filterSummaries(newText, summaryList, summaryAdapter);
                 }
                 return true;
             }
         });
 
-        // loadSummaries();
+        // Load summaries for the user
+        loadSummaries();
     }
 
     private void loadSummaries() {
-        chooseSumPresenter.loadSummaries(new SummariesCallback() {
+        presenter.loadUserSummaries(new SummariesCallback() {
             @Override
             public void onSuccess(List<Summary> summaries) {
                 if (getActivity() == null) return;
 
                 getActivity().runOnUiThread(() -> {
                     summaryList.clear();
-                    summaryList.addAll(summaries);
+                    if (summaries.isEmpty()) {
+                        listViewSummaries.setVisibility(View.GONE);
+                    } else {
+                        listViewSummaries.setVisibility(View.VISIBLE);
+                        summaryList.addAll(summaries);
+                    }
                     summaryAdapter.notifyDataSetChanged();
                 });
             }
@@ -123,10 +133,10 @@ public class SumByUserFragment extends Fragment {
             public void onError(String message) {
                 if (getActivity() == null) return;
 
-                getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), ":שגיאה " + message,
-                                Toast.LENGTH_SHORT).show()
-                );
+                getActivity().runOnUiThread(() -> {
+                    listViewSummaries.setVisibility(View.GONE);
+                    showError("שגיאה: " + message);
+                });
             }
         });
     }
@@ -136,7 +146,7 @@ public class SumByUserFragment extends Fragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("ניהול סיכום");
-        String[] options = {"עריכה", "מחיקה","מעבר לסיכום", "ביטול"};
+        String[] options = {"עריכה", "מחיקה", "צפייה בסיכום", "ביטול"};
 
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
@@ -146,6 +156,9 @@ public class SumByUserFragment extends Fragment {
                 case 1:
                     showDeleteConfirmationDialog(summary);
                     break;
+                case 2:
+                    navigateToSummaryView(summary);
+                    break;
                 case 3:
                     dialog.dismiss();
                     break;
@@ -153,43 +166,18 @@ public class SumByUserFragment extends Fragment {
         });
         builder.show();
     }
+
+    private void navigateToSummaryView(Summary summary) {
+        // Implementation for navigating to the summary view
+        Toast.makeText(getContext(), "צפייה בסיכום: " + summary.getSummaryTitle(), Toast.LENGTH_SHORT).show();
+        // Add navigation logic here
+    }
+
     private void showEditDialog(Summary summary) {
         if (getContext() == null) return;
-    /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_summary, null);
 
-        EditText etClass = dialogView.findViewById(R.id.etClass);
-        EditText etProfession = dialogView.findViewById(R.id.etProfession);
-        EditText etSummaryTitle = dialogView.findViewById(R.id.etSummaryTitle);
-        ImageView imgSum = dialogView.findViewById(R.id.imageSum);
-        Button btnChangeImage = dialogView.findViewById(R.id.btnChangeImage);
-
-        etClass.setText(summary.getClassOption());
-        etProfession.setText(summary.getProfession());
-        etSummaryTitle.setText(summary.getSummaryTitle());
-        loadBase64Image(summary.getImage(), imgSum);
-
-        btnChangeImage.setOnClickListener(v -> {
-            imageSum = imgSum;
-            showPictureDialog();
-        });
-
-        builder.setView(dialogView)
-                .setPositiveButton("שמור", (dialog, which) -> {
-                    summary.setClassOption(etClass.getText().toString());
-                    summary.setProfession(etProfession.getText().toString());
-                    summary.setSummaryTitle(etSummaryTitle.getText().toString());
-                    if (imgSum.getDrawable() != null) {
-                        summary.setImage(imageViewToBase64(imgSum));
-                    }
-                    chooseSumPresenter.updateSummary(summary);
-                })
-                .setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
-
-        builder.show();
-
-     */
+        // Implement your edit dialog here
+        Toast.makeText(getContext(), "פונקציית עריכה בבניה", Toast.LENGTH_SHORT).show();
     }
 
     private void showDeleteConfirmationDialog(Summary summary) {
@@ -198,9 +186,36 @@ public class SumByUserFragment extends Fragment {
         new AlertDialog.Builder(getContext())
                 .setTitle("מחיקת סיכום")
                 .setMessage("האם ברצונך למחוק סיכום זה?")
-                .setPositiveButton("כן", (dialog, which) ->
-                        chooseSumPresenter.deleteSummary(summary.getSummaryId()))
+                .setPositiveButton("כן", (dialog, which) -> {
+                    presenter.deleteSummary(summary.getSummaryId(), new SummariesCallback() {
+                        @Override
+                        public void onSuccess(List<Summary> summaries) {
+                            if (getActivity() == null) return;
+
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "הסיכום נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                loadSummaries(); // Reload summaries after deletion
+                            });
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            if (getActivity() == null) return;
+
+                            getActivity().runOnUiThread(() ->
+                                    Toast.makeText(getContext(), "שגיאה במחיקה: " + message,
+                                            Toast.LENGTH_SHORT).show()
+                            );
+                        }
+                    });
+                })
                 .setNegativeButton("לא", null)
                 .show();
+    }
+
+    public void showError(String message) {
+        if (getContext() != null) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 }

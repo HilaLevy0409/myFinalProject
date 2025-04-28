@@ -165,16 +165,11 @@ public class ChooseUserFragment extends Fragment {
     private void navigateToSummaryByUserFragment(User user) {
         if (getActivity() == null) return;
 
-        Bundle bundle = new Bundle();
-        bundle.putString("userId", user.getId());
-        bundle.putString("userName", user.getUserName());
-
-        SumByUserFragment sumByUserFragment = new SumByUserFragment();
-        sumByUserFragment.setArguments(bundle);
+        SumByUserFragment sumByUserFragment = SumByUserFragment.newInstance(user.getUserName());
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.flFragment, new SumByUserFragment())
+                .replace(R.id.flFragment, sumByUserFragment)
                 .addToBackStack(null)
                 .commit();
     }

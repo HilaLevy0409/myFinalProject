@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
@@ -204,15 +205,41 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         return true;
     }
 
+//    private void saveSummaryData() {
+//
+//
+//
+//        String summaryTitle = etSummaryTitle.getText().toString().trim();
+//
+//        summary.setClassOption(selectedClass);
+//        summary.setProfession(selectedProfession);
+//        summary.setSummaryTitle(summaryTitle);
+//
+//        if (isWriteMode) {
+//            String summaryContent = etSummaryContent.getText().toString().trim();
+//            summary.setSummaryContent(summaryContent);
+//            summary.setImage(null);
+//        } else {
+//            if (imageViewSummary.getDrawable() != null) {
+//                String base64Image = bitmapToBase64(((BitmapDrawable) imageViewSummary.getDrawable()).getBitmap());
+//                summary.setImage(base64Image);
+//            }
+//            summary.setSummaryContent("");
+//        }
+//
+//        summaryPresenter.submitSummaryClicked(summary);
+//    }
+
     private void saveSummaryData() {
-
-
-
         String summaryTitle = etSummaryTitle.getText().toString().trim();
 
         summary.setClassOption(selectedClass);
         summary.setProfession(selectedProfession);
         summary.setSummaryTitle(summaryTitle);
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
+        String currentUsername = prefs.getString("username", "אנונימי");
+        summary.setUserName(currentUsername);
 
         if (isWriteMode) {
             String summaryContent = etSummaryContent.getText().toString().trim();
@@ -228,6 +255,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
         summaryPresenter.submitSummaryClicked(summary);
     }
+
 
     private String bitmapToBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

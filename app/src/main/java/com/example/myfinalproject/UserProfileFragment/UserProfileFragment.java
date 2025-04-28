@@ -165,6 +165,8 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 updatedUser.setUserEmail(newEmail);
                 updatedUser.setPhone(newPhone);
                 updatedUser.setUserName(newUsername);
+                updatedUser.setUserBirthDate(newBirthDate);
+
 
                 if (currentUser != null) {
                     updatedUser.setBadPoints(currentUser.getBadPoints());

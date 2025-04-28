@@ -7,27 +7,42 @@ import android.app.NotificationManager;
 import android.app.NotificationChannel;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
+import android.util.Log;
 
 import com.example.myfinalproject.R;
 
 public class EventReminderReceiver extends BroadcastReceiver {
 
     private static final String CHANNEL_ID = "event_reminder_channel";
+    private static final String TAG = "EventReminderReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String eventTitle = intent.getStringExtra("eventTitle");
+        try {
+            String eventTitle = intent.getStringExtra("eventTitle");
+            if (eventTitle == null) {
+                eventTitle = "אירוע מתוזמן";
+                Log.e(TAG, "Event title was null");
+            }
 
-        createNotificationChannel(context);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.bell)
-                .setContentTitle("תזכורת לאירוע")
-                .setContentText("תזכורת: " + eventTitle + "מחר!")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true);
+            createNotificationChannel(context);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.bell)
+                    .setContentTitle("תזכורת לאירוע")
+                    .setContentText("תזכורת: " + eventTitle + " מחר!")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true);
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, builder.build());
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+                Log.d(TAG, "Notification sent for event: " + eventTitle);
+            } else {
+                Log.e(TAG, "NotificationManager was null");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error displaying notification", e);
+        }
     }
 
     private void createNotificationChannel(Context context) {
@@ -38,7 +53,9 @@ public class EventReminderReceiver extends BroadcastReceiver {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
         }
     }
 }

@@ -188,4 +188,6 @@ public class ReportFragment extends Fragment {
         etReportDetails.setText("");
         tilCustomReason.setVisibility(View.GONE);
     }
+
+
 }

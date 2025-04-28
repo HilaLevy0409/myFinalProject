@@ -3,6 +3,10 @@ package com.example.myfinalproject.Models;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class NotificationAdmin {
     @DocumentId
     private String id;
@@ -17,6 +21,12 @@ public class NotificationAdmin {
     private Timestamp timestamp;
 
     public NotificationAdmin() {
+    }
+
+
+    private Date getIsraelTime() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jerusalem"));
+        return calendar.getTime();
     }
 
     public NotificationAdmin(String userId, String userName, String content, String reason, String type) {

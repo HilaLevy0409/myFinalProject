@@ -57,7 +57,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         return inflater.inflate(R.layout.fragment_manage_user, container, false);
 
     }
-
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
