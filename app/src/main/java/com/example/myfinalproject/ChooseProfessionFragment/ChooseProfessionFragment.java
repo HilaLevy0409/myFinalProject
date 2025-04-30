@@ -280,6 +280,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, chooseSumFragment)
+                .addToBackStack(null)
                 .commit();
     }
 }

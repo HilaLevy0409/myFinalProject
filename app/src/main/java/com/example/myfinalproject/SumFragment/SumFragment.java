@@ -607,9 +607,37 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+        // This code should be in the onClick method of the SumFragment class
+        // Update this part in the onClick method of the SumFragment class
+        // Replace this part in the onClick method of SumFragment
         if (view == btnReport) {
+            // Log the current summaryId
+            android.util.Log.d("SumFragment", "Report clicked with summaryId: " + summaryId);
+
+            // Create a new instance of ReportFragment
+            ReportFragment reportFragment = new ReportFragment();
+
+            // Create bundle to pass data
+            Bundle args = new Bundle();
+
+            // Pass the summary title as the reportedName
+            args.putString("userName", tvTopic.getText().toString());
+
+            // Make sure summaryId is valid before passing it
+            if (summaryId != null && !summaryId.isEmpty()) {
+                args.putString("summaryId", summaryId);
+                // Add debug log
+                android.util.Log.d("SumFragment", "Passing summaryId to report: " + summaryId);
+            } else {
+                android.util.Log.d("SumFragment", "Warning: No summaryId available to pass!");
+            }
+
+            reportFragment.setArguments(args);
+
+            // Navigate to the report fragment
             getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, new ReportFragment())
+                    .replace(R.id.flFragment, reportFragment)
+                    .addToBackStack(null)  // Add to back stack so user can go back
                     .commit();
         } else if (view == btnSaveSummary) {
             toggleFavorite();

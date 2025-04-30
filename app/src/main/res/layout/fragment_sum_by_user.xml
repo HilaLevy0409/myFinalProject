@@ -40,5 +40,15 @@
         android:dividerHeight="8dp"
         android:padding="8dp" />
 
+
+    <TextView
+        android:id="@+id/tvNoSummaries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="אין סיכומים להצגה"
+        android:textSize="16sp"
+        android:visibility="gone" />
 </LinearLayout>
 

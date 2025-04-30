@@ -21,7 +21,12 @@ import com.example.myfinalproject.Database.NotificationAdminDatabase;
 import com.example.myfinalproject.Models.NotificationAdmin;
 import com.example.myfinalproject.R;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReportFragment extends Fragment {
 
@@ -154,6 +159,7 @@ public class ReportFragment extends Fragment {
             }
         }
 
+        // Always create with type "REPORT"
         NotificationAdmin report = new NotificationAdmin(
                 userId,
                 reporterName,
@@ -165,17 +171,74 @@ public class ReportFragment extends Fragment {
         String reportedUserName = etUserNameOrTopic.getText().toString().trim();
         report.setReportedUserName(reportedUserName);
 
+        // Check if this is a summary report and save the summaryId in the notification's id field
+        // This is a workaround since we don't have a separate field for reportedItemId
+        Bundle bundle = getArguments();
+        String summaryId = null;
+        if (bundle != null && bundle.containsKey("summaryId")) {
+            summaryId = bundle.getString("summaryId");
+            if (summaryId != null && !summaryId.isEmpty()) {
+                // Store the summaryId temporarily in the id field
+                // It will be replaced with the actual notification ID by Firebase
+                android.util.Log.d("ReportFragment", "Setting summaryId: " + summaryId);
+
+                // Instead of directly setting ID (which Firebase will overwrite),
+                // we'll store it in a custom field in Firestore
+                report.setId(summaryId);
+
+                // Add to log for debugging
+                android.util.Log.d("ReportFragment", "Created report with summaryId: " + summaryId);
+            }
+        }
+
         btnSendReport.setEnabled(false);
-        notificationRepository.addNotification(report)
-                .addOnSuccessListener(aVoid -> {
-                    tvSubmitStatus.setVisibility(View.VISIBLE);
-                    clearForm();
-                    btnSendReport.postDelayed(() -> btnSendReport.setEnabled(true), 2000);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    btnSendReport.setEnabled(true);
-                });
+
+        // Log what we're about to send
+        android.util.Log.d("ReportFragment", "Sending report: " +
+                "type=" + report.getType() +
+                ", reportedName=" + reportedUserName +
+                ", summaryId=" + summaryId);
+
+        // If this is a summary report, we need to add a custom property to indicate it
+        if (summaryId != null) {
+            // Create a Map with the report data
+            Map<String, Object> reportData = new HashMap<>();
+            reportData.put("userId", report.getUserId());
+            reportData.put("userName", report.getUserName());
+            reportData.put("content", report.getContent());
+            reportData.put("type", report.getType());
+            reportData.put("reportReason", report.getReportReason());
+            reportData.put("reportedUserName", report.getReportedUserName());
+            reportData.put("timestamp", Timestamp.now());
+            reportData.put("isSummaryReport", true);
+            reportData.put("summaryId", summaryId);
+
+            // Add to Firestore with custom fields
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("notifications")
+                    .add(reportData)
+                    .addOnSuccessListener(documentReference -> {
+                        tvSubmitStatus.setVisibility(View.VISIBLE);
+                        clearForm();
+                        btnSendReport.postDelayed(() -> btnSendReport.setEnabled(true), 2000);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        btnSendReport.setEnabled(true);
+                    });
+        } else {
+            // Regular report - use the existing method
+            notificationRepository.addNotification(report)
+                    .addOnSuccessListener(aVoid -> {
+                        tvSubmitStatus.setVisibility(View.VISIBLE);
+                        clearForm();
+                        btnSendReport.postDelayed(() -> btnSendReport.setEnabled(true), 2000);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        btnSendReport.setEnabled(true);
+                    });
+        }
     }
 
     private void clearForm() {

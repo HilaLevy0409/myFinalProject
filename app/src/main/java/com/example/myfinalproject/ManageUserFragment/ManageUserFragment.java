@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ManageUserFragment extends Fragment implements View.OnClickListener {
@@ -33,6 +35,9 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     private User currentUser;
 
     private String userId;
+
+    private ImageView imgUserProfile;
+
 
     public ManageUserFragment() {
     }
@@ -74,6 +79,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         btnBack = view.findViewById(R.id.btnBack);
         btnDeleteUser = view.findViewById(R.id.btnDeleteUser);
 
+        imgUserProfile = view.findViewById(R.id.imgUserProfile);
+
 
         btnBack.setOnClickListener(this);
         btnAddPoint.setOnClickListener(this);
@@ -83,8 +90,15 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         btnDeleteUser.setOnClickListener(this);
 
 
+
         Bundle bundle = getArguments();
         if (bundle != null) {
+            if (bundle.containsKey("username")) {
+                String username = bundle.getString("username");
+                loadUserByUsername(username);
+                return;
+            }
+
             String userName = bundle.getString("userName");
             String userEmail = bundle.getString("userEmail");
             String userPhone = bundle.getString("userPhone");
@@ -100,6 +114,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
         }
     }
+
 
 
     @Override
@@ -252,6 +267,148 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         tvBadPoints.setText("נקודות לרעה: " + badPoints);
     }
 
+    private void loadProfilePicture(String profilePicData) {
+        if (profilePicData == null || profilePicData.isEmpty() || imgUserProfile == null) {
+            // Set default image if no profile pic data
+            imgUserProfile.setImageResource(R.drawable.newlogo);
+            return;
+        }
 
+        try {
+            // Handle Base64 encoded images
+            if (profilePicData.startsWith("/9j/") || profilePicData.startsWith("iVBOR")) {
+                byte[] decodedString = android.util.Base64.decode(profilePicData, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                if (bitmap != null) {
+                    imgUserProfile.setImageBitmap(bitmap);
+                } else {
+                    imgUserProfile.setImageResource(R.drawable.newlogo);
+                }
+            }
+            // Handle URI-based images
+            else {
+                android.net.Uri imageUri = android.net.Uri.parse(profilePicData);
+                android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                imgUserProfile.setImageBitmap(bitmap);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            imgUserProfile.setImageResource(R.drawable.newlogo);
+        }
+    }
+
+    private void loadUserByUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            Toast.makeText(getContext(), "שם משתמש לא תקין", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .whereEqualTo("userName", username)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                        // Safely get the first document
+                        DocumentSnapshot document = null;
+                        try {
+                            document = queryDocumentSnapshots.getDocuments().get(0);
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), "שגיאה בעיבוד תוצאות החיפוש", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (document == null) {
+                            Toast.makeText(getContext(), "מסמך המשתמש ריק", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Store the user ID for other operations
+                        userId = document.getId();
+
+                        // Try different field names for profile picture
+                        String profilePicData = null;
+
+                        // Check common field names for profile pictures
+                        if (document.contains("profileImage")) {
+                            profilePicData = document.getString("profileImage");
+                        } else if (document.contains("profilePicture")) {
+                            profilePicData = document.getString("profilePicture");
+                        } else if (document.contains("profilePic")) {
+                            profilePicData = document.getString("profilePic");
+                        } else if (document.contains("imageProfile")) {
+                            profilePicData = document.getString("imageProfile");
+                        } else if (document.contains("profilePicUrl")) {
+                            profilePicData = document.getString("profilePicUrl");
+                        } else if (document.contains("profilePicBase64")) {
+                            profilePicData = document.getString("profilePicBase64");
+                        }
+
+                        // Load the profile picture if we found data
+                        loadProfilePicture(profilePicData);
+
+                        // Get the User object
+                        try {
+                            currentUser = document.toObject(User.class);
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), "שגיאה בהמרת נתוני המשתמש", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Update UI with user data
+                        if (currentUser != null) {
+                            tvUsername.setText("שם משתמש: " + currentUser.getUserName());
+                            tvEmail.setText("אימייל: " + currentUser.getUserEmail());
+                            tvPhone.setText("מספר טלפון: " + (currentUser.getPhone() != null ? currentUser.getPhone() : "לא זמין"));
+                            tvBirthDate.setText("תאריך לידה: " + (currentUser.getUserBirthDate() != null ? currentUser.getUserBirthDate() : "לא זמין"));
+
+                            // Update the badPoints variable and display
+                            try {
+                                badPoints = currentUser.getBadPoints();
+                                updateBadPointsText();
+                            } catch (Exception e) {
+                                badPoints = 0;
+                                updateBadPointsText();
+                            }
+
+                            // Get summary count
+                            db.collection("summaries")
+                                    .whereEqualTo("userId", userId)
+                                    .get()
+                                    .addOnSuccessListener(summariesSnapshot -> {
+                                        int sumCount = summariesSnapshot.size();
+                                        tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        tvSumNum.setText("מספר סיכומים שנכתבו: לא זמין");
+                                    });
+                        } else {
+                            showUserNotFoundUI(username);
+                        }
+                    } else {
+                        showUserNotFoundUI(username);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בטעינת פרטי המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    showUserNotFoundUI(username);
+                });
+    }
+    // Helper method to show UI when user is not found
+    private void showUserNotFoundUI(String username) {
+        Toast.makeText(getContext(), "לא נמצא משתמש בשם " + username, Toast.LENGTH_SHORT).show();
+        tvUsername.setText("שם משתמש: " + username + " (לא נמצא)");
+        tvEmail.setText("אימייל: לא זמין");
+        tvPhone.setText("מספר טלפון: לא זמין");
+        tvBirthDate.setText("תאריך לידה: לא זמין");
+        tvBadPoints.setText("נקודות לרעה: ");
+        tvSumNum.setText("מספר סיכומים שנכתבו: ");
+
+        // Ensure these fields are set to avoid NPE in other methods
+        currentUser = null;
+        userId = null;
+        badPoints = 0;
+    }
 
 }

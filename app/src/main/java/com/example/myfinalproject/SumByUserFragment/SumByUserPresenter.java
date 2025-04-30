@@ -33,7 +33,8 @@ public class SumByUserPresenter {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "Total summaries in collection: " + queryDocumentSnapshots.size());
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        String author = doc.getString("authorUsername");
+                        // Changed from "authorUsername" to "userName" to match SumFragment
+                        String author = doc.getString("userName");
                         String title = doc.getString("summaryTitle");
                         Log.d(TAG, "Summary found - ID: " + doc.getId() +
                                 ", Title: " + title +
@@ -41,7 +42,8 @@ public class SumByUserPresenter {
                     }
 
                     // Now perform the actual query for this user
-                    summariesCollection.whereEqualTo("authorUsername", userName)
+                    // Changed the field name from "authorUsername" to "userName"
+                    summariesCollection.whereEqualTo("userName", userName)
                             .get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
@@ -73,24 +75,6 @@ public class SumByUserPresenter {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error getting collection data", e);
                     callback.onError("שגיאה בגישה למסד נתונים: " + e.getMessage());
-                });
-    }
-
-    public void deleteSummary(String summaryId, SummariesCallback callback) {
-        if (summaryId == null || summaryId.isEmpty()) {
-            callback.onError("מזהה סיכום לא תקין");
-            return;
-        }
-
-        summariesCollection.document(summaryId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Summary deleted successfully: " + summaryId);
-                    loadUserSummaries(callback);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error deleting summary: " + e.getMessage());
-                    callback.onError(e.getMessage());
                 });
     }
 

@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             imageViewProfile.setImageResource(R.drawable.newlogo);
                         }
                     } else {
-                        // Try as URI
                         android.net.Uri imageUri = android.net.Uri.parse(profileImage);
                         android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                         imageViewProfile.setImageBitmap(bitmap);

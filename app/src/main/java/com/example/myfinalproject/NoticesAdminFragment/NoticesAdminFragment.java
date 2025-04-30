@@ -1,5 +1,7 @@
 package com.example.myfinalproject.NoticesAdminFragment;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,10 +18,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myfinalproject.Adapters.NotificationsAdminAdapter;
 import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.Database.NotificationAdminDatabase;
+import com.example.myfinalproject.ManageUserFragment.ManageUserFragment;
 import com.example.myfinalproject.Models.NotificationAdmin;
 import com.example.myfinalproject.R;
+import com.example.myfinalproject.SumFragment.SumFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
+
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.TypedValue;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +46,9 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
     private RecyclerView recyclerNotifications;
     private NotificationsAdminAdapter adapter;
     private NotificationAdminDatabase notificationRepository;
+
+    // Add this as a class field in the NoticesAdminFragment class
+    private AlertDialog currentDialog;
 
     private static final int TAB_ALL = 0;
     private static final int TAB_MESSAGES = 1;
@@ -141,23 +160,151 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
     private void showNotificationDetailsDialog(NotificationAdmin notification) {
         String title = "REPORT".equals(notification.getType()) ? "פרטי דיווח" : "פרטי הודעה";
 
-        StringBuilder messageBuilder = new StringBuilder();
+        // Create the message content first
+        SpannableStringBuilder messageBuilder = new SpannableStringBuilder();
 
+        // Log all relevant data for debugging
         android.util.Log.d("NotificationDialog", "UserName: " + notification.getUserName()
                 + ", UserId: " + notification.getUserId()
-                + ", Type: " + notification.getType());
+                + ", Type: " + notification.getType()
+                + ", ReportedUserName: " + notification.getReportedUserName()
+                + ", ReportedUserId: " + notification.getReportedUserId()
+                + ", NotificationId: " + notification.getId());
 
         if ("REPORT".equals(notification.getType())) {
+            // Add reporter name with clickable span
             String reporterName = notification.getUserName();
-
             if (reporterName == null || reporterName.isEmpty()) {
                 reporterName = "משתמש אנונימי";
             }
 
-            messageBuilder.append("מדווח על ידי: ").append(reporterName).append("\n\n");
+            messageBuilder.append("מדווח על ידי: ");
 
+            // Only make the reporter name clickable if it's not anonymous
+            if (!reporterName.equals("משתמש אנונימי")) {
+                int start = messageBuilder.length();
+                messageBuilder.append(reporterName);
+                int end = messageBuilder.length();
+
+                final String finalReporterName = reporterName;
+                ClickableSpan reporterClickableSpan = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        // Navigate to the reporter's profile
+                        navigateToManageUserFragment(finalReporterName);
+
+                        // Dismiss dialog after navigation
+                        if (currentDialog != null && currentDialog.isShowing()) {
+                            currentDialog.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        super.updateDrawState(ds);
+                        ds.setColor(getResources().getColor(R.color.orange));
+                        ds.setUnderlineText(true);
+                    }
+                };
+
+                messageBuilder.setSpan(reporterClickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                messageBuilder.append(reporterName);
+            }
+
+            messageBuilder.append("\n\n");
+
+            // Add reported item (user or summary)
             if (notification.getReportedUserName() != null && !notification.getReportedUserName().isEmpty()) {
-                messageBuilder.append("משתמש מדווח: ").append(notification.getReportedUserName()).append("\n\n");
+                String reportedName = notification.getReportedUserName();
+
+                // Check if this is likely a summary by looking at the ID format/pattern
+                // This is a heuristic approach - if you have a better way to identify summaries, use it
+                boolean isSummary = false;
+                if (notification.getId() != null) {
+                    // Try to get summary by ID
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("summaries").document(notification.getId()).get()
+                            .addOnSuccessListener(document -> {
+                                if (document.exists()) {
+                                    // It's a summary! Navigate to it
+                                    SumFragment sumFragment = SumFragment.newInstance(notification.getId());
+                                    getActivity().getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.flFragment, sumFragment)
+                                            .addToBackStack(null)
+                                            .commit();
+
+                                    if (currentDialog != null && currentDialog.isShowing()) {
+                                        currentDialog.dismiss();
+                                    }
+                                }
+                            });
+                }
+
+                // Since we don't know for sure, let's assume it's a user report for now in the UI
+                messageBuilder.append("דיווח על: ");
+
+                int start = messageBuilder.length();
+                messageBuilder.append(reportedName);
+                int end = messageBuilder.length();
+
+                // Create clickable span for reported item
+                ClickableSpan reportedItemClickableSpan = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        // First, try to see if this is a summary by checking in the summaries collection
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        db.collection("summaries")
+                                .whereEqualTo("summaryTitle", reportedName)
+                                .limit(1)
+                                .get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    if (!queryDocumentSnapshots.isEmpty()) {
+                                        // It's a summary! Navigate to it
+                                        android.util.Log.d("ClickableSpan", "Found summary with title: " + reportedName);
+                                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                                        String summaryId = document.getId();
+
+                                        SumFragment sumFragment = SumFragment.newInstance(summaryId);
+                                        getActivity().getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.flFragment, sumFragment)
+                                                .addToBackStack(null)
+                                                .commit();
+                                    } else {
+                                        // Not found as a summary, navigate to user
+                                        android.util.Log.d("ClickableSpan", "No summary found, navigating to user: " + reportedName);
+                                        navigateToManageUserFragment(reportedName);
+                                    }
+
+                                    // Dismiss dialog after navigation
+                                    if (currentDialog != null && currentDialog.isShowing()) {
+                                        currentDialog.dismiss();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Error searching for summary, fall back to user navigation
+                                    android.util.Log.d("ClickableSpan", "Error searching summaries: " + e.getMessage());
+                                    navigateToManageUserFragment(reportedName);
+
+                                    // Dismiss dialog after navigation
+                                    if (currentDialog != null && currentDialog.isShowing()) {
+                                        currentDialog.dismiss();
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        super.updateDrawState(ds);
+                        ds.setColor(getResources().getColor(R.color.orange));
+                        ds.setUnderlineText(true);
+                    }
+                };
+
+                messageBuilder.setSpan(reportedItemClickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageBuilder.append("\n\n");
             }
 
             messageBuilder.append("סיבת דיווח: ").append(notification.getReportReason()).append("\n\n");
@@ -172,7 +319,40 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 }
             }
 
-            messageBuilder.append("מאת: ").append(senderName).append("\n\n");
+            messageBuilder.append("מאת: ");
+
+            // Make sender name clickable if not anonymous
+            if (!senderName.equals("אנונימי") && !senderName.startsWith("User ")) {
+                int start = messageBuilder.length();
+                messageBuilder.append(senderName);
+                int end = messageBuilder.length();
+
+                final String finalSenderName = senderName;
+                ClickableSpan senderClickableSpan = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        navigateToManageUserFragment(finalSenderName);
+
+                        // Dismiss dialog after navigation
+                        if (currentDialog != null && currentDialog.isShowing()) {
+                            currentDialog.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        super.updateDrawState(ds);
+                        ds.setColor(getResources().getColor(R.color.orange));
+                        ds.setUnderlineText(true);
+                    }
+                };
+
+                messageBuilder.setSpan(senderClickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                messageBuilder.append(senderName);
+            }
+
+            messageBuilder.append("\n\n");
             messageBuilder.append("סיבת פנייה: ").append(notification.getContactReason()).append("\n\n");
         }
         else {
@@ -185,20 +365,115 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 }
             }
 
-            messageBuilder.append("מאת: ").append(displayName).append("\n\n");
+            messageBuilder.append("מאת: ");
+
+            // Make sender name clickable if not anonymous
+            if (!displayName.equals("אנונימי") && !displayName.startsWith("User ")) {
+                int start = messageBuilder.length();
+                messageBuilder.append(displayName);
+                int end = messageBuilder.length();
+
+                final String finalDisplayName = displayName;
+                ClickableSpan displayClickableSpan = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        navigateToManageUserFragment(finalDisplayName);
+
+                        // Dismiss dialog after navigation
+                        if (currentDialog != null && currentDialog.isShowing()) {
+                            currentDialog.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        super.updateDrawState(ds);
+                        ds.setColor(getResources().getColor(R.color.orange));
+                        ds.setUnderlineText(true);
+                    }
+                };
+
+                messageBuilder.setSpan(displayClickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                messageBuilder.append(displayName);
+            }
+
+            messageBuilder.append("\n\n");
         }
 
         messageBuilder.append("תוכן:\n").append(notification.getContent());
 
-        new MaterialAlertDialogBuilder(getContext())
+        // Create a TextView programmatically to handle the clickable spans
+        TextView messageView = new TextView(getContext());
+        messageView.setText(messageBuilder);
+        messageView.setMovementMethod(LinkMovementMethod.getInstance()); // This is crucial for clickable spans
+        messageView.setHighlightColor(getResources().getColor(android.R.color.transparent));
+        messageView.setPadding(32, 16, 32, 16); // Add some padding (in pixels)
+        messageView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Set text size
+        messageView.setTextDirection(View.TEXT_DIRECTION_RTL); // For RTL text
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                 .setTitle(title)
-                .setMessage(messageBuilder.toString())
+                .setView(messageView) // Use our custom TextView with clickable spans
                 .setPositiveButton("סגור", null)
-                .setNeutralButton("סימון כטופל", (dialog, which) -> {
+                .setNeutralButton("סימון כטופל", (dialogInterface, which) -> {
                     adapter.removeNotification(notification);
                     notificationRepository.deleteNotification(notification.getId());
+                });
+
+        // Store the dialog in a class-level variable for access in click handlers
+        currentDialog = builder.create();
+        currentDialog.show();
+    }
+
+    private void navigateToManageUserFragment(String username) {
+        // Create a new instance of ManageUserFragment
+        Fragment manageUserFragment = new ManageUserFragment();
+
+        // Create a bundle to pass data
+        Bundle args = new Bundle();
+        args.putString("username", username);
+        manageUserFragment.setArguments(args);
+
+        // Navigate to the fragment
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, manageUserFragment)
+                .addToBackStack(null)  // Add to back stack so admin can return
+                .commit();
+    }
+
+
+    private void navigateToSumFragment(String summaryTopic) {
+        // First, query Firebase to find the summary ID by topic
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("summaries")
+                .whereEqualTo("summaryTitle", summaryTopic)
+                .limit(1)  // We only need one result
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Get the first document (should be the only one)
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                        String summaryId = document.getId();
+
+                        // Create a new instance of SumFragment
+                        SumFragment sumFragment = SumFragment.newInstance(summaryId);
+
+                        // Navigate to the fragment
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flFragment, sumFragment)
+                                .addToBackStack(null)  // Add to back stack so admin can return
+                                .commit();
+                    } else {
+                        // No summary found with that title
+                        Toast.makeText(getContext(), "לא נמצא סיכום בנושא זה", Toast.LENGTH_SHORT).show();
+                    }
                 })
-                .show();
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בטעינת הסיכום: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     @Override
