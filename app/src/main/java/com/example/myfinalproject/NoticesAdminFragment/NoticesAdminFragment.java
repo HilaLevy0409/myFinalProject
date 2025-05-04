@@ -39,15 +39,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoticesAdminFragment extends Fragment implements View.OnClickListener, NotificationsAdminAdapter.OnNotificationClickListener {
+public class NoticesAdminFragment extends Fragment implements NotificationsAdminAdapter.OnNotificationClickListener {
 
     private TabLayout tabLayout;
-    private Button btnBack;
     private RecyclerView recyclerNotifications;
     private NotificationsAdminAdapter adapter;
     private NotificationAdminDatabase notificationRepository;
 
-    // Add this as a class field in the NoticesAdminFragment class
     private AlertDialog currentDialog;
 
     private static final int TAB_ALL = 0;
@@ -73,8 +71,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        btnBack = view.findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(this);
 
         tabLayout = view.findViewById(R.id.tabLayout);
         recyclerNotifications = view.findViewById(R.id.recyclerNotifications);
@@ -89,6 +85,7 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+
                 loadNotifications(tab.getPosition());
             }
 
@@ -142,15 +139,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
     }
 
 
-    @Override
-    public void onClick(View v) {
-        if (v == btnBack) {
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, new AdminFragment())
-                    .commit();
-        }
-    }
 
     @Override
     public void onNotificationClick(NotificationAdmin notification) {
@@ -160,10 +148,8 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
     private void showNotificationDetailsDialog(NotificationAdmin notification) {
         String title = "REPORT".equals(notification.getType()) ? "פרטי דיווח" : "פרטי הודעה";
 
-        // Create the message content first
         SpannableStringBuilder messageBuilder = new SpannableStringBuilder();
 
-        // Log all relevant data for debugging
         android.util.Log.d("NotificationDialog", "UserName: " + notification.getUserName()
                 + ", UserId: " + notification.getUserId()
                 + ", Type: " + notification.getType()
@@ -172,7 +158,7 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 + ", NotificationId: " + notification.getId());
 
         if ("REPORT".equals(notification.getType())) {
-            // Add reporter name with clickable span
+
             String reporterName = notification.getUserName();
             if (reporterName == null || reporterName.isEmpty()) {
                 reporterName = "משתמש אנונימי";
@@ -180,8 +166,7 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
             messageBuilder.append("מדווח על ידי: ");
 
-            // Only make the reporter name clickable if it's not anonymous
-            if (!reporterName.equals("משתמש אנונימי")) {
+            if (!reporterName.equals("אורח")) {
                 int start = messageBuilder.length();
                 messageBuilder.append(reporterName);
                 int end = messageBuilder.length();
@@ -190,10 +175,8 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 ClickableSpan reporterClickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        // Navigate to the reporter's profile
                         navigateToManageUserFragment(finalReporterName);
 
-                        // Dismiss dialog after navigation
                         if (currentDialog != null && currentDialog.isShowing()) {
                             currentDialog.dismiss();
                         }
@@ -214,20 +197,16 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
             messageBuilder.append("\n\n");
 
-            // Add reported item (user or summary)
             if (notification.getReportedUserName() != null && !notification.getReportedUserName().isEmpty()) {
                 String reportedName = notification.getReportedUserName();
 
-                // Check if this is likely a summary by looking at the ID format/pattern
-                // This is a heuristic approach - if you have a better way to identify summaries, use it
+
                 boolean isSummary = false;
                 if (notification.getId() != null) {
-                    // Try to get summary by ID
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     db.collection("summaries").document(notification.getId()).get()
                             .addOnSuccessListener(document -> {
                                 if (document.exists()) {
-                                    // It's a summary! Navigate to it
                                     SumFragment sumFragment = SumFragment.newInstance(notification.getId());
                                     getActivity().getSupportFragmentManager()
                                             .beginTransaction()
@@ -242,18 +221,15 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                             });
                 }
 
-                // Since we don't know for sure, let's assume it's a user report for now in the UI
                 messageBuilder.append("דיווח על: ");
 
                 int start = messageBuilder.length();
                 messageBuilder.append(reportedName);
                 int end = messageBuilder.length();
 
-                // Create clickable span for reported item
                 ClickableSpan reportedItemClickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        // First, try to see if this is a summary by checking in the summaries collection
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         db.collection("summaries")
                                 .whereEqualTo("summaryTitle", reportedName)
@@ -261,7 +237,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots -> {
                                     if (!queryDocumentSnapshots.isEmpty()) {
-                                        // It's a summary! Navigate to it
                                         android.util.Log.d("ClickableSpan", "Found summary with title: " + reportedName);
                                         DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
                                         String summaryId = document.getId();
@@ -273,22 +248,18 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                                                 .addToBackStack(null)
                                                 .commit();
                                     } else {
-                                        // Not found as a summary, navigate to user
                                         android.util.Log.d("ClickableSpan", "No summary found, navigating to user: " + reportedName);
-                                        navigateToManageUserFragment(reportedName);
+                                        Toast.makeText(getContext(), "לא נמצא סיכום", Toast.LENGTH_SHORT).show();
                                     }
 
-                                    // Dismiss dialog after navigation
                                     if (currentDialog != null && currentDialog.isShowing()) {
                                         currentDialog.dismiss();
                                     }
                                 })
                                 .addOnFailureListener(e -> {
-                                    // Error searching for summary, fall back to user navigation
                                     android.util.Log.d("ClickableSpan", "Error searching summaries: " + e.getMessage());
-                                    navigateToManageUserFragment(reportedName);
+                                    Toast.makeText(getContext(), "שגיאה בעת חיפוש סיכום", Toast.LENGTH_SHORT).show();
 
-                                    // Dismiss dialog after navigation
                                     if (currentDialog != null && currentDialog.isShowing()) {
                                         currentDialog.dismiss();
                                     }
@@ -315,14 +286,13 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 if (notification.getUserId() != null && !notification.getUserId().isEmpty()) {
                     senderName = "User " + notification.getUserId().substring(0, Math.min(notification.getUserId().length(), 5));
                 } else {
-                    senderName = "אנונימי";
+                    senderName = "אורח";
                 }
             }
 
             messageBuilder.append("מאת: ");
 
-            // Make sender name clickable if not anonymous
-            if (!senderName.equals("אנונימי") && !senderName.startsWith("User ")) {
+            if (!senderName.equals("אורח") && !senderName.startsWith("User ")) {
                 int start = messageBuilder.length();
                 messageBuilder.append(senderName);
                 int end = messageBuilder.length();
@@ -333,7 +303,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                     public void onClick(@NonNull View widget) {
                         navigateToManageUserFragment(finalSenderName);
 
-                        // Dismiss dialog after navigation
                         if (currentDialog != null && currentDialog.isShowing()) {
                             currentDialog.dismiss();
                         }
@@ -361,14 +330,13 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                 if (notification.getUserId() != null && !notification.getUserId().isEmpty()) {
                     displayName = "User " + notification.getUserId().substring(0, Math.min(notification.getUserId().length(), 5));
                 } else {
-                    displayName = "אנונימי";
+                    displayName = "אורח";
                 }
             }
 
             messageBuilder.append("מאת: ");
 
-            // Make sender name clickable if not anonymous
-            if (!displayName.equals("אנונימי") && !displayName.startsWith("User ")) {
+            if (!displayName.equals("אורח") && !displayName.startsWith("User ")) {
                 int start = messageBuilder.length();
                 messageBuilder.append(displayName);
                 int end = messageBuilder.length();
@@ -379,7 +347,6 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
                     public void onClick(@NonNull View widget) {
                         navigateToManageUserFragment(finalDisplayName);
 
-                        // Dismiss dialog after navigation
                         if (currentDialog != null && currentDialog.isShowing()) {
                             currentDialog.dismiss();
                         }
@@ -403,78 +370,43 @@ public class NoticesAdminFragment extends Fragment implements View.OnClickListen
 
         messageBuilder.append("תוכן:\n").append(notification.getContent());
 
-        // Create a TextView programmatically to handle the clickable spans
         TextView messageView = new TextView(getContext());
         messageView.setText(messageBuilder);
-        messageView.setMovementMethod(LinkMovementMethod.getInstance()); // This is crucial for clickable spans
+        messageView.setMovementMethod(LinkMovementMethod.getInstance());
         messageView.setHighlightColor(getResources().getColor(android.R.color.transparent));
-        messageView.setPadding(32, 16, 32, 16); // Add some padding (in pixels)
-        messageView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Set text size
-        messageView.setTextDirection(View.TEXT_DIRECTION_RTL); // For RTL text
+        messageView.setPadding(32, 16, 32, 16);
+        messageView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        messageView.setTextDirection(View.TEXT_DIRECTION_RTL);
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                 .setTitle(title)
-                .setView(messageView) // Use our custom TextView with clickable spans
+                .setView(messageView)
                 .setPositiveButton("סגור", null)
                 .setNeutralButton("סימון כטופל", (dialogInterface, which) -> {
                     adapter.removeNotification(notification);
                     notificationRepository.deleteNotification(notification.getId());
                 });
 
-        // Store the dialog in a class-level variable for access in click handlers
         currentDialog = builder.create();
         currentDialog.show();
     }
 
     private void navigateToManageUserFragment(String username) {
-        // Create a new instance of ManageUserFragment
         Fragment manageUserFragment = new ManageUserFragment();
 
-        // Create a bundle to pass data
         Bundle args = new Bundle();
         args.putString("username", username);
         manageUserFragment.setArguments(args);
 
-        // Navigate to the fragment
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, manageUserFragment)
-                .addToBackStack(null)  // Add to back stack so admin can return
+                .addToBackStack(null)
                 .commit();
     }
 
 
-    private void navigateToSumFragment(String summaryTopic) {
-        // First, query Firebase to find the summary ID by topic
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("summaries")
-                .whereEqualTo("summaryTitle", summaryTopic)
-                .limit(1)  // We only need one result
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        // Get the first document (should be the only one)
-                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-                        String summaryId = document.getId();
 
-                        // Create a new instance of SumFragment
-                        SumFragment sumFragment = SumFragment.newInstance(summaryId);
-
-                        // Navigate to the fragment
-                        getActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.flFragment, sumFragment)
-                                .addToBackStack(null)  // Add to back stack so admin can return
-                                .commit();
-                    } else {
-                        // No summary found with that title
-                        Toast.makeText(getContext(), "לא נמצא סיכום בנושא זה", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בטעינת הסיכום: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
 
     @Override
     public void onStart() {

@@ -136,16 +136,16 @@ public class UserDatabase {
     public void updateUser(User user, UserCallback callback) {
         database.collection("users").document(user.getId())
                 .set(user)
-               .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
-               .addOnFailureListener(e -> callback.onError(e.getMessage()));
+                .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
 
-  public void deleteUser(String UserId, UserCallback callback) {
+    public void deleteUser(String UserId, UserCallback callback) {
         database.collection("users").document(UserId)
                 .delete()
-               .addOnSuccessListener(aVoid -> callback.onUserReceived(null))
-               .addOnFailureListener(e -> callback.onError(e.getMessage()));
+                .addOnSuccessListener(aVoid -> callback.onUserReceived(null))
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
     public void getAllUsers(UsersCallback callback) {
@@ -170,7 +170,6 @@ public class UserDatabase {
 
 
 }
-
 
 
 

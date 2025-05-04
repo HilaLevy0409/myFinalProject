@@ -37,7 +37,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
     private ProfessionAdapter adapter;
     private TabLayout tabLayout;
     private SearchView searchView;
-    private ProgressBar progressBar;
     private LinearLayout emptyState;
     private TextView tvSubtitle;
     private String selectedClass;
@@ -78,7 +77,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
         recyclerProfessions = view.findViewById(R.id.recyclerSubjects);
         tabLayout = view.findViewById(R.id.tabLayout);
         searchView = view.findViewById(R.id.searchViewPro);
-        progressBar = view.findViewById(R.id.progressBar);
         emptyState = view.findViewById(R.id.emptyState);
         tvSubtitle = view.findViewById(R.id.tvSubtitle);
         tvSubtitle.setText("כיתה " + selectedClass);
@@ -103,7 +101,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         recyclerProfessions.setLayoutManager(layoutManager);
         recyclerProfessions.setAdapter(adapter);
-        showContent();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -183,17 +180,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
         }
     }
 
-//    private void showLoading() {
-//        progressBar.setVisibility(View.VISIBLE);
-//        recyclerProfessions.setVisibility(View.GONE);
-//        emptyState.setVisibility(View.GONE);
-//    }
 
-    private void showContent() {
-        progressBar.setVisibility(View.GONE);
-        recyclerProfessions.setVisibility(View.VISIBLE);
-        emptyState.setVisibility(View.GONE);
-    }
 
     @Override
     public void onProfessionClick(Profession profession) {

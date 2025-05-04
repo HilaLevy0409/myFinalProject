@@ -1,6 +1,5 @@
 package com.example.myfinalproject.Adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myfinalproject.CallBacks.ReviewCallback;
 import com.example.myfinalproject.Models.Review;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,25 +24,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     private static final String TAG = "ReviewAdapter";
 
     private List<Review> reviewList;
-    private String currentUserId;
-    private ReviewInteractionListener listener;
+    private String userId;
+    private ReviewCallback callback;
 
-    public interface ReviewInteractionListener {
-        void onDeleteReview(Review review, int position);
-        void onEditReview(Review review, int position);
-        void onSaveChanges(Review review, int position, String newText, float newRating);
-    }
 
-    public ReviewAdapter(List<Review> reviewList) {
+    public ReviewAdapter(List<Review> reviewList, ReviewCallback callback) {
         this.reviewList = reviewList;
-        this.currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
-                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
-    }
-
-    public ReviewAdapter(List<Review> reviewList, ReviewInteractionListener listener) {
-        this.reviewList = reviewList;
-        this.listener = listener;
-        this.currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+        this.callback = callback;
+        this.userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
     }
 
@@ -56,63 +45,58 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
-        try {
-            Review review = reviewList.get(position);
 
-            // Set username
-            holder.tvUser.setText(review.getUserName() != null ? review.getUserName() : "משתמש אנונימי");
+        if (reviewList == null || position < 0 || position >= reviewList.size()) {
+            return;
+        }
 
-            // Set review content
-            holder.tvWritingReview.setText(review.getReviewText() != null ? review.getReviewText() : "");
+            if (reviewList != null && position >= 0 && position < reviewList.size()) {
+                Review review = reviewList.get(position);
 
-            // Set rating
-            holder.rbReviewRating.setRating(review.getRating());
+                String userName = review.getUserName();
+                holder.tvUser.setText(userName != null ? userName : "משתמש אנונימי");
 
-            // Set timestamp
-            if (review.getCreatedAt() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
-                holder.tvReviewTimestamp.setText(sdf.format(review.getCreatedAt()));
-            } else {
-                holder.tvReviewTimestamp.setText("תאריך לא ידוע");
-            }
+                String reviewText = review.getReviewText();
+                holder.tvWritingReview.setText(reviewText != null ? reviewText : "");
 
-            // Show edit/delete buttons only for the current user's reviews
-            boolean isCurrentUserReview = currentUserId != null &&
-                    currentUserId.equals(review.getUserId());
+                holder.rbReviewRating.setRating(review.getRating());
 
-            holder.imgBtnDeleteReview.setVisibility(isCurrentUserReview ? View.VISIBLE : View.GONE);
-            holder.imgBtnEditReview.setVisibility(isCurrentUserReview ? View.VISIBLE : View.GONE);
+                if (review.getCreatedAt() != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+                    holder.tvReviewTimestamp.setText(sdf.format(review.getCreatedAt()));
+                }
 
-            // Initially hide save button and make text view not editable
+            boolean isUserReview = userId != null &&
+                    userId.equals(review.getUserId());
+
+            holder.imgBtnDeleteReview.setVisibility(isUserReview ? View.VISIBLE : View.GONE);
+            holder.imgBtnEditReview.setVisibility(isUserReview ? View.VISIBLE : View.GONE);
+
             holder.btnSaveChanges.setVisibility(View.GONE);
             holder.tvWritingReview.setFocusable(false);
             holder.tvWritingReview.setClickable(false);
             holder.rbReviewRating.setIsIndicator(true);
 
-            // Set up button listeners
             holder.imgBtnDeleteReview.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onDeleteReview(review, holder.getAdapterPosition());
+                if (callback != null) {
+                    callback.onDeleteReview(review, holder.getAdapterPosition());
                 }
             });
 
             holder.imgBtnEditReview.setOnClickListener(v -> {
-                // Toggle edit mode
                 boolean isEditing = holder.btnSaveChanges.getVisibility() == View.VISIBLE;
 
                 if (!isEditing) {
-                    // Enter edit mode
                     holder.btnSaveChanges.setVisibility(View.VISIBLE);
                     holder.tvWritingReview.setFocusableInTouchMode(true);
                     holder.tvWritingReview.setClickable(true);
                     holder.tvWritingReview.requestFocus();
                     holder.rbReviewRating.setIsIndicator(false);
 
-                    if (listener != null) {
-                        listener.onEditReview(review, holder.getAdapterPosition());
+                    if (callback != null) {
+                        callback.onEditReview(review, holder.getAdapterPosition());
                     }
                 } else {
-                    // Exit edit mode
                     holder.btnSaveChanges.setVisibility(View.GONE);
                     holder.tvWritingReview.setFocusable(false);
                     holder.tvWritingReview.setClickable(false);
@@ -121,21 +105,18 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             });
 
             holder.btnSaveChanges.setOnClickListener(v -> {
-                if (listener != null) {
+                if (callback != null) {
                     String newText = holder.tvWritingReview.getText().toString();
                     float newRating = holder.rbReviewRating.getRating();
-                    listener.onSaveChanges(review, holder.getAdapterPosition(), newText, newRating);
+                    callback.onSaveChanges(review, holder.getAdapterPosition(), newText, newRating);
                 }
 
-                // Exit edit mode
                 holder.btnSaveChanges.setVisibility(View.GONE);
                 holder.tvWritingReview.setFocusable(false);
                 holder.tvWritingReview.setClickable(false);
                 holder.rbReviewRating.setIsIndicator(true);
             });
 
-        } catch (Exception e) {
-            Log.e(TAG, "Error binding view holder", e);
         }
     }
 
@@ -158,7 +139,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         ReviewViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            // Initialize views
             tvUser = itemView.findViewById(R.id.tvUser);
             tvWritingReview = itemView.findViewById(R.id.tvWritingReview);
             tvReviewTimestamp = itemView.findViewById(R.id.tvReviewTimestamp);

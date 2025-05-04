@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             if (isLoggedIn) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new UserProfileFragment()).commit();
-                navigationView.setCheckedItem(R.id.user);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new LoginFragment()).commit();
                 navigationView.setCheckedItem(R.id.login);
@@ -173,8 +172,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ContactUsFragment()).commit();
         } else if (id == R.id.admin) {
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new AdminLoginFragment()).commit();
-        } else if (id == R.id.user) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new UserProfileFragment()).commit();
         } else if (id == R.id.timer) {
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new TimerFragment()).commit();
         } else if (id == R.id.logout) {

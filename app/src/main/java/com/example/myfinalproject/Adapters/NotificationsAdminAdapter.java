@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class NotificationsAdminAdapter extends RecyclerView.Adapter<NotificationsAdminAdapter.NotificationViewHolder> {
 
@@ -88,10 +89,12 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
             tvUserName.setText(notification.getUserName());
             tvContent.setText(notification.getContent());
 
+
             Timestamp timestamp = notification.getTimestamp();
             if (timestamp != null) {
                 Date date = timestamp.toDate();
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("he", "IL"));
+                sdf.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
                 tvTimestamp.setText(sdf.format(date));
             } else {
                 tvTimestamp.setText("");

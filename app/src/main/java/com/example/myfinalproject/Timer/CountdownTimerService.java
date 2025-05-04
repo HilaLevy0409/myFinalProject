@@ -18,7 +18,6 @@ import com.example.myfinalproject.CallBacks.TimeCallback;
 import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.R;
 
-
 public class CountdownTimerService extends Service {
 
     private static final int NOTIFICATION_ID = 1;
@@ -64,7 +63,7 @@ public class CountdownTimerService extends Service {
             }
         }
 
-        startForeground(NOTIFICATION_ID, createNotification("טיימר פעיל"));
+        startForeground(NOTIFICATION_ID, createForegroundNotification("טיימר פעיל"));
 
         return START_STICKY;
     }
@@ -81,34 +80,44 @@ public class CountdownTimerService extends Service {
         isTimerRunning = true;
         this.notificationMinutes = notificationMinutes;
 
+        // Send notification when timer starts
+        if (notificationsEnabled) {
+            sendStartNotification(millisInFuture);
+        }
+
         countDownTimer = new CountDownTimer(millisInFuture, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeRemaining = millisUntilFinished;
+
+                // Update UI callback
                 if (timerUpdateCallback != null) {
                     timerUpdateCallback.onTimerUpdate(millisUntilFinished);
                 }
 
-                if (notificationsEnabled && !notificationSent && notificationMinutes > 0 &&
-                        millisUntilFinished <= notificationMinutes * 60 * 1000) {
-                    sendNotification("התראת טיימר",
-                            "נשארו " + notificationMinutes + " דקות לסיום הטיימר!");
-                    notificationSent = true;
+                // Send notification when reaching the specified minutes before end
+                if (notificationsEnabled && !notificationSent && notificationMinutes > 0) {
+                    if (millisUntilFinished <= notificationMinutes * 60 * 1000 &&
+                            millisUntilFinished > (notificationMinutes * 60 * 1000 - 1000)) {
+                        sendWarningNotification(notificationMinutes);
+                        notificationSent = true;
+                    }
                 }
-
-                updateNotification(formatTime(millisUntilFinished));
             }
 
             @Override
             public void onFinish() {
                 timeRemaining = 0;
                 isTimerRunning = false;
+
+                // Update UI callback
                 if (timerUpdateCallback != null) {
                     timerUpdateCallback.onTimerFinish();
                 }
 
+                // Send notification when timer ends
                 if (notificationsEnabled) {
-                    sendNotification("הטיימר הסתיים!", "סיימת את זמן הלמידה שלך!");
+                    sendFinishNotification();
                 }
 
                 stopForeground(true);
@@ -123,7 +132,10 @@ public class CountdownTimerService extends Service {
         if (countDownTimer != null) {
             countDownTimer.cancel();
             isTimerRunning = false;
-            updateNotification("הטיימר הושהה - " + formatTime(timeRemaining));
+
+            // Update the foreground notification to show paused state
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.notify(NOTIFICATION_ID, createForegroundNotification("טיימר מושהה"));
         }
     }
 
@@ -174,15 +186,18 @@ public class CountdownTimerService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "טיימר למידה",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_HIGH
             );
+            serviceChannel.setDescription("התראות עבור טיימר הלמידה");
+            serviceChannel.enableLights(true);
+            serviceChannel.enableVibration(true);
 
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
         }
     }
 
-    private Notification createNotification(String title) {
+    private Notification createForegroundNotification(String title) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
@@ -196,26 +211,12 @@ public class CountdownTimerService extends Service {
                 .setContentText("סכמו אותי!")
                 .setSmallIcon(R.drawable.newlogo)
                 .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .setSilent(true)
                 .build();
     }
 
-    private void updateNotification(String timeString) {
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("טיימר פעיל - " + timeString)
-                .setContentText("סכמו אותי!")
-                .setSmallIcon(R.drawable.newlogo)
-                .build();
-
-        notificationManager.notify(NOTIFICATION_ID, notification);
-    }
-
-    private void sendNotification(String title, String content) {
-        if (!notificationsEnabled) {
-            return;
-        }
-
+    private void sendStartNotification(long totalMillis) {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -223,19 +224,68 @@ public class CountdownTimerService extends Service {
                 this,
                 0,
                 notificationIntent,
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(title)
-                .setContentText(content)
+                .setContentTitle("טיימר הופעל")
+                .setContentText("זמן הטיימר: " + formatTime(totalMillis))
                 .setSmallIcon(R.drawable.newlogo)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .build();
 
         notificationManager.notify(2, notification);
+    }
+
+    private void sendWarningNotification(int minutesRemaining) {
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("התראת טיימר")
+                .setContentText("נשארו " + minutesRemaining + " דקות לסיום הטיימר!")
+                .setSmallIcon(R.drawable.newlogo)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .build();
+
+        notificationManager.notify(3, notification);
+    }
+
+    private void sendFinishNotification() {
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("הטיימר הסתיים!")
+                .setContentText("סיימת את זמן הלמידה שלך!")
+                .setSmallIcon(R.drawable.newlogo)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .build();
+
+        notificationManager.notify(4, notification);
     }
 
     @Override

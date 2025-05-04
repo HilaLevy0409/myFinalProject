@@ -80,20 +80,16 @@ public class ContactUsFragment extends Fragment {
 
         if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
             etUserName.setText(loggedInUsername);
-
-            etUserName.setEnabled(false);
-            etUserName.setFocusable(false);
-            etUserName.setFocusableInTouchMode(false);
-
-            etUserName.setBackgroundResource(android.R.drawable.edit_text);
-            etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
         } else {
-            etUserName.setEnabled(true);
-            etUserName.setFocusable(true);
-            etUserName.setFocusableInTouchMode(true);
-
-            etUserName.setHint("שם משתמש");
+            etUserName.setText("אורח");
         }
+
+        etUserName.setEnabled(false);
+        etUserName.setFocusable(false);
+        etUserName.setFocusableInTouchMode(false);
+        etUserName.setBackgroundResource(android.R.drawable.edit_text);
+        etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
+
         contactReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
         });
@@ -102,14 +98,12 @@ public class ContactUsFragment extends Fragment {
     }
 
 
+
     private void sendMessage() {
         String userName = etUserName.getText().toString().trim();
         String contactDetails = etContactDetails.getText().toString().trim();
 
-//        if (!isUserLoggedIn && userName.isEmpty()) {
-//            Toast.makeText(getContext(), "נא להזין שם משתמש", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+
 
         if (contactDetails.isEmpty()) {
             Toast.makeText(getContext(), "נא להזין את פרטי הפנייה", Toast.LENGTH_SHORT).show();
@@ -140,9 +134,7 @@ public class ContactUsFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser != null ? currentUser.getUid() : "anonymous";
 
-        if (userName.isEmpty()) {
-            userName = "משתמש אנונימי";
-        }
+
 
         NotificationAdmin message = new NotificationAdmin(
                 userId,
@@ -166,10 +158,6 @@ public class ContactUsFragment extends Fragment {
     }
 
     private void clearForm() {
-        if (!isUserLoggedIn) {
-            etUserName.setText("");
-        }
-
         contactReasonGroup.clearCheck();
         etCustomReason.setText("");
         etContactDetails.setText("");

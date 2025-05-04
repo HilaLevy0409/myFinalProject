@@ -30,11 +30,10 @@ import java.util.Map;
 
 public class ReportFragment extends Fragment {
 
-    private EditText etUserNameOrTopic, etUserName;
+    private EditText etUserNameOrTopic, etUserName, etCustomReason, etReportDetails;
     private RadioGroup reportReasonGroup;
     private RadioButton rbOther;
     private TextInputLayout tilCustomReason;
-    private EditText etCustomReason, etReportDetails;
     private Button btnSendReport;
     private TextView tvSubmitStatus;
     private NotificationAdminDatabase notificationRepository;
@@ -94,20 +93,15 @@ public class ReportFragment extends Fragment {
 
         if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
             etUserName.setText(loggedInUsername);
-
-            etUserName.setEnabled(false);
-            etUserName.setFocusable(false);
-            etUserName.setFocusableInTouchMode(false);
-
-            etUserName.setBackgroundResource(android.R.drawable.edit_text);
-            etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
         } else {
-            etUserName.setEnabled(true);
-            etUserName.setFocusable(true);
-            etUserName.setFocusableInTouchMode(true);
-
-            etUserName.setHint("שם משתמש");
+            etUserName.setText("אורח");
         }
+
+        etUserName.setEnabled(false);
+        etUserName.setFocusable(false);
+        etUserName.setFocusableInTouchMode(false);
+        etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
+
 
         reportReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
@@ -151,15 +145,8 @@ public class ReportFragment extends Fragment {
 
         String reporterName = etUserName.getText().toString().trim();
 
-        if (reporterName.isEmpty()) {
-            if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
-                reporterName = loggedInUsername;
-            } else {
-                reporterName = "משתמש אנונימי";
-            }
-        }
 
-        // Always create with type "REPORT"
+
         NotificationAdmin report = new NotificationAdmin(
                 userId,
                 reporterName,
@@ -171,37 +158,33 @@ public class ReportFragment extends Fragment {
         String reportedUserName = etUserNameOrTopic.getText().toString().trim();
         report.setReportedUserName(reportedUserName);
 
-        // Check if this is a summary report and save the summaryId in the notification's id field
-        // This is a workaround since we don't have a separate field for reportedItemId
+
         Bundle bundle = getArguments();
         String summaryId = null;
         if (bundle != null && bundle.containsKey("summaryId")) {
             summaryId = bundle.getString("summaryId");
             if (summaryId != null && !summaryId.isEmpty()) {
-                // Store the summaryId temporarily in the id field
-                // It will be replaced with the actual notification ID by Firebase
+
                 android.util.Log.d("ReportFragment", "Setting summaryId: " + summaryId);
 
-                // Instead of directly setting ID (which Firebase will overwrite),
-                // we'll store it in a custom field in Firestore
+
                 report.setId(summaryId);
 
-                // Add to log for debugging
                 android.util.Log.d("ReportFragment", "Created report with summaryId: " + summaryId);
             }
         }
 
         btnSendReport.setEnabled(false);
 
-        // Log what we're about to send
+
         android.util.Log.d("ReportFragment", "Sending report: " +
                 "type=" + report.getType() +
                 ", reportedName=" + reportedUserName +
                 ", summaryId=" + summaryId);
 
-        // If this is a summary report, we need to add a custom property to indicate it
+
         if (summaryId != null) {
-            // Create a Map with the report data
+
             Map<String, Object> reportData = new HashMap<>();
             reportData.put("userId", report.getUserId());
             reportData.put("userName", report.getUserName());
@@ -213,7 +196,7 @@ public class ReportFragment extends Fragment {
             reportData.put("isSummaryReport", true);
             reportData.put("summaryId", summaryId);
 
-            // Add to Firestore with custom fields
+
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("notifications")
                     .add(reportData)
@@ -227,7 +210,7 @@ public class ReportFragment extends Fragment {
                         btnSendReport.setEnabled(true);
                     });
         } else {
-            // Regular report - use the existing method
+
             notificationRepository.addNotification(report)
                     .addOnSuccessListener(aVoid -> {
                         tvSubmitStatus.setVisibility(View.VISIBLE);
@@ -242,9 +225,6 @@ public class ReportFragment extends Fragment {
     }
 
     private void clearForm() {
-        if (!isUserLoggedIn) {
-            etUserName.setText("");
-        }
 
         reportReasonGroup.clearCheck();
         etCustomReason.setText("");

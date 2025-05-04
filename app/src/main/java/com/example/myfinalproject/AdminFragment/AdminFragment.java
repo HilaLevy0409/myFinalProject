@@ -126,6 +126,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                         getActivity().getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.flFragment, manageUserFragment)
+                                .addToBackStack(null)
                                 .commit();
                     }
                 })
@@ -139,6 +140,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, new NoticesAdminFragment())
+                        .addToBackStack(null)
                         .commit();
         }
     }

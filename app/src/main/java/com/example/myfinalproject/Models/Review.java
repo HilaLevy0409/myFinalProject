@@ -14,7 +14,6 @@ public class Review {
     private float rating;
     private @ServerTimestamp Date createdAt;
 
-    // Empty constructor needed for Firestore
     public Review() {
     }
 
@@ -26,12 +25,7 @@ public class Review {
         this.rating = rating;
     }
 
-    // Constructor you're currently using in your code
-    public Review(String userName, String reviewText, float rating) {
-        this.userName = userName;
-        this.reviewText = reviewText;
-        this.rating = rating;
-    }
+
 
     public String getReviewId() {
         return reviewId;

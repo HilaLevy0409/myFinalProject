@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -63,7 +64,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
     private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
 
+    private ImageView currentDialogImageView;
 
+    private EditText currentDialogBirthDateEditText;
 
 
 
@@ -127,23 +130,43 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         EditText etEditUsername = dialog.findViewById(R.id.etUsername);
         Button btnFinishDialog = dialog.findViewById(R.id.btnFinish);
         EditText etBirthDate = dialog.findViewById(R.id.etBirthDate);
+        ImageView dialogImageView = dialog.findViewById(R.id.imageViewProfile);
+        Button btnUploadPhoto = dialog.findViewById(R.id.btnUploadPhoto);
 
         if (currentUser != null) {
             etEditEmail.setText(currentUser.getUserEmail());
             etEditPhone.setText(currentUser.getPhone());
             etEditUsername.setText(currentUser.getUserName());
             etBirthDate.setText(currentUser.getUserBirthDate());
+
+            String imageProfileData = currentUser.getImageProfile();
+            if (imageProfileData != null && !imageProfileData.isEmpty()) {
+                try {
+                    if (imageProfileData.startsWith("/9j/") || imageProfileData.startsWith("iVBOR")) {
+                        byte[] decodedString = android.util.Base64.decode(imageProfileData, android.util.Base64.DEFAULT);
+                        Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        if (bitmap != null) {
+                            dialogImageView.setImageBitmap(bitmap);
+                        }
+                    }
+                } catch (Exception e) {
+                    dialogImageView.setImageResource(R.drawable.newlogo);
+                }
+            } else {
+                dialogImageView.setImageResource(R.drawable.newlogo);
+            }
         }
 
-        etBirthDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (btnUploadPhoto != null) {
+            btnUploadPhoto.setOnClickListener(v -> {
+                currentDialogImageView = dialogImageView; // Store reference to dialog's ImageView
+                showPictureDialog();
+            });
+        }
 
-                openDialog();
-            }
-
-
-
+        etBirthDate.setOnClickListener(v -> {
+            currentDialogBirthDateEditText = etBirthDate; // Store reference
+            openDialog();
         });
 
         btnFinishDialog.setOnClickListener(new View.OnClickListener() {
@@ -167,12 +190,19 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 updatedUser.setUserName(newUsername);
                 updatedUser.setUserBirthDate(newBirthDate);
 
+                if (imageViewProfile != null && imageViewProfile.getDrawable() != null) {
+                    String base64Image = imageViewToBase64(imageViewProfile);
+                    if (base64Image != null) {
+                        updatedUser.setImageProfile(base64Image);
+                    }
+                } else if (currentUser != null) {
+                    updatedUser.setImageProfile(currentUser.getImageProfile());
+                }
 
                 if (currentUser != null) {
                     updatedUser.setBadPoints(currentUser.getBadPoints());
                     updatedUser.setSumCount(currentUser.getSumCount());
                 }
-
 
                 presenter.submitClicked(updatedUser);
                 dialog.dismiss();
@@ -181,6 +211,20 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
         dialog.show();
     }
+
+    private String imageViewToBase64(ImageView imageView) {
+        Drawable drawable = imageView.getDrawable();
+        if (drawable == null || !(drawable instanceof BitmapDrawable)) {
+            return null;
+        }
+
+        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
+    }
+
 
 
 //    private void saveUserData() {
@@ -256,6 +300,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new SumByUserFragment())
+                    .addToBackStack(null)
                     .commit();
         } else if (view == btnDeleteUser) {
                 new AlertDialog.Builder(getContext())
@@ -288,8 +333,11 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     .setCancelable(false)
                     .show();
         } else if (view == btnEdit) {
+            currentDialogBirthDateEditText = null;
+            currentDialogImageView = null;
             createCustomDialog();
         } else if (view == etBirthDate) {
+            currentDialogBirthDateEditText = null;
             openDialog();
         } else if (view == btnUploadPhoto) {
             showPictureDialog();
@@ -297,11 +345,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new SaveSummaryFragment())
+                    .addToBackStack(null)
                     .commit();
         } else if (view == btnSendMessage) {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, new ChooseMessageFragment())
+                    .addToBackStack(null)
                     .commit();
         }
 
@@ -353,32 +403,38 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
+
+        ImageView targetImageView = currentDialogImageView != null ? currentDialogImageView : imageView;
+
         if (requestCode == GALLERY) {
             if (data != null) {
                 Uri contentURI = data.getData();
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
-                    String path = saveImage(bitmap);
+                    saveImage(bitmap);
+                    if (targetImageView != null) {
+                        targetImageView.setImageBitmap(bitmap);
+                    }
                     Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
-                    imageViewProfile.setImageBitmap(bitmap);
-
-
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(getContext(), "נכשל!", Toast.LENGTH_SHORT).show();
                 }
             }
-
-
-        }
-        if (requestCode == CAMERA) {
+        } else if (requestCode == CAMERA) {
             Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-            imageViewProfile.setImageBitmap(thumbnail);
+            if (targetImageView != null) {
+                targetImageView.setImageBitmap(thumbnail);
+            }
             saveImage(thumbnail);
             Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
-
-
         }
+
+        // Clear the reference
+        currentDialogImageView = null;
+
+        imageView = null;
+
     }
 
 
@@ -458,18 +514,19 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
                 (view, year1, month1, dayOfMonth) -> {
-                    String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                    String date = String.format("%02d/%02d/%04d", dayOfMonth, (month1 + 1), year1);
 
-                    etBirthDate.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
-
+                    // Check if we're updating the dialog's EditText or the main fragment's EditText
+                    if (currentDialogBirthDateEditText != null) {
+                        currentDialogBirthDateEditText.setText(date);
+                    } else if (etBirthDate != null) {
+                        etBirthDate.setText(date);
+                    }
                 },
                 year, month, day
         );
 
         datePickerDialog.show();
-
-
-
     }
 
 //    public void showSuccessMessage(String message) {

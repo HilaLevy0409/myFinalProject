@@ -28,7 +28,7 @@
                 android:tint="@android:color/holo_red_dark"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginStart="16dp"/>
 
             <Button
@@ -46,10 +46,10 @@
                 android:layout_height="wrap_content"
                 android:text="נושא"
                 android:textColor="@color/black"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="25dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

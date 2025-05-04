@@ -28,12 +28,10 @@ public class SumByUserPresenter {
     public void loadUserSummaries(SummariesCallback callback) {
         Log.d(TAG, "Loading summaries for user: " + userName);
 
-        // First, log all summaries to see what's in the collection
         summariesCollection.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "Total summaries in collection: " + queryDocumentSnapshots.size());
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        // Changed from "authorUsername" to "userName" to match SumFragment
                         String author = doc.getString("userName");
                         String title = doc.getString("summaryTitle");
                         Log.d(TAG, "Summary found - ID: " + doc.getId() +
@@ -41,8 +39,7 @@ public class SumByUserPresenter {
                                 ", Author: " + author);
                     }
 
-                    // Now perform the actual query for this user
-                    // Changed the field name from "authorUsername" to "userName"
+
                     summariesCollection.whereEqualTo("userName", userName)
                             .get()
                             .addOnCompleteListener(task -> {
@@ -82,7 +79,6 @@ public class SumByUserPresenter {
         ArrayList<Summary> filteredList = new ArrayList<>();
 
         if (query.isEmpty()) {
-            // If search is empty, show all summaries
             loadUserSummaries(new SummariesCallback() {
                 @Override
                 public void onSuccess(List<Summary> summaries) {
@@ -97,11 +93,8 @@ public class SumByUserPresenter {
                 }
             });
         } else {
-            // Filter existing list
             for (Summary summary : originalList) {
-                if (summary.getSummaryTitle().toLowerCase().contains(query.toLowerCase()) ||
-                        summary.getClassOption().toLowerCase().contains(query.toLowerCase()) ||
-                        summary.getProfession().toLowerCase().contains(query.toLowerCase())) {
+                if (summary.getSummaryTitle().toLowerCase().contains(query.toLowerCase())) {
                     filteredList.add(summary);
                 }
             }

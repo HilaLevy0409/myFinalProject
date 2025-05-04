@@ -77,21 +77,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         }
 
 
-
-//        if (summary.getImage() != null) {
-//            try {
-//                byte[] decodedString = Base64.decode(summary.getImage(), Base64.DEFAULT);
-//                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-//                holder.imageSum.setImageBitmap(decodedByte);
-//            } catch (Exception e) {
-//                Toast.makeText(context, "שגיאה בטעינת התמונה", Toast.LENGTH_LONG).show();
-//                e.printStackTrace();
-//                holder.imageSum.setImageResource(R.drawable.newlogo);
-//            }
-//        } else {
-//            holder.imageSum.setImageResource(R.drawable.newlogo);
-//        }
-
         return convertView;
     }
 

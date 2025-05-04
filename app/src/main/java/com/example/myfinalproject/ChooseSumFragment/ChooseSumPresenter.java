@@ -18,10 +18,10 @@ public class ChooseSumPresenter {
         this.summaryDatabase = new SummaryDatabase();
     }
 
-    public void loadSummaries(SummariesCallback callback) {
-
-        loadSummaries(callback, null, null);
-    }
+//    public void loadSummaries(SummariesCallback callback) {
+//
+//        loadSummaries(callback, null, null);
+//    }
 
     public void loadSummaries(SummariesCallback callback, String selectedClass, String selectedProfession) {
         summaryDatabase.getAllSummaries(new SummariesCallback() {
@@ -56,45 +56,45 @@ public class ChooseSumPresenter {
         });
     }
 
-    public void updateSummary(Summary summary) {
-        summaryDatabase.updateSummary(summary, new SummaryCallback() {
-            @Override
-            public void onSuccess(Summary summary1) {
-           //     view.onSummaryUpdated(summary1);
-            }
+//    public void updateSummary(Summary summary) {
+//        summaryDatabase.updateSummary(summary, new SummaryCallback() {
+//            @Override
+//            public void onSuccess(Summary summary1) {
+////                view.onSummaryUpdated(summary1);
+//            }
+//
+//            @Override
+//            public void onError(String message) {
+////               view.onError(message);
+//            }
+//        });
+//    }
+//
+//    public void deleteSummary(String summaryId) {
+//        summaryDatabase.deleteSummary(summaryId, new SummaryCallback() {
+//            @Override
+//            public void onSuccess(Summary summary1) {
+//
+//            }
+//
+//            @Override
+//            public void onError(String message) {
+////                view.onError(message);
+//            }
+//        });
+//    }
 
-            @Override
-            public void onError(String message) {
-                view.onError(message);
-            }
-        });
-    }
-
-    public void deleteSummary(String summaryId) {
-        summaryDatabase.deleteSummary(summaryId, new SummaryCallback() {
-            @Override
-            public void onSuccess(Summary summary1) {
-
-            }
-
-            @Override
-            public void onError(String message) {
-                view.onError(message);
-            }
-        });
-    }
-
-    public void filterSummaries(String query, ArrayList<Summary> originalList, SummaryAdapter adapter) {
-        ArrayList<Summary> filteredList = new ArrayList<>();
-
-        for (Summary summary : originalList) {
-            if (summary.getSummaryTitle().toLowerCase().contains(query.toLowerCase()) ||
-                    summary.getProfession().toLowerCase().contains(query.toLowerCase()) ||
-                    summary.getClassOption().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(summary);
-            }
-        }
-
-        adapter.updateSummaries(filteredList);
-    }
+//    public void filterSummaries(String query, ArrayList<Summary> originalList, SummaryAdapter adapter) {
+//        ArrayList<Summary> filteredList = new ArrayList<>();
+//
+//        for (Summary summary : originalList) {
+//            if (summary.getSummaryTitle().toLowerCase().contains(query.toLowerCase()) ||
+//                    summary.getProfession().toLowerCase().contains(query.toLowerCase()) ||
+//                    summary.getClassOption().toLowerCase().contains(query.toLowerCase())) {
+//                filteredList.add(summary);
+//            }
+//        }
+//
+//        adapter.updateSummaries(filteredList);
+//    }
 }

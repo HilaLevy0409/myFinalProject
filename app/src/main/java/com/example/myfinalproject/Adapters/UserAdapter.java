@@ -88,19 +88,7 @@ public class UserAdapter extends ArrayAdapter<User> {
             }
         });
 
-//        if (user.getImageProfile() != null) {
-//            try {
-//                byte[] decodedString = Base64.decode(user.getImageProfile(), Base64.DEFAULT);
-//                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-//                holder.imgUserProfile.setImageBitmap(decodedByte);
-//            } catch (Exception e) {
-//                Toast.makeText(context, "שגיאה בטעינת תמונה", Toast.LENGTH_LONG).show();
-//                e.printStackTrace();
-//                holder.imgUserProfile.setImageResource(R.drawable.newlogo);
-//            }
-//        } else {
-//            holder.imgUserProfile.setImageResource(R.drawable.newlogo);
-//        }
+
 
         if (user.getImageProfile() != null && !user.getImageProfile().isEmpty()) {
             try {
@@ -113,8 +101,6 @@ public class UserAdapter extends ArrayAdapter<User> {
                 holder.imgUserProfile.setImageResource(R.drawable.newlogo);
             }
         }
-
-
 
         return convertView;
     }

@@ -31,7 +31,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
     private int badPoints = 0;
     private TextView tvBadPoints, tvEmail, tvPhone, tvBirthDate, tvSumNum, tvUsername;
-    private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnBack, btnDeleteUser;
+    private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnDeleteUser;
     private User currentUser;
 
     private String userId;
@@ -76,13 +76,11 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         btnAddPoint = view.findViewById(R.id.btnAddPoint);
         btnRemovePoint = view.findViewById(R.id.btnRemovePoint);
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
-        btnBack = view.findViewById(R.id.btnBack);
         btnDeleteUser = view.findViewById(R.id.btnDeleteUser);
 
         imgUserProfile = view.findViewById(R.id.imgUserProfile);
 
 
-        btnBack.setOnClickListener(this);
         btnAddPoint.setOnClickListener(this);
         btnRemovePoint.setOnClickListener(this);
         btnShowSums.setOnClickListener(this);
@@ -145,6 +143,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .replace(R.id.flFragment, new SumByUserFragment())
                     .addToBackStack(null)
                     .commit();
+
         } else if (view.getId() == R.id.btnSendMessage) {
 //            btnSendMessage.setOnClickListener(v -> {
 //                MessageFragment messageFragment = new MessageFragment();
@@ -174,17 +173,19 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .addToBackStack(null)
                     .commit();
 
-        }
-        else if (view.getId() == R.id.btnBack) {
-            btnBack.setOnClickListener(v -> {
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flFragment, new AdminFragment())
-                        .addToBackStack(null)
-                        .commit();
-            });
         } else if (view.getId() == R.id.btnDeleteUser) {
-            showDeleteUserConfirmation();
+            String userName = currentUser != null ? currentUser.getUserName() : "משתמש";
+
+            new AlertDialog.Builder(getContext())
+                    .setTitle("אישור מחיקה")
+                    .setMessage("האם ברצונך למחוק לצמיתות את המשתמש " + userName + "?")
+                    .setPositiveButton("כן", (dialog, which) -> {
+                        deleteUser();
+                    })
+                    .setNegativeButton("לא", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
         }
     }
 
@@ -219,20 +220,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 .show();
     }
 
-    private void showDeleteUserConfirmation() {
-        String userName = currentUser != null ? currentUser.getUserName() : "משתמש";
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("אישור מחיקה")
-                .setMessage("האם ברצונך למחוק לצמיתות את המשתמש " + userName + "?")
-                .setPositiveButton("כן", (dialog, which) -> {
-                    deleteUser();
-                })
-                .setNegativeButton("לא", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
-    }
 
     private void deleteUser() {
         if (currentUser != null && userId != null) {
@@ -269,13 +257,11 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
     private void loadProfilePicture(String profilePicData) {
         if (profilePicData == null || profilePicData.isEmpty() || imgUserProfile == null) {
-            // Set default image if no profile pic data
             imgUserProfile.setImageResource(R.drawable.newlogo);
             return;
         }
 
         try {
-            // Handle Base64 encoded images
             if (profilePicData.startsWith("/9j/") || profilePicData.startsWith("iVBOR")) {
                 byte[] decodedString = android.util.Base64.decode(profilePicData, android.util.Base64.DEFAULT);
                 android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
@@ -285,7 +271,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     imgUserProfile.setImageResource(R.drawable.newlogo);
                 }
             }
-            // Handle URI-based images
             else {
                 android.net.Uri imageUri = android.net.Uri.parse(profilePicData);
                 android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
@@ -310,7 +295,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        // Safely get the first document
                         DocumentSnapshot document = null;
                         try {
                             document = queryDocumentSnapshots.getDocuments().get(0);
@@ -324,13 +308,10 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                             return;
                         }
 
-                        // Store the user ID for other operations
                         userId = document.getId();
 
-                        // Try different field names for profile picture
                         String profilePicData = null;
 
-                        // Check common field names for profile pictures
                         if (document.contains("profileImage")) {
                             profilePicData = document.getString("profileImage");
                         } else if (document.contains("profilePicture")) {
@@ -345,10 +326,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                             profilePicData = document.getString("profilePicBase64");
                         }
 
-                        // Load the profile picture if we found data
                         loadProfilePicture(profilePicData);
 
-                        // Get the User object
                         try {
                             currentUser = document.toObject(User.class);
                         } catch (Exception e) {
@@ -356,14 +335,12 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                             return;
                         }
 
-                        // Update UI with user data
                         if (currentUser != null) {
                             tvUsername.setText("שם משתמש: " + currentUser.getUserName());
                             tvEmail.setText("אימייל: " + currentUser.getUserEmail());
                             tvPhone.setText("מספר טלפון: " + (currentUser.getPhone() != null ? currentUser.getPhone() : "לא זמין"));
                             tvBirthDate.setText("תאריך לידה: " + (currentUser.getUserBirthDate() != null ? currentUser.getUserBirthDate() : "לא זמין"));
 
-                            // Update the badPoints variable and display
                             try {
                                 badPoints = currentUser.getBadPoints();
                                 updateBadPointsText();
@@ -372,7 +349,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                                 updateBadPointsText();
                             }
 
-                            // Get summary count
                             db.collection("summaries")
                                     .whereEqualTo("userId", userId)
                                     .get()
@@ -395,7 +371,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     showUserNotFoundUI(username);
                 });
     }
-    // Helper method to show UI when user is not found
+
     private void showUserNotFoundUI(String username) {
         Toast.makeText(getContext(), "לא נמצא משתמש בשם " + username, Toast.LENGTH_SHORT).show();
         tvUsername.setText("שם משתמש: " + username + " (לא נמצא)");
@@ -405,7 +381,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         tvBadPoints.setText("נקודות לרעה: ");
         tvSumNum.setText("מספר סיכומים שנכתבו: ");
 
-        // Ensure these fields are set to avoid NPE in other methods
         currentUser = null;
         userId = null;
         badPoints = 0;

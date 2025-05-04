@@ -127,11 +127,6 @@
     </item>
 
 
-
-    <item
-        android:id="@+id/user"
-        android:title="פרופיל משתמש" />
-
     <item
         android:id="@+id/logout"
         android:title="התנתקות"

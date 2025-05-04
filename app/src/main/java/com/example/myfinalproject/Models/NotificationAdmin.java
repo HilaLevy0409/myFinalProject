@@ -24,10 +24,6 @@ public class NotificationAdmin {
     }
 
 
-    private Date getIsraelTime() {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jerusalem"));
-        return calendar.getTime();
-    }
 
     public NotificationAdmin(String userId, String userName, String content, String reason, String type) {
         this.userId = userId;

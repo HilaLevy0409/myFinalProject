@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfinalproject.Adapters.ReviewAdapter;
+import com.example.myfinalproject.CallBacks.ReviewCallback;
 import com.example.myfinalproject.Models.Review;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,37 +28,31 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewInteractionListener {
+public class SumReviewFragment extends Fragment implements ReviewCallback {
     private static final String TAG = "SumReviewFragment";
 
     private RecyclerView rvReviews;
     private ReviewAdapter reviewAdapter;
     private List<Review> reviewList;
-    private TextView tvReviewsCount;
+    private TextView tvReviewsCount, tvName;
 
     private EditText etReviewText;
     private RatingBar ratingBar;
     private Button btnSubmitReview;
-    private TextView tvName;
-    private String summaryId;
+    private String summaryId, currentUserId, currentUserName, existingReviewId = null;
     private float initialRating;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-    private String currentUserId;
-    private String currentUserName;
     private boolean hasReviewed = false;
-    private String existingReviewId = null;
-
     private ListenerRegistration reviewsListener;
 
     public static SumReviewFragment newInstance(String summaryId) {
@@ -81,7 +76,7 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
-        // Initialize review list
+
         reviewList = new ArrayList<>();
     }
 
@@ -90,48 +85,45 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sum_review, container, false);
 
-        try {
-            // Find all views
-            tvReviewsCount = view.findViewById(R.id.tvReviewsCount);
-            rvReviews = view.findViewById(R.id.rvReviews);
-            tvName = view.findViewById(R.id.tvName);
-            etReviewText = view.findViewById(R.id.etReviewText);
-            ratingBar = view.findViewById(R.id.ratingBar);
-            btnSubmitReview = view.findViewById(R.id.btnSubmitReview);
+        tvReviewsCount = view.findViewById(R.id.tvReviewsCount);
+        rvReviews = view.findViewById(R.id.rvReviews);
+        tvName = view.findViewById(R.id.tvName);
+        etReviewText = view.findViewById(R.id.etReviewText);
+        ratingBar = view.findViewById(R.id.ratingBar);
+        btnSubmitReview = view.findViewById(R.id.btnSubmitReview);
 
-            // Check if views are found
-            if (tvReviewsCount == null) {
-                Log.e(TAG, "tvReviewsCount not found in layout");
-            }
-            if (rvReviews == null) {
-                Log.e(TAG, "rvReviews not found in layout");
-            }
 
-            // Set initial rating if provided
-            if (initialRating > 0 && ratingBar != null) {
-                ratingBar.setRating(initialRating);
-            }
+        if (tvReviewsCount == null) {
+            Log.e(TAG, "tvReviewsCount not found in layout");
+        }
+        if (rvReviews == null) {
+            Log.e(TAG, "rvReviews not found in layout");
+        }
 
-            // Set up the RecyclerView with empty adapter initially
-            reviewAdapter = new ReviewAdapter(reviewList, this);
-            rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
-            rvReviews.setAdapter(reviewAdapter);
 
-            // Set up the submit button
+        if (initialRating > 0 && ratingBar != null) {
+            ratingBar.setRating(initialRating);
+        }
+
+
+        reviewAdapter = new ReviewAdapter(reviewList, this);
+        rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvReviews.setAdapter(reviewAdapter);
+
+        if (btnSubmitReview != null) {
             btnSubmitReview.setOnClickListener(v -> submitReview());
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up views", e);
+        } else {
+            Log.e(TAG, "btnSubmitReview not found in layout");
         }
 
         return view;
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
 
-        // Get current user in onResume to ensure auth state is current
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
@@ -142,10 +134,35 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
             tvName.setText("משתמש אנונימי");
         }
 
-        // Set up real-time listener for reviews
-        setupReviewsListener();
+        if (summaryId == null || summaryId.isEmpty()) {
+            Log.e(TAG, "Summary ID is missing, cannot set up reviews listener");
+            return;
+        }
 
-        // Check if current user has already reviewed
+
+        if (reviewsListener != null) {
+            reviewsListener.remove();
+        }
+
+        Log.d(TAG, "Setting up real-time listener for reviews of summary: " + summaryId);
+
+
+        Query query = db.collection("reviews")
+                .whereEqualTo("summaryId", summaryId)
+                .orderBy("createdAt", Query.Direction.DESCENDING);
+
+
+        reviewsListener = query.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.e(TAG, "Error listening for review changes", error);
+                return;
+            }
+
+            if (value != null) {
+                processReviewsSnapshot(value);
+            }
+        });
+
         checkIfUserReviewed();
     }
 
@@ -153,7 +170,6 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
     public void onPause() {
         super.onPause();
 
-        // Remove listener when fragment is paused
         if (reviewsListener != null) {
             reviewsListener.remove();
             reviewsListener = null;
@@ -186,56 +202,19 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
                 });
     }
 
-    private void setupReviewsListener() {
-        if (summaryId == null || summaryId.isEmpty()) {
-            Log.e(TAG, "Summary ID is missing, cannot set up reviews listener");
-            return;
-        }
-
-        // Remove any existing listener
-        if (reviewsListener != null) {
-            reviewsListener.remove();
-        }
-
-        Log.d(TAG, "Setting up real-time listener for reviews of summary: " + summaryId);
-
-        // Create a query for all reviews for this summary, ordered by most recent first
-        Query query = db.collection("reviews")
-                .whereEqualTo("summaryId", summaryId)
-                .orderBy("createdAt", Query.Direction.DESCENDING);
-
-        // Set up a snapshot listener to get real-time updates
-        reviewsListener = query.addSnapshotListener((value, error) -> {
-            if (error != null) {
-                Log.e(TAG, "Error listening for review changes", error);
-                return;
-            }
-
-            if (value != null) {
-                processReviewsSnapshot(value);
-            }
-        });
-    }
 
     private void processReviewsSnapshot(QuerySnapshot snapshot) {
-        // Clear existing list
         reviewList.clear();
 
-        // Process each document
         for (DocumentSnapshot document : snapshot.getDocuments()) {
-            try {
-                Review review = document.toObject(Review.class);
-                if (review != null) {
-                    review.setReviewId(document.getId());
-                    reviewList.add(review);
-                    Log.d(TAG, "Added/Updated review: " + review.getReviewId() + " by " + review.getUserName());
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error processing review document", e);
+            Review review = document.toObject(Review.class);
+            if (review != null) {
+                review.setReviewId(document.getId());
+                reviewList.add(review);
+                Log.d(TAG, "Added/Updated review: " + review.getReviewId() + " by " + review.getUserName());
             }
         }
 
-        // Update UI
         int reviewCount = reviewList.size();
         Log.d(TAG, "Total reviews: " + reviewCount);
 
@@ -247,9 +226,9 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
             reviewAdapter.notifyDataSetChanged();
         }
 
-        // Update average rating
         updateAverageRating();
     }
+
 
     private void checkIfUserReviewed() {
         if (currentUserId == null || summaryId == null) {
@@ -269,17 +248,17 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
                     hasReviewed = !queryDocumentSnapshots.isEmpty();
 
                     if (hasReviewed) {
-                        // User has already reviewed this summary
+
                         Log.d(TAG, "User has already reviewed this summary");
 
                         if (getActivity() != null && !getActivity().isFinishing()) {
                             Toast.makeText(getContext(), "כבר כתבת ביקורת לסיכום זה", Toast.LENGTH_SHORT).show();
                         }
 
-                        // Disable review submission
+
                         disableReviewForm();
 
-                        // Show the user's existing review
+
                         if (!queryDocumentSnapshots.isEmpty()) {
                             Review userReview = queryDocumentSnapshots.getDocuments().get(0).toObject(Review.class);
                             existingReviewId = queryDocumentSnapshots.getDocuments().get(0).getId();
@@ -290,14 +269,14 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
                             }
                         }
                     } else {
-                        // User has not reviewed yet
+
                         Log.d(TAG, "User has not reviewed this summary yet");
                         enableReviewForm();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error checking if user reviewed", e);
-                    // Assume user hasn't reviewed on error
+
                     hasReviewed = false;
                     enableReviewForm();
                 });
@@ -344,23 +323,20 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
             return;
         }
 
-        // Create a new review object
         Review newReview = new Review(currentUserId, currentUserName, summaryId, reviewText, rating);
 
-        // Add the review to Firestore
+
         db.collection("reviews")
                 .add(newReview)
                 .addOnSuccessListener(documentReference -> {
                     String reviewId = documentReference.getId();
                     Log.d(TAG, "Review added with ID: " + reviewId);
 
-                    // Update UI via snapshot listener (no need to manually update)
 
-                    // Clear the review form
                     etReviewText.setText("");
                     ratingBar.setRating(0);
 
-                    // Mark that user has reviewed and disable the review form
+
                     hasReviewed = true;
                     existingReviewId = reviewId;
                     disableReviewForm();
@@ -376,7 +352,7 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
     private void updateAverageRating() {
         float averageRating = calculateAverageRating();
 
-        // Update the summary document with the new average rating
+
         if (summaryId != null && !summaryId.isEmpty()) {
             DocumentReference summaryRef = db.collection("summaries").document(summaryId);
             summaryRef.update("averageRating", averageRating)
@@ -399,7 +375,11 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d(TAG, "Review deleted: " + review.getReviewId());
 
-                                    // If this was the current user's review, allow them to review again
+                                    reviewList.remove(position);
+                                    reviewAdapter.notifyItemRemoved(position);
+
+                                    updateAverageRating();
+
                                     if (currentUserId != null && currentUserId.equals(review.getUserId())) {
                                         hasReviewed = false;
                                         existingReviewId = null;
@@ -408,7 +388,6 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
                                         ratingBar.setRating(0);
                                     }
 
-                                    // UI will update via snapshot listener
                                     Toast.makeText(getContext(), "הביקורת נמחקה", Toast.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e -> {
@@ -423,10 +402,8 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
 
     @Override
     public void onEditReview(Review review, int position) {
-        // This method is called when the edit button is clicked
-        // The editing UI is already handled in the adapter
         if (getContext() != null) {
-            Toast.makeText(getContext(), "ערוך את הביקורת שלך", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "עריכת הביקורת שלך", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -437,7 +414,6 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
             return;
         }
 
-        // Validate input
         if (newText.trim().isEmpty()) {
             Toast.makeText(getContext(), "תוכן הביקורת לא יכול להיות ריק", Toast.LENGTH_SHORT).show();
             return;
@@ -450,14 +426,18 @@ public class SumReviewFragment extends Fragment implements ReviewAdapter.ReviewI
 
         DocumentReference reviewRef = db.collection("reviews").document(review.getReviewId());
 
-        // Update the review in Firestore
         reviewRef.update(
                 "reviewText", newText,
                 "rating", newRating
         ).addOnSuccessListener(aVoid -> {
             Log.d(TAG, "Review updated successfully: " + review.getReviewId());
 
-            // UI will update via snapshot listener
+            review.setReviewText(newText);
+            review.setRating(newRating);
+            reviewAdapter.notifyItemChanged(position);
+
+            updateAverageRating();
+
             Toast.makeText(getContext(), "הביקורת עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(e -> {
             Toast.makeText(getContext(), "שגיאה בעדכון הביקורת: " + e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -36,13 +36,12 @@ public class SumByUserFragment extends Fragment {
     private ArrayList<Summary> summaryList;
     private SumByUserPresenter presenter;
     private SearchView searchView;
-    private TextView tvNoSummaries;
+    private TextView tvNoSummaries, tvTitle;
 
     private String userName;
-    private TextView tvTitle;
+
 
     public SumByUserFragment() {
-        // Required empty public constructor
     }
 
     public static SumByUserFragment newInstance(String userName) {
@@ -78,7 +77,6 @@ public class SumByUserFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView);
         tvNoSummaries = view.findViewById(R.id.tvNoSummaries);
 
-        // Get current username if not provided
         if (userName == null || userName.isEmpty()) {
             SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
             userName = prefs.getString("username", "המשתמש הנוכחי");
@@ -91,10 +89,8 @@ public class SumByUserFragment extends Fragment {
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
 
-        // Initialize the presenter with Firestore support
         presenter = new SumByUserPresenter(this, userName);
 
-        // Set click listener to navigate to SumFragment
         listViewSummaries.setOnItemClickListener((parent, viewItem, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
             Log.d(TAG, "Summary selected: " + selectedSummary.getSummaryTitle() +
@@ -117,7 +113,7 @@ public class SumByUserFragment extends Fragment {
             }
         });
 
-        // Load summaries for the user
+
         loadSummaries();
     }
 
@@ -142,7 +138,6 @@ public class SumByUserFragment extends Fragment {
                         tvNoSummaries.setVisibility(View.GONE);
                         summaryList.addAll(summaries);
 
-                        // Log summary details
                         for (Summary summary : summaries) {
                             Log.d(TAG, "Summary in list: ID=" + summary.getSummaryId() +
                                     ", Title=" + summary.getSummaryTitle() +
@@ -169,17 +164,14 @@ public class SumByUserFragment extends Fragment {
     }
 
     private void navigateToSummaryView(Summary summary) {
-        // Navigate to SumFragment with the selected summary
         if (getActivity() != null) {
             Log.d(TAG, "Navigating to SumFragment with summaryId: " + summary.getSummaryId());
 
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-            // Create and configure SumFragment with the summary data
             SumFragment sumFragment = SumFragment.newInstance(summary.getSummaryId());
 
-            // Replace current fragment with SumFragment and add to back stack
             transaction.replace(R.id.flFragment, sumFragment);
             transaction.addToBackStack(null);
             transaction.commit();
