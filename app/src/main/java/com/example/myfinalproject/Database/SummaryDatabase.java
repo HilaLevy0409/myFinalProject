@@ -3,6 +3,7 @@ package com.example.myfinalproject.Database;
 import com.example.myfinalproject.CallBacks.AddSummaryCallback;
 import com.example.myfinalproject.CallBacks.SummariesCallback;
 import com.example.myfinalproject.CallBacks.SummaryCallback;
+import com.example.myfinalproject.CallBacks.UserCallback;
 import com.example.myfinalproject.Models.Summary;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,13 +64,13 @@ public class SummaryDatabase {
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
-
-    public void updateSummary(Summary summary, SummaryCallback callback) {
-        database.collection("summaries").document(summary.getSummaryId())
-                .set(summary)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(summary))
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-    }
+//
+//    public void updateSummary(Summary summary, SummaryCallback callback) {
+//        database.collection("summaries").document(summary.getSummaryId())
+//                .set(summary)
+//                .addOnSuccessListener(aVoid -> callback.onSuccess(summary))
+//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+//    }
 
     public void deleteSummary(String summaryId, SummaryCallback callback) {
         database.collection("summaries").document(summaryId)
@@ -77,4 +78,30 @@ public class SummaryDatabase {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
+
+    public void uploadSummary(Summary summary, SummaryCallback summaryCallback, UserCallback userCallback) {
+        // First upload the summary
+        database.collection("summaries").add(summary)
+                .addOnSuccessListener(documentReference -> {
+                    // Set the ID in the summary object
+                    String summaryId = documentReference.getId();
+                    summary.setSummaryId(summaryId);
+
+                    // Update the document with the ID
+                    documentReference.set(summary)
+                            .addOnSuccessListener(aVoid -> {
+                                // Summary uploaded successfully, now increment the user's summary count
+                                UserDatabase userDatabase = new UserDatabase();
+                                userDatabase.decrementUserSummaryCount(summary.getUserId(), userCallback);
+
+                                // Notify about successful summary upload
+                                summaryCallback.onSuccess(summary);
+                            })
+                            .addOnFailureListener(e -> summaryCallback.onError(e.getMessage()));
+                })
+                .addOnFailureListener(e -> summaryCallback.onError(e.getMessage()));
+    }
+
+
+
 }

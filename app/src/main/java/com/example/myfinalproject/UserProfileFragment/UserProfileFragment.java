@@ -533,6 +533,14 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 //        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 //    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reload user data to reflect any changes (like updated summary count)
+        if (presenter != null) {
+            presenter.loadUserData();
+        }
+    }
 
 
 }

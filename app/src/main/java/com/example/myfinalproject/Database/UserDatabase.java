@@ -165,7 +165,30 @@ public class UserDatabase {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    public void decrementUserSummaryCount(String userId, UserCallback callback) {
+        // Get a reference to the user document
+        DocumentReference userRef = database.collection("users").document(userId);
 
+        // Use a transaction to ensure atomic update
+        database.runTransaction(transaction -> {
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+            User user = userSnapshot.toObject(User.class);
+
+            if (user != null) {
+                // Decrement the summary count (ensure it doesn't go below 0)
+                int currentCount = user.getSumCount();
+                int newCount = Math.max(0, currentCount - 1);
+                transaction.update(userRef, "sumCount", newCount);
+            }
+
+            return null;
+        }).addOnSuccessListener(result -> {
+            // After successful update, retrieve the updated user
+            getUserById(userId, callback);
+        }).addOnFailureListener(e -> {
+            callback.onError("Failed to update summary count: " + e.getMessage());
+        });
+    }
 
 
 

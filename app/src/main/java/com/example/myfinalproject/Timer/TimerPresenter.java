@@ -105,9 +105,11 @@ public class TimerPresenter {
                             return;
                         }
 
-                        long totalMinutes = (timerService.getTimeRemaining() / 1000) / 60;
+                        // Fix: Compare in seconds instead of minutes
+                        long totalSeconds = timerService.getTimeRemaining() / 1000;
+                        long notificationSeconds = notificationMinutes * 60;
 
-                        if (notificationMinutes >= totalMinutes) {
+                        if (notificationSeconds >= totalSeconds) {
                             view.showMessage("זמן ההתראה גדול מזמן הטיימר");
                             return;
                         }
@@ -146,9 +148,10 @@ public class TimerPresenter {
                     }
                     notificationMinutes = Integer.parseInt(notificationText);
 
-                    long totalMinutes = (totalTimeInMillis / 1000) / 60;
+                    long totalSeconds = (totalTimeInMillis / 1000);
+                    long notificationSeconds = notificationMinutes * 60;
 
-                    if (notificationMinutes >= totalMinutes) {
+                    if (notificationSeconds >= totalSeconds) {
                         view.showMessage("זמן ההתראה גדול מזמן הטיימר");
                         return;
                     }

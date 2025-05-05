@@ -117,6 +117,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             String email = etEmail.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
             String birthDate =  etDialogBirthday.getText().toString();
+            String base64Image = imageViewToBase64(imageViewProfile);
 
 
 
@@ -127,6 +128,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             String validUsername = Validator.isValidUsername(username);
             String validPhone = Validator.isValidPhone(phone);
             String validBirthDate = Validator.isValidBirthDate(birthDate);
+            String validImage = Validator.isValidImageProfile(base64Image);
 
 
             if(!validEmail.isEmpty()){
@@ -159,7 +161,10 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 return;
             }
 
-
+            if(!validImage.isEmpty()){
+                Toast.makeText(getContext(), validImage, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             saveUserData(imageUri != null ? imageUri.toString() : "");
 
@@ -194,7 +199,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                     .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl()
                             .addOnSuccessListener(uri -> {
                                 String imageUrl = uri.toString();
-                                saveUserData(imageUrl);  // Save image URL and other user data
+                                saveUserData(imageUrl);
                             })
                             .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to get image URL", Toast.LENGTH_SHORT).show()))
                     .addOnFailureListener(e -> Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show());
@@ -226,13 +231,13 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         editor.putString("username", username);
         editor.putString("email", email);
         editor.putString("phone", phone);
-        editor.putString("birthDate", birthDate); // Make sure birth date is saved in SharedPreferences
+        editor.putString("birthDate", birthDate);
         editor.putString("imageProfile", base64Image);
-        editor.putInt("badPoints", 0); // Default for new user
-        editor.putInt("sumCount", 0);  // Default for new user
+        editor.putInt("badPoints", 0);
+        editor.putInt("sumCount", 0);
         editor.apply();
 
-        // Update navigation header
+
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateNavigationHeader();
         }
@@ -243,31 +248,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         presenter.submitClicked(user);
     }
 
-//    public void openDialog() {
-//        final Calendar calendar = Calendar.getInstance();
-//        int year = calendar.get(Calendar.YEAR);
-//        int month = calendar.get(Calendar.MONTH);
-//        int day = calendar.get(Calendar.DAY_OF_MONTH);
-//
-//        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
-//                (view, year1, month1, dayOfMonth) -> {
-//                    String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
-//
-//                    etDialogBirthday.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
-//
-//                },
-//                year, month, day
-//        );
-//
-//        etDialogBirthday.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                datePickerDialog.show();
-//            }
-//        });
-//
-//
-//    }
+
 
     public void openDialog() {
         final Calendar calendar = Calendar.getInstance();

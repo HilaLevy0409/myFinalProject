@@ -2,6 +2,7 @@ package com.example.myfinalproject.ManageUserFragment;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -256,31 +257,110 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     }
 
     private void loadProfilePicture(String profilePicData) {
-        if (profilePicData == null || profilePicData.isEmpty() || imgUserProfile == null) {
+        // Set default image first as a fallback
+        if (imgUserProfile != null) {
             imgUserProfile.setImageResource(R.drawable.newlogo);
+        }
+
+        // Handle null or empty profile picture data
+        if (profilePicData == null || profilePicData.isEmpty() || imgUserProfile == null) {
+            Log.d("ImageDebug", "No profile picture data or imageView is null");
             return;
         }
 
-        try {
-            if (profilePicData.startsWith("/9j/") || profilePicData.startsWith("iVBOR")) {
-                byte[] decodedString = android.util.Base64.decode(profilePicData, android.util.Base64.DEFAULT);
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        Log.d("ImageDebug", "Loading profile picture, data length: " + profilePicData.length());
+
+        // Try Base64 approach first
+        if (profilePicData.contains(";base64,") || profilePicData.startsWith("/9j/") ||
+                profilePicData.startsWith("iVBOR")) {
+
+            try {
+                // Extract base64 part if format is "data:image/jpeg;base64,..."
+                String cleanBase64 = profilePicData;
+                if (profilePicData.contains(",")) {
+                    cleanBase64 = profilePicData.split(",")[1];
+                    Log.d("ImageDebug", "Extracted base64 part after comma");
+                }
+
+                // Add padding if needed
+                while (cleanBase64.length() % 4 != 0) {
+                    cleanBase64 += "=";
+                }
+
+                byte[] decodedString = android.util.Base64.decode(
+                        cleanBase64,
+                        android.util.Base64.DEFAULT
+                );
+
+                if (decodedString == null || decodedString.length == 0) {
+                    Log.e("ImageDebug", "Base64 decoded to empty byte array");
+                    return;
+                }
+
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                        decodedString, 0, decodedString.length
+                );
+
                 if (bitmap != null) {
                     imgUserProfile.setImageBitmap(bitmap);
+                    Log.d("ImageDebug", "Successfully loaded image from base64");
+                    return;
                 } else {
-                    imgUserProfile.setImageResource(R.drawable.newlogo);
+                    Log.e("ImageDebug", "Failed to create bitmap from decoded base64");
                 }
+            } catch (IllegalArgumentException e) {
+                Log.e("ImageDebug", "Base64 decode failed - Invalid character: " + e.getMessage());
+            } catch (Exception e) {
+                Log.e("ImageDebug", "Base64 decode failed: " + e.getMessage());
             }
-            else {
-                android.net.Uri imageUri = android.net.Uri.parse(profilePicData);
-                android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                imgUserProfile.setImageBitmap(bitmap);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            imgUserProfile.setImageResource(R.drawable.newlogo);
         }
+
+        // Try as a URL/URI if it starts with http/https
+        if (profilePicData.startsWith("http")) {
+            try {
+                // For URL loading, use a library like Glide or Picasso instead
+                // This is just a placeholder example using standard Android
+                new Thread(() -> {
+                    try {
+                        java.net.URL url = new java.net.URL(profilePicData);
+                        final android.graphics.Bitmap bitmap =
+                                android.graphics.BitmapFactory.decodeStream(url.openConnection().getInputStream());
+
+                        if (bitmap != null) {
+                            getActivity().runOnUiThread(() -> {
+                                imgUserProfile.setImageBitmap(bitmap);
+                            });
+                            Log.d("ImageDebug", "Successfully loaded image from URL");
+                        } else {
+                            Log.e("ImageDebug", "Failed to decode bitmap from URL");
+                        }
+                    } catch (Exception e) {
+                        Log.e("ImageDebug", "URL loading failed: " + e.getMessage());
+                    }
+                }).start();
+                return;
+            } catch (Exception e) {
+                Log.e("ImageDebug", "Error setting up URL loading: " + e.getMessage());
+            }
+        }
+
+        // Try as a local URI
+        try {
+            android.net.Uri imageUri = android.net.Uri.parse(profilePicData);
+            android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(
+                    getActivity().getContentResolver(), imageUri
+            );
+            imgUserProfile.setImageBitmap(bitmap);
+            Log.d("ImageDebug", "Successfully loaded image from URI");
+            return;
+        } catch (Exception e) {
+            Log.e("ImageDebug", "URI loading failed: " + e.getMessage());
+        }
+
+        // If we reach here, all methods failed
+        Log.d("ImageDebug", "All image loading methods failed, using default image");
     }
+
 
     private void loadUserByUsername(String username) {
         if (username == null || username.isEmpty()) {
@@ -295,38 +375,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot document = null;
-                        try {
-                            document = queryDocumentSnapshots.getDocuments().get(0);
-                        } catch (Exception e) {
-                            Toast.makeText(getContext(), "שגיאה בעיבוד תוצאות החיפוש", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if (document == null) {
-                            Toast.makeText(getContext(), "מסמך המשתמש ריק", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        userId = document.getId();
-
-                        String profilePicData = null;
-
-                        if (document.contains("profileImage")) {
-                            profilePicData = document.getString("profileImage");
-                        } else if (document.contains("profilePicture")) {
-                            profilePicData = document.getString("profilePicture");
-                        } else if (document.contains("profilePic")) {
-                            profilePicData = document.getString("profilePic");
-                        } else if (document.contains("imageProfile")) {
-                            profilePicData = document.getString("imageProfile");
-                        } else if (document.contains("profilePicUrl")) {
-                            profilePicData = document.getString("profilePicUrl");
-                        } else if (document.contains("profilePicBase64")) {
-                            profilePicData = document.getString("profilePicBase64");
-                        }
-
-                        loadProfilePicture(profilePicData);
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
 
                         try {
                             currentUser = document.toObject(User.class);
@@ -336,6 +385,13 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                         }
 
                         if (currentUser != null) {
+                            userId = document.getId(); // חשוב מאוד
+
+                            // ✅ טעינת התמונה מתוך השדה imageProfile של המשתמש
+                            String profilePicData = currentUser.getImageProfile();
+                            loadProfilePicture(profilePicData);
+
+                            // הצגת שאר הנתונים
                             tvUsername.setText("שם משתמש: " + currentUser.getUserName());
                             tvEmail.setText("אימייל: " + currentUser.getUserEmail());
                             tvPhone.setText("מספר טלפון: " + (currentUser.getPhone() != null ? currentUser.getPhone() : "לא זמין"));
@@ -343,11 +399,10 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
                             try {
                                 badPoints = currentUser.getBadPoints();
-                                updateBadPointsText();
                             } catch (Exception e) {
                                 badPoints = 0;
-                                updateBadPointsText();
                             }
+                            updateBadPointsText();
 
                             db.collection("summaries")
                                     .whereEqualTo("userId", userId)
@@ -371,6 +426,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     showUserNotFoundUI(username);
                 });
     }
+
 
     private void showUserNotFoundUI(String username) {
         Toast.makeText(getContext(), "לא נמצא משתמש בשם " + username, Toast.LENGTH_SHORT).show();

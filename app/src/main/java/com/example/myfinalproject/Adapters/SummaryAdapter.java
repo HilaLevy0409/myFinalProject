@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,11 @@ import androidx.annotation.Nullable;
 import com.example.myfinalproject.Models.Summary;
 import com.example.myfinalproject.R;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class SummaryAdapter extends ArrayAdapter<Summary> {
 
@@ -48,6 +53,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             holder.tvClass = convertView.findViewById(R.id.tvClass);
             holder.tvProfessional = convertView.findViewById(R.id.tvProfession);
             holder.tvSummaryTitle = convertView.findViewById(R.id.tvSummaryTitle);
+            holder.tvCreatedDate = convertView.findViewById(R.id.tvCreatedDate);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -59,6 +65,18 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         holder.tvClass.setText("כיתה: " + summary.getClassOption());
         holder.tvProfessional.setText("מקצוע: " + summary.getProfession());
         holder.tvSummaryTitle.setText("נושא: " + summary.getSummaryTitle());
+
+
+        Date createdDate = summary.getCreatedDate();
+        if (createdDate != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
+            holder.tvCreatedDate.setText("נוצר בתאריך: " + sdf.format(createdDate));
+        } else {
+            // Add this to show when the date is null
+            holder.tvCreatedDate.setText("תאריך לא זמין");
+            Log.d("SummaryAdapter", "Date is null for summary: " + summary.getSummaryId());
+        }
 
 
 
@@ -86,6 +104,8 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         TextView tvClass;
         TextView tvProfessional;
         TextView tvSummaryTitle;
+        TextView tvCreatedDate;
+
     }
 
 

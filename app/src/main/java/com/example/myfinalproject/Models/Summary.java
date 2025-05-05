@@ -1,7 +1,11 @@
 package com.example.myfinalproject.Models;
 
-import com.example.myfinalproject.Database.SummaryDatabase;
-import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
+
+
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.util.Date;
+
 
 public class Summary {
     private String summaryId;
@@ -10,10 +14,12 @@ public class Summary {
     private String summaryTitle;
     private String summaryContent;
     private String image;
-    private String createdDate;
+    private @ServerTimestamp Date createdDate;
     private float rating;
     private String userName;
     private String userId;
+
+
 
 
     public Summary(String classOption, String profession, String summaryTitle, String summaryContent, String userName, String userId) {
@@ -30,6 +36,14 @@ public class Summary {
 
     public Summary() {
 
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 
 
@@ -60,14 +74,8 @@ public class Summary {
 
 
 
-    public String getCreatedDate() {
 
-        return createdDate;
-    }
 
-    public void setCreatedDate(String createdDate) {
-        this.createdDate = createdDate;
-    }
 
     public String getImage() {
         return image;

@@ -32,12 +32,12 @@ public class RegisterUserPresenter {
         userDb.addUser(user, new AddUserCallback() {
             @Override
             public void onUserAdd(User user) {
-       //         Toast.makeText(Objects.requireNonNull(view).getContext(), "המשתמש " + user.getUserName() + " התווסף בהצלחה", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(view.getContext(), "המשתמש: " + user.getUserName() + "התווסף בהצלחה", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(String error) {
-          //      Toast.makeText(view.getContext(), "אירעה שגיאה בהרשמה: " + error, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(view.getContext(), "אירעה שגיאה בהרשמה: " + error, Toast.LENGTH_SHORT).show();
 
             }
         });

@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
     private static final String TAG = "ReviewAdapter";
@@ -63,10 +64,11 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
                 if (review.getCreatedAt() != null) {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
+                    sdf.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
                     holder.tvReviewTimestamp.setText(sdf.format(review.getCreatedAt()));
                 }
 
-            boolean isUserReview = userId != null &&
+                boolean isUserReview = userId != null &&
                     userId.equals(review.getUserId());
 
             holder.imgBtnDeleteReview.setVisibility(isUserReview ? View.VISIBLE : View.GONE);
