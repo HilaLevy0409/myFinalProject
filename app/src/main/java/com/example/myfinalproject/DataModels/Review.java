@@ -1,6 +1,5 @@
-package com.example.myfinalproject.Models;
+package com.example.myfinalproject.DataModels;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;

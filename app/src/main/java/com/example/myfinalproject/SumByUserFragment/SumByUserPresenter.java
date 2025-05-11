@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.CallBacks.SummariesCallback;
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;

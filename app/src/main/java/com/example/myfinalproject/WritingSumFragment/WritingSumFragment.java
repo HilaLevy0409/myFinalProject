@@ -23,26 +23,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.myfinalproject.Database.SummaryDatabase;
-import com.example.myfinalproject.Models.Profession;
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Profession;
+import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
-import com.example.myfinalproject.Utils.Validator;
 import com.google.android.material.card.MaterialCardView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -50,7 +45,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
-    final int REQUEST_CODE_GALLERY = 999;
 
     private Button btnUploadPhoto, btnSubmit, btnTips, btnWriteSummary, btnUploadSummary;
     private SummaryPresenter summaryPresenter;
@@ -59,8 +53,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private MaterialCardView writeSummaryCard, uploadSummaryCard;
 
 
-    private List<String> classOptions;
-    private List<Profession> professions;
 
 
     private String selectedClass, selectedProfession;
@@ -158,13 +150,9 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnSubmit.setVisibility(View.VISIBLE);
     }
 
-//    public void onSummaryDeleted() {
-//        showToast("הסיכום נמחק בהצלחה");
-//    }
 
-    public void onError(String message) {
-        showToast("שגיאה: " + message);
-    }
+
+
 
     @Override
     public void onClick(View v) {
@@ -205,15 +193,22 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         return true;
     }
 
+
+
 //    private void saveSummaryData() {
-//
-//
-//
 //        String summaryTitle = etSummaryTitle.getText().toString().trim();
 //
 //        summary.setClassOption(selectedClass);
 //        summary.setProfession(selectedProfession);
 //        summary.setSummaryTitle(summaryTitle);
+//
+//        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        summary.setUserId(userId);
+//
+//
+//        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
+//        String currentUsername = prefs.getString("username", "אנונימי");
+//        summary.setUserName(currentUsername);
 //
 //        if (isWriteMode) {
 //            String summaryContent = etSummaryContent.getText().toString().trim();
@@ -238,7 +233,10 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         summary.setSummaryTitle(summaryTitle);
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
+        String currentUserId = prefs.getString("userId", null);
         String currentUsername = prefs.getString("username", "אנונימי");
+
+        summary.setUserId(currentUserId);
         summary.setUserName(currentUsername);
 
         if (isWriteMode) {
@@ -255,6 +253,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
         summaryPresenter.submitSummaryClicked(summary);
     }
+
 
 
     private String bitmapToBase64(Bitmap bitmap) {

@@ -1,7 +1,7 @@
 package com.example.myfinalproject.CallBacks;
 
 
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 
 public interface SummaryCallback {
 

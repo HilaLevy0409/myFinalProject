@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,13 +21,11 @@ import androidx.fragment.app.Fragment;
 
 import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.CallBacks.SummariesCallback;
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 
 import com.example.myfinalproject.SumFragment.SumFragment;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
@@ -43,6 +42,9 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     private SearchView searchView;
     private String selectedClass, selectedProfession;
     private ArrayList<Summary> fullSummaryList = new ArrayList<>();
+    private TextView tvNoSummaries;
+
+
 
 
     @Override
@@ -50,13 +52,20 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         summaryList = new ArrayList<>();
         chooseSumPresenter = new ChooseSumPresenter(this);
+
+
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
             selectedProfession = getArguments().getString("selected_profession", "");
             Log.d("ChooseSumFragment", "Received: class=" + selectedClass + ", profession=" + selectedProfession);
+
+
         }
 
     }
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,6 +91,9 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 //            btnAdd.setEnabled(true);
 //        }
 
+
+        tvNoSummaries = view.findViewById(R.id.tvNoSummaries);
+
         btnAdd.setOnClickListener(this);
 
 
@@ -99,12 +111,28 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterSummariesByTitle(newText);
+                List<Summary> filtered = chooseSumPresenter.filterSummariesByTitle(fullSummaryList, newText);
+                summaryList.clear();
+                summaryList.addAll(filtered);
+                summaryAdapter.notifyDataSetChanged();
+
+                if (filtered.isEmpty()) {
+                    tvNoSummaries.setVisibility(View.VISIBLE);
+                    listViewSummaries.setVisibility(View.GONE);
+                } else {
+                    tvNoSummaries.setVisibility(View.GONE);
+                    listViewSummaries.setVisibility(View.VISIBLE);
+                }
+
                 return true;
             }
         });
 
+
+
     }
+
+
 
 
     @Override
@@ -137,9 +165,17 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 getActivity().runOnUiThread(() -> {
                     summaryList.clear();
                     fullSummaryList.clear();
-                    fullSummaryList.addAll(summaries);
-                    summaryList.addAll(summaries);
-                    summaryAdapter.notifyDataSetChanged();
+
+                    if (summaries.isEmpty()) {
+                        tvNoSummaries.setVisibility(View.VISIBLE);
+                        listViewSummaries.setVisibility(View.GONE);
+                    } else {
+                        tvNoSummaries.setVisibility(View.GONE);
+                        listViewSummaries.setVisibility(View.VISIBLE);
+                        fullSummaryList.addAll(summaries);
+                        summaryList.addAll(summaries);
+                        summaryAdapter.notifyDataSetChanged();
+                    }
                 });
             }
 
@@ -147,13 +183,15 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
             public void onError(String message) {
                 if (getActivity() == null) return;
 
-                getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "שגיאה בהצגת הסיכומים: " + message,
-                                Toast.LENGTH_SHORT).show()
-                );
+                getActivity().runOnUiThread(() -> {
+                    tvNoSummaries.setVisibility(View.VISIBLE);
+                    listViewSummaries.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "שגיאה בהצגת הסיכומים: " + message, Toast.LENGTH_SHORT).show();
+                });
             }
         }, selectedClass, selectedProfession);
     }
+
 
 
     private void showSum(Summary summary) {
@@ -169,23 +207,9 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, sumFragment)
+                .addToBackStack(null)
                 .commit();
     }
 
-
-    private void filterSummariesByTitle(String query) {
-        summaryList.clear();
-        if (query.isEmpty()) {
-            summaryList.addAll(fullSummaryList);
-        } else {
-            String lowerCaseQuery = query.toLowerCase().trim();
-            for (Summary summary : fullSummaryList) {
-                if (summary.getSummaryTitle().toLowerCase().contains(lowerCaseQuery)) {
-                    summaryList.add(summary);
-                }
-            }
-        }
-        summaryAdapter.notifyDataSetChanged();
-    }
 
 }

@@ -1,0 +1,36 @@
+@startuml
+class com.example.myfinalproject.UserProfileFragment.UserProfilePresenter {
+- UserProfileFragment view
+- UserRepository database
++ void loadUserData()
++ void logOut()
++ void deleteUser()
++ void submitClicked(User)
+}
+
+
+class com.example.myfinalproject.WritingSumFragment.SummaryPresenter {
+- WritingSumFragment view
+- SummaryRepository summaryDb
+~ Summary summary
++ void submitSummaryClicked(Summary)
+}
+
+
+class com.example.myfinalproject.Timer.TimerPresenter {
+- TimerFragment view
+- Context context
+- CountdownTimerService timerService
+- boolean isBound
+- boolean isTimerPaused
+- ServiceConnection serviceConnection
++ void bindService()
++ void unbindService()
++ void onNotificationSwitchChanged(boolean)
++ void toggleStopContinue()
++ void startTimer()
++ void resetTimer()
+}
+
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+class com.example.myfinalproject.Timer.CountdownTimerService {
+- {static} int NOTIFICATION_ID
+- {static} String CHANNEL_ID
+- IBinder binder
+- CountDownTimer countDownTimer
+- long timeRemaining
+- boolean isTimerRunning
+- int notificationMinutes
+- boolean notificationSent
+- boolean notificationsEnabled
+- TimeCallback timerUpdateCallback
++ void onCreate()
++ IBinder onBind(Intent)
++ int onStartCommand(Intent,int,int)
++ void startTimer(long,int)
++ void pauseTimer()
++ void resetTimer()
++ boolean isTimerRunning()
++ long getTimeRemaining()
++ void setNotificationsEnabled(boolean)
++ void setTimerUpdateCallback(TimeCallback)
++ void removeTimerUpdateCallback()
+- String formatTime(long)
+- void createNotificationChannel()
+- Notification createForegroundNotification(String)
+- void sendStartNotification(long)
+- void sendWarningNotification(int)
+- void sendFinishNotification()
++ void onDestroy()
+}
+
+
+class com.example.myfinalproject.Timer.CountdownTimerService$LocalBinder {
++ CountdownTimerService getService()
+}
+
+class com.example.myfinalproject.Event.EventReminderReceiver {
+- {static} String CHANNEL_ID
+- {static} String TAG
++ void onReceive(Context,Intent)
+- void createNotificationChannel(Context)
+}
+
+
+
+
+android.app.Service <|-- com.example.myfinalproject.Timer.CountdownTimerService
+com.example.myfinalproject.Timer.CountdownTimerService +.. com.example.myfinalproject.Timer.CountdownTimerService$LocalBinder
+com.example.myfinalproject.Timer.Binder <|-- com.example.myfinalproject.Timer.CountdownTimerService$LocalBinder
+android.content.BroadcastReceiver <|-- com.example.myfinalproject.Event.EventReminderReceiver
+@enduml

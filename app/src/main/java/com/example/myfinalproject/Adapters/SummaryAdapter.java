@@ -16,7 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 
 import java.text.SimpleDateFormat;

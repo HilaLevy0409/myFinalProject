@@ -3,32 +3,25 @@ package com.example.myfinalproject.RegistrationFragment;
 import com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment;
 import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.R;
-import com.example.myfinalproject.Models.User;
-import com.example.myfinalproject.Database.UserDatabase;
+import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.Utils.Validator;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,8 +33,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import android.provider.MediaStore;
@@ -56,21 +47,13 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
-    final int REQUEST_CODE_GALLERY = 999;
 
-
-    private StorageReference mStorage;
+   private StorageReference mStorage;
 
     private Button btnUploadPhoto, btnN;
     private EditText etEmail, etUser, etPassword, etPassword2, etPhone, etDialogBirthday;
     private Uri imageUri;
     private RegisterUserPresenter presenter;
-
-    private static final int REQUEST_IMAGE_CAPTURE = 101;
-    private static final int REQUEST_GALLERY_PICK = 102;
-
-
-
 
     private ImageView imageViewProfile;
 
@@ -103,8 +86,166 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         etDialogBirthday.setOnClickListener(v -> openDialog());
 
 
+        etEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String emailInput = s.toString().trim();
+
+                String emailError = Validator.isValidEmail(emailInput);
+                if (!emailError.isEmpty()) {
+                    etEmail.setError(emailError);
+                } else {
+                    etEmail.setError(null);
+                    if (!emailInput.isEmpty()) {
+                        checkIfEmailExists(emailInput);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+
+        etUser.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String usernameInput = s.toString().trim();
+
+
+                String usernameError = Validator.isValidUsername(usernameInput);
+                if (!usernameError.isEmpty()) {
+                    etUser.setError(usernameError);
+                } else {
+                    etUser.setError(null);
+                    if (!usernameInput.isEmpty()) {
+                        checkIfUsernameExists(usernameInput);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+
+
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String password = s.toString().trim();
+                String validationResult = Validator.isValidPassword(password);
+                if (!validationResult.isEmpty()) {
+                    etPassword.setError(validationResult);
+                } else {
+                    etPassword.setError(null);
+                }
+
+
+                String confirmPassword = etPassword2.getText().toString().trim();
+                if (!confirmPassword.isEmpty() && !confirmPassword.equals(password)) {
+                    etPassword2.setError("הסיסמאות לא תואמות");
+                } else {
+                    etPassword2.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+
+        etPassword2.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String password = etPassword.getText().toString().trim();
+                String confirmPassword = s.toString().trim();
+
+                if (!confirmPassword.equals(password)) {
+                    etPassword2.setError("הסיסמאות לא תואמות");
+                } else {
+                    etPassword2.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+
+        etPhone.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String phone = s.toString().trim();
+                String validationResult = Validator.isValidPhone(phone);
+                if (!validationResult.isEmpty()) {
+                    etPhone.setError(validationResult);
+                } else {
+                    etPhone.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+
+
+
     }
 
+    private void checkIfEmailExists(String email) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("userEmail", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            etEmail.setError("האימייל הזה כבר בשימוש");
+                        } else {
+                            etEmail.setError(null);
+                        }
+                    } else {
+                        Log.d("Firestore", "שגיאה בבדיקה: ", task.getException());
+                    }
+                });
+    }
+
+    private void checkIfUsernameExists(String username) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("userName", username)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            etUser.setError("השם הזה כבר בשימוש");
+                        } else {
+                            etUser.setError(null);
+                        }
+                    } else {
+                        Log.d("Firestore", "שגיאה בבדיקת שם משתמש: ", task.getException());
+                    }
+                });
+    }
 
 
 
@@ -120,9 +261,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             String base64Image = imageViewToBase64(imageViewProfile);
 
 
-
-
-
             String validPassword = Validator.isValidPassword(password);
             String validEmail = Validator.isValidEmail(email);
             String validUsername = Validator.isValidUsername(username);
@@ -130,13 +268,28 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             String validBirthDate = Validator.isValidBirthDate(birthDate);
             String validImage = Validator.isValidImageProfile(base64Image);
 
+            if(!validImage.isEmpty()){
+                Toast.makeText(getContext(), validImage, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(!validUsername.isEmpty()){
+                Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if(!validEmail.isEmpty()){
                 Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(!validUsername.isEmpty()){
-                Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+
+            if(!validPhone.isEmpty()){
+                Toast.makeText(getContext(), validPhone, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(!validBirthDate.isEmpty()){
+                Toast.makeText(getContext(), validBirthDate, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -151,20 +304,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 return;
             }
 
-            if(!validPhone.isEmpty()){
-                Toast.makeText(getContext(), validPhone, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if(!validBirthDate.isEmpty()){
-                Toast.makeText(getContext(), validBirthDate, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if(!validImage.isEmpty()){
-                Toast.makeText(getContext(), validImage, Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             saveUserData(imageUri != null ? imageUri.toString() : "");
 
@@ -183,30 +322,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
 
 
-
-
-
     }
 
 
-
-
-
-    private void uploadImage() {
-        if (imageUri != null) {
-            StorageReference fileRef = mStorage.child(System.currentTimeMillis() + ".jpg");
-            fileRef.putFile(imageUri)
-                    .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                                String imageUrl = uri.toString();
-                                saveUserData(imageUrl);
-                            })
-                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to get image URL", Toast.LENGTH_SHORT).show()))
-                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show());
-        } else {
-            Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     private void saveUserData(String imageUrl) {
         String email = etEmail.getText().toString();
@@ -233,6 +351,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         editor.putString("phone", phone);
         editor.putString("birthDate", birthDate);
         editor.putString("imageProfile", base64Image);
+        editor.putString("pass", password);
         editor.putInt("badPoints", 0);
         editor.putInt("sumCount", 0);
         editor.apply();
@@ -375,7 +494,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         try {
             Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream); // 70 = איכות בינונית
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream.toByteArray();
             return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
         } catch (Exception e) {

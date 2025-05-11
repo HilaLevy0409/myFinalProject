@@ -1,6 +1,6 @@
 package com.example.myfinalproject.CallBacks;
 
-import com.example.myfinalproject.Models.Review;
+import com.example.myfinalproject.DataModels.Review;
 
 public interface ReviewCallback {
     void onDeleteReview(Review review, int position);

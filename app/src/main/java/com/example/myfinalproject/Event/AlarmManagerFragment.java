@@ -183,7 +183,6 @@ public class AlarmManagerFragment extends Fragment {
                 CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
         };
 
-        // Find the primary calendar
         String selection = CalendarContract.Calendars.VISIBLE + " = 1 AND " +
                 CalendarContract.Calendars.IS_PRIMARY + " = 1";
 
@@ -196,7 +195,6 @@ public class AlarmManagerFragment extends Fragment {
             Log.e(TAG, "Error getting calendar ID", e);
         }
 
-        // If primary not found, just get the first visible calendar
         selection = CalendarContract.Calendars.VISIBLE + " = 1";
         try (Cursor cursor = contentResolver.query(uri, projection, selection, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
@@ -207,12 +205,11 @@ public class AlarmManagerFragment extends Fragment {
             Log.e(TAG, "Error getting calendar ID", e);
         }
 
-        return 1; // Last resort - default to 1
+        return 1;
     }
 
     @SuppressLint("ScheduleExactAlarm")
     private void addEventToCalendar() {
-        // Add defensive null checks at the beginning
         if (getContext() == null) {
             Log.e(TAG, "Context is null in addEventToCalendar");
             return;
@@ -237,7 +234,6 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
-            // Log the event details for debugging
             Log.d(TAG, "Adding event: Title=" + title + ", Date=" + year + "-" + (month + 1) + "-" + day +
                     ", Time=" + hour + ":" + minute + ", Duration=" + durationHour + ":" + durationMinute);
 
@@ -252,7 +248,6 @@ public class AlarmManagerFragment extends Fragment {
             String timeZone = TimeZone.getDefault().getID();
             Log.d(TAG, "Using timezone: " + timeZone);
 
-            // Try to get a valid calendar ID before proceeding
             long calendarId = getDefaultCalendarId();
             if (calendarId == -1) {
                 Log.e(TAG, "Could not find a valid calendar ID");
@@ -270,9 +265,7 @@ public class AlarmManagerFragment extends Fragment {
             values.put(CalendarContract.Events.DTSTART, startTime.getTimeInMillis());
             values.put(CalendarContract.Events.DTEND, endTime.getTimeInMillis());
             values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone);
-            // Make sure this event allows reminders
             values.put(CalendarContract.Events.HAS_ALARM, 1);
-            // Add event status
             values.put(CalendarContract.Events.EVENT_LOCATION, "");
             values.put(CalendarContract.Events.STATUS, CalendarContract.Events.STATUS_CONFIRMED);
 
@@ -323,11 +316,9 @@ public class AlarmManagerFragment extends Fragment {
                 Log.d(TAG, "Using default reminder time (1 day before): " + reminderTime.getTime());
             }
 
-            // Make sure reminder is before the event
             if (reminderTime.getTimeInMillis() >= startTime.getTimeInMillis()) {
                 Log.e(TAG, "Reminder time is not before event time");
                 Toast.makeText(getContext(), "תזכורת חייבת להיות לפני האירוע", Toast.LENGTH_SHORT).show();
-                // Delete the event we just created
                 try {
                     cr.delete(eventUri, null, null);
                     Log.d(TAG, "Deleted invalid event");
@@ -337,12 +328,12 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
-            // Calculate minutes between reminder and event time
+
             long reminderMillis = startTime.getTimeInMillis() - reminderTime.getTimeInMillis();
             int reminderMinutes = (int) (reminderMillis / (60 * 1000));
             Log.d(TAG, "Reminder minutes before event: " + reminderMinutes);
 
-            // Add reminder to the event
+
             try {
                 ContentValues reminderValues = new ContentValues();
                 reminderValues.put(CalendarContract.Reminders.EVENT_ID, eventID);
@@ -361,7 +352,6 @@ public class AlarmManagerFragment extends Fragment {
                 Toast.makeText(getContext(), "האירוע נוצר אך יש שגיאה בהוספת תזכורת", Toast.LENGTH_SHORT).show();
             }
 
-            // Set up standalone alarm using AlarmManager as a backup
             Context context = getContext();
             if (context == null) {
                 Log.e(TAG, "Context is null when setting up alarm");

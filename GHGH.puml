@@ -1,0 +1,29 @@
+@startuml
+class com.example.myfinalproject.AdminFragment.AdminFragment {
+- Button btnSend
+- TextView tvNumUsers
++ {static} AdminFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void navigateToUserProfile(String)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment {
+- Button btnContinue
+- EditText etAdmin
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+}
+
+
+
+
+com.example.myfinalproject.AdminFragment.OnClickListener <|.. com.example.myfinalproject.AdminFragment.AdminFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.AdminFragment.AdminFragment
+com.example.myfinalproject.AdminLoginFragment.OnClickListener <|.. com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment
+@enduml

@@ -15,13 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.Message.MessageFragment;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -111,6 +108,38 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             tvBirthDate.setText("תאריך לידה: " + userBirthDate);
             tvBadPoints.setText("נקודות לרעה: " + badPoints);
             tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
+
+
+            btnDeleteUser.setOnClickListener(v -> {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("מחיקת משתמש")
+                        .setMessage("האם ברצונך למחוק את המשתמש? פעולה זו אינה הפיכה.")
+                        .setPositiveButton("כן", (dialog, which) -> {
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            db.collection("users")
+                                    .whereEqualTo("userEmail", userEmail)
+                                    .get()
+                                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                                            doc.getReference().delete()
+                                                    .addOnSuccessListener(aVoid -> {
+                                                        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                                        requireActivity().getSupportFragmentManager().popBackStack();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Toast.makeText(getContext(), "שגיאה במחיקה", Toast.LENGTH_SHORT).show();
+                                                    });
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getContext(), "שגיאה באיתור המשתמש", Toast.LENGTH_SHORT).show();
+                                    });
+                        })
+                        .setNegativeButton("לא", null)
+                        .setCancelable(false)
+                        .show();
+            });
+
         }
     }
 
@@ -123,9 +152,9 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 badPoints++;
                 updateBadPointsText();
                 updateBadPointsInDatabase();
-                if (badPoints == 3) {
-                    showPointsLimitDialog();
-                }
+//                if (badPoints == 3) {
+//                    showPointsLimitDialog();
+//                }
             }
         } else if (view.getId() == R.id.btnRemovePoint) {
             if (badPoints > 0) {
@@ -133,31 +162,24 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 updateBadPointsText();
             }
         } else if (view.getId() == R.id.btnShowSums) {
-
             SumByUserFragment sumByUserFragment = new SumByUserFragment();
             Bundle bundle = new Bundle();
             bundle.putString("userId", userId);
+
+            if (currentUser != null) {
+                bundle.putString("userName", currentUser.getUserName());
+            }
+
             sumByUserFragment.setArguments(bundle);
 
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new SumByUserFragment())
+                    .replace(R.id.flFragment, sumByUserFragment)
                     .addToBackStack(null)
                     .commit();
 
         } else if (view.getId() == R.id.btnSendMessage) {
-//            btnSendMessage.setOnClickListener(v -> {
-//                MessageFragment messageFragment = new MessageFragment();
-//                Bundle bundle = new Bundle();
-//                bundle.putString("userName", currentUser.getUserName());
-//                messageFragment.setArguments(bundle);
-//
-//                getActivity().getSupportFragmentManager()
-//                        .beginTransaction()
-//                        .replace(R.id.flFragment, new MessageFragment())
-//                        .addToBackStack(null)
-//                        .commit();
-//            });
+
 
             MessageFragment messageFragment = new MessageFragment();
             Bundle bundle = new Bundle();
@@ -174,19 +196,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .addToBackStack(null)
                     .commit();
 
-        } else if (view.getId() == R.id.btnDeleteUser) {
-            String userName = currentUser != null ? currentUser.getUserName() : "משתמש";
-
-            new AlertDialog.Builder(getContext())
-                    .setTitle("אישור מחיקה")
-                    .setMessage("האם ברצונך למחוק לצמיתות את המשתמש " + userName + "?")
-                    .setPositiveButton("כן", (dialog, which) -> {
-                        deleteUser();
-                    })
-                    .setNegativeButton("לא", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .show();
         }
     }
 
@@ -206,49 +215,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    private void showPointsLimitDialog() {
-        String userName = currentUser != null ? currentUser.getUserName() : "משתמש";
-
-        new AlertDialog.Builder(getContext())
-                .setTitle("התראת נקודות")
-                .setMessage("המשתמש " + userName + " הגיע ל-3 נקודות שליליות. האם למחוק את המשתמש?")
-                .setPositiveButton("כן", (dialog, which) -> {
-                    deleteUser();
-                })
-                .setNegativeButton("לא", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
-    }
-
-
-
-    private void deleteUser() {
-        if (currentUser != null && userId != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(userId)
-                    .delete()
-                    .addOnSuccessListener(aVoid -> {
-
-                        try {
-
-                            Toast.makeText(getContext(), "המשתמש " + currentUser.getUserName() + " נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-
-
-                            getActivity().getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .replace(R.id.flFragment, new AdminFragment())
-                                    .commit();
-                        } catch (Exception e) {
-                            Toast.makeText(getContext(), "שגיאה במחיקת המשתמש מהאימות: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "שגיאה במחיקת המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        }
-    }
-
 
 
     private void updateBadPointsText() {
@@ -257,12 +223,12 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     }
 
     private void loadProfilePicture(String profilePicData) {
-        // Set default image first as a fallback
+
         if (imgUserProfile != null) {
             imgUserProfile.setImageResource(R.drawable.newlogo);
         }
 
-        // Handle null or empty profile picture data
+
         if (profilePicData == null || profilePicData.isEmpty() || imgUserProfile == null) {
             Log.d("ImageDebug", "No profile picture data or imageView is null");
             return;
@@ -270,19 +236,19 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
         Log.d("ImageDebug", "Loading profile picture, data length: " + profilePicData.length());
 
-        // Try Base64 approach first
+
         if (profilePicData.contains(";base64,") || profilePicData.startsWith("/9j/") ||
                 profilePicData.startsWith("iVBOR")) {
 
             try {
-                // Extract base64 part if format is "data:image/jpeg;base64,..."
+
                 String cleanBase64 = profilePicData;
                 if (profilePicData.contains(",")) {
                     cleanBase64 = profilePicData.split(",")[1];
                     Log.d("ImageDebug", "Extracted base64 part after comma");
                 }
 
-                // Add padding if needed
+
                 while (cleanBase64.length() % 4 != 0) {
                     cleanBase64 += "=";
                 }
@@ -315,11 +281,10 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             }
         }
 
-        // Try as a URL/URI if it starts with http/https
+
         if (profilePicData.startsWith("http")) {
             try {
-                // For URL loading, use a library like Glide or Picasso instead
-                // This is just a placeholder example using standard Android
+
                 new Thread(() -> {
                     try {
                         java.net.URL url = new java.net.URL(profilePicData);
@@ -344,7 +309,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             }
         }
 
-        // Try as a local URI
+
         try {
             android.net.Uri imageUri = android.net.Uri.parse(profilePicData);
             android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(
@@ -357,89 +322,40 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             Log.e("ImageDebug", "URI loading failed: " + e.getMessage());
         }
 
-        // If we reach here, all methods failed
         Log.d("ImageDebug", "All image loading methods failed, using default image");
     }
 
 
-    private void loadUserByUsername(String username) {
-        if (username == null || username.isEmpty()) {
-            Toast.makeText(getContext(), "שם משתמש לא תקין", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
+    private void loadUserByUsername(String username) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .whereEqualTo("userName", username)
-                .limit(1)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                    if (!queryDocumentSnapshots.isEmpty()) {
                         DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-
-                        try {
-                            currentUser = document.toObject(User.class);
-                        } catch (Exception e) {
-                            Toast.makeText(getContext(), "שגיאה בהמרת נתוני המשתמש", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
+                        currentUser = document.toObject(User.class);
+                        userId = document.getId();
                         if (currentUser != null) {
-                            userId = document.getId(); // חשוב מאוד
-
-                            // ✅ טעינת התמונה מתוך השדה imageProfile של המשתמש
-                            String profilePicData = currentUser.getImageProfile();
-                            loadProfilePicture(profilePicData);
-
-                            // הצגת שאר הנתונים
                             tvUsername.setText("שם משתמש: " + currentUser.getUserName());
                             tvEmail.setText("אימייל: " + currentUser.getUserEmail());
-                            tvPhone.setText("מספר טלפון: " + (currentUser.getPhone() != null ? currentUser.getPhone() : "לא זמין"));
-                            tvBirthDate.setText("תאריך לידה: " + (currentUser.getUserBirthDate() != null ? currentUser.getUserBirthDate() : "לא זמין"));
-
-                            try {
-                                badPoints = currentUser.getBadPoints();
-                            } catch (Exception e) {
-                                badPoints = 0;
-                            }
-                            updateBadPointsText();
-
-                            db.collection("summaries")
-                                    .whereEqualTo("userId", userId)
-                                    .get()
-                                    .addOnSuccessListener(summariesSnapshot -> {
-                                        int sumCount = summariesSnapshot.size();
-                                        tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        tvSumNum.setText("מספר סיכומים שנכתבו: לא זמין");
-                                    });
-                        } else {
-                            showUserNotFoundUI(username);
+                            tvPhone.setText("מספר טלפון: " + currentUser.getPhone());
+                            tvBirthDate.setText("תאריך לידה: " + currentUser.getUserBirthDate());
+                            tvBadPoints.setText("נקודות לרעה: " + currentUser.getBadPoints());
+                            badPoints = currentUser.getBadPoints();
+                            loadProfilePicture(currentUser.getImageProfile());
                         }
                     } else {
-                        showUserNotFoundUI(username);
+                        Toast.makeText(getContext(), "משתמש לא נמצא", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בטעינת פרטי המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    showUserNotFoundUI(username);
+                    Toast.makeText(getContext(), "שגיאה בטעינת המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
 
-    private void showUserNotFoundUI(String username) {
-        Toast.makeText(getContext(), "לא נמצא משתמש בשם " + username, Toast.LENGTH_SHORT).show();
-        tvUsername.setText("שם משתמש: " + username + " (לא נמצא)");
-        tvEmail.setText("אימייל: לא זמין");
-        tvPhone.setText("מספר טלפון: לא זמין");
-        tvBirthDate.setText("תאריך לידה: לא זמין");
-        tvBadPoints.setText("נקודות לרעה: ");
-        tvSumNum.setText("מספר סיכומים שנכתבו: ");
 
-        currentUser = null;
-        userId = null;
-        badPoints = 0;
-    }
 
 }

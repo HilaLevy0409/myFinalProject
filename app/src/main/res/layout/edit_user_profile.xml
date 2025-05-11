@@ -35,7 +35,7 @@
             android:layout_marginBottom="8dp">
 
             <ImageView
-                android:id="@+id/imageViewProfile"
+                android:id="@+id/imageViewProfileEdit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -82,8 +82,6 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
                />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -107,8 +105,6 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -133,8 +129,6 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
                />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -160,8 +154,6 @@
                 android:clickable="true"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 

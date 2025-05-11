@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myfinalproject.Models.NotificationAdmin;
+import com.example.myfinalproject.DataModels.NotificationAdmin;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.Timestamp;
@@ -108,7 +108,9 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
             } else {
                 tvType.setText("הודעה");
                 tvType.setTextColor(itemView.getContext().getResources().getColor(R.color.orange));
-                tvReason.setVisibility(View.GONE);
+//                tvReason.setVisibility(View.GONE);
+                tvReason.setVisibility(View.VISIBLE);
+                tvReason.setText("סיבה: " + notification.getContactReason());
             }
 
 

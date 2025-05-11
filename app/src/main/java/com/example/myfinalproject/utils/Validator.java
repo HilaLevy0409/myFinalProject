@@ -39,18 +39,17 @@ public class Validator {
     }
 
     public static String isValidEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return "נא להזין אימייל";
+        }
+
         if (!email.contains("@")) {
             return "אימייל חייב לכלול את התו '@'";
         }
         return "";
     }
 
-//    public static String isValidPhone(String phone) {
-//        if (phone == null) {
-//            return "נא להזין מספר טלפון";
-//        }
-//        return "";
-//    }
+
 
     public static String isValidPhone(String phone) {
         if (phone == null || phone.trim().isEmpty()) {
@@ -59,6 +58,9 @@ public class Validator {
 
         if (!phone.startsWith("05")) {
             return "מספר טלפון חייב להתחיל ב-05";
+        }
+        if (phone.length() < 10) {
+            return "מספר טלפון חייב להכיל 10 ספרות";
         }
 
         return "";

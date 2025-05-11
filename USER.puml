@@ -1,0 +1,58 @@
+@startuml
+class com.example.myfinalproject.ManageUserFragment.ManageUserFragment {
+- int badPoints
+- TextView tvBadPoints
+- Button btnAddPoint
+- User currentUser
+- String userId
+- ImageView imgUserProfile
++ {static} ManageUserFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void updateBadPointsInDatabase()
+- void updateBadPointsText()
+- void loadProfilePicture(String)
+- void loadUserByUsername(String)
+}
+
+
+class com.example.myfinalproject.UserProfileFragment.UserProfileFragment {
+- TextView tvEmail
+- Button btnShowSummaries
+- ImageView imageView
+- UserProfilePresenter presenter
+- EditText etEmail
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- User currentUser
+- ImageView currentDialogImageView
+- EditText currentDialogBirthDateEditText
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void createCustomDialog()
+- String imageViewToBase64(ImageView)
++ void displayUserData(User)
++ void onClick(View)
++ void submitClicked(User)
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
++ void showError(String)
++ void onLogOutSuccess()
++ void onDeleteSuccess()
++ void openDialog()
++ void onResume()
+}
+
+
+
+
+com.example.myfinalproject.ManageUserFragment.OnClickListener <|.. com.example.myfinalproject.ManageUserFragment.ManageUserFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ManageUserFragment.ManageUserFragment
+com.example.myfinalproject.UserProfileFragment.OnClickListener <|.. com.example.myfinalproject.UserProfileFragment.UserProfileFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.UserProfileFragment.UserProfileFragment
+@enduml

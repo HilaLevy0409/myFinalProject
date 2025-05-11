@@ -1,0 +1,138 @@
+@startuml
+class com.example.myfinalproject.DataModels.Profession {
+- String name
+- String category
++ String getCategory()
++ void setCategory(String)
++ String getName()
++ void setName(String)
+}
+
+
+class com.example.myfinalproject.DataModels.User {
+- String userName
+- String userPass
+- String userEmail
+- String phone
+- String imageProfile
+- String id
+- String userBirthDate
+- int badPoints
+- int sumCount
++ String getUserBirthDate()
++ void setUserBirthDate(String)
++ String getId()
++ void setId(String)
++ String getImageProfile()
++ void setImageProfile(String)
++ String getUserEmail()
++ void setUserEmail(String)
++ String getUserName()
++ void setUserName(String)
++ String getUserPass()
++ void setUserPass(String)
++ String getPhone()
++ void setPhone(String)
++ int getBadPoints()
++ void setBadPoints(int)
++ int getSumCount()
++ void setSumCount(int)
++ String toString()
+}
+
+
+class com.example.myfinalproject.DataModels.Summary {
+- String summaryId
+- String classOption
+- String profession
+- String summaryTitle
+- String summaryContent
+- String image
+- Date createdDate
+- float rating
+- String userName
+- String userId
++ Date getCreatedDate()
++ void setCreatedDate(Date)
++ String getUserId()
++ void setUserId(String)
++ String getUserName()
++ void setUserName(String)
++ float getRating()
++ void setRating(float)
++ String getImage()
++ void setImage(String)
++ String getSummaryId()
++ void setSummaryId(String)
++ String getClassOption()
++ void setClassOption(String)
++ String getProfession()
++ void setProfession(String)
++ String getSummaryTitle()
++ void setSummaryTitle(String)
++ String getSummaryContent()
++ void setSummaryContent(String)
+}
+
+
+class com.example.myfinalproject.DataModels.Review {
+- String reviewId
+- String userId
+- String userName
+- String summaryId
+- String reviewText
+- float rating
+- Date createdAt
++ String getReviewId()
++ void setReviewId(String)
++ String getUserId()
++ void setUserId(String)
++ String getUserName()
++ void setUserName(String)
++ String getSummaryId()
++ void setSummaryId(String)
++ String getReviewText()
++ void setReviewText(String)
++ float getRating()
++ void setRating(float)
++ Date getCreatedAt()
++ void setCreatedAt(Date)
+}
+
+
+class com.example.myfinalproject.DataModels.NotificationAdmin {
+- String id
+- String userId
+- String userName
+- String reportedUserId
+- String reportedUserName
+- String content
+- String type
+- String reportReason
+- String contactReason
+- Timestamp timestamp
++ void setReportedUserInfo(String,String)
++ String getReportedUserId()
++ void setReportedUserId(String)
++ String getReportedUserName()
++ void setReportedUserName(String)
++ String getContactReason()
++ void setContactReason(String)
++ String getId()
++ void setId(String)
++ String getUserId()
++ void setUserId(String)
++ String getUserName()
++ void setUserName(String)
++ String getContent()
++ void setContent(String)
++ String getType()
++ void setType(String)
++ String getReportReason()
++ void setReportReason(String)
++ Timestamp getTimestamp()
++ void setTimestamp(Timestamp)
+}
+
+
+@enduml

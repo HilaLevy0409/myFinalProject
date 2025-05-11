@@ -1,0 +1,47 @@
+@startuml
+class com.example.myfinalproject.UserProfileFragment.UserProfilePresenter {
+- UserProfileFragment view
+- UserRepository database
++ void loadUserData()
++ void logOut()
++ void deleteUser()
++ void submitClicked(User)
+}
+
+
+class com.example.myfinalproject.UserProfileFragment.UserProfileFragment {
+- TextView tvEmail
+- Button btnShowSummaries
+- ImageView imageView
+- UserProfilePresenter presenter
+- EditText etEmail
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- User currentUser
+- ImageView currentDialogImageView
+- EditText currentDialogBirthDateEditText
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void createCustomDialog()
+- String imageViewToBase64(ImageView)
++ void displayUserData(User)
++ void onClick(View)
++ void submitClicked(User)
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
++ void showError(String)
++ void onLogOutSuccess()
++ void onDeleteSuccess()
++ void openDialog()
++ void onResume()
+}
+
+
+
+
+com.example.myfinalproject.UserProfileFragment.OnClickListener <|.. com.example.myfinalproject.UserProfileFragment.UserProfileFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.UserProfileFragment.UserProfileFragment
+@enduml

@@ -1,8 +1,11 @@
 package com.example.myfinalproject.UserProfileFragment;
 
+import static com.google.firebase.appcheck.internal.util.Logger.TAG;
+
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +23,8 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,41 +37,42 @@ import android.widget.Toast;
 
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.example.myfinalproject.Message.ChooseMessageFragment;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import com.example.myfinalproject.MainActivity;
+import com.example.myfinalproject.Utils.Validator;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserProfileFragment extends Fragment implements View.OnClickListener {
     private TextView tvEmail, tvPhoneNumber, tvBirthDate, tvUsername, tvBadPoints, tvSumNum;
     private Button btnShowSummaries, btnDeleteUser, btnLogOut, btnEdit, btnFinish, btnUploadPhoto, btnSaveSummary, btnSendMessage;
-    private ImageView imageView, imageViewProfile;
+    private ImageView imageView, imageViewProfileEdit;
     private UserProfilePresenter presenter;
     private EditText etEmail, etPhoneNumber, etUsername, etBirthDate;
 
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
-    final int REQUEST_CODE_GALLERY = 999;
     private User currentUser;
 
-
-    private static final int REQUEST_IMAGE_CAPTURE = 101;
-    private static final int REQUEST_GALLERY_PICK = 102;
-
-    private static final String AUTHORITY = "com.example.firestorepicapplication.fileprovider";
 
     private ImageView currentDialogImageView;
 
     private EditText currentDialogBirthDateEditText;
+
 
 
 
@@ -76,14 +82,14 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         return inflater.inflate(R.layout.fragment_user_profile, container, false);
     }
 
+
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         presenter = new UserProfilePresenter(this);
         presenter.loadUserData();
-
-
-        presenter = new UserProfilePresenter(this);
 
 
         tvEmail = view.findViewById(R.id.tvEmail);
@@ -92,6 +98,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         tvBirthDate = view.findViewById(R.id.tvBirthDate);
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
         tvSumNum = view.findViewById(R.id.tvSumNum);
+
 
         btnShowSummaries = view.findViewById(R.id.btnShowSummaries);
         btnDeleteUser = view.findViewById(R.id.btnDeleteUser);
@@ -102,7 +109,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         etEmail = view.findViewById(R.id.etEmail);
         etPhoneNumber = view.findViewById(R.id.etPhoneNumber);
         etUsername = view.findViewById(R.id.etUsername);
-        imageViewProfile = view.findViewById(R.id.imageViewProfile);
+        imageViewProfileEdit = view.findViewById(R.id.imageViewProfileEdit);
         btnFinish = view.findViewById(R.id.btnFinish);
 
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
@@ -117,7 +124,17 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
         btnSaveSummary.setOnClickListener(this);
         btnSendMessage.setOnClickListener(this);
+
+
+
     }
+
+
+
+
+
+
+
 
 
     private void createCustomDialog() {
@@ -130,7 +147,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         EditText etEditUsername = dialog.findViewById(R.id.etUsername);
         Button btnFinishDialog = dialog.findViewById(R.id.btnFinish);
         EditText etBirthDate = dialog.findViewById(R.id.etBirthDate);
-        ImageView dialogImageView = dialog.findViewById(R.id.imageViewProfile);
+        ImageView dialogImageView = dialog.findViewById(R.id.imageViewProfileEdit);
         Button btnUploadPhoto = dialog.findViewById(R.id.btnUploadPhoto);
 
         if (currentUser != null) {
@@ -159,13 +176,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
         if (btnUploadPhoto != null) {
             btnUploadPhoto.setOnClickListener(v -> {
-                currentDialogImageView = dialogImageView; // Store reference to dialog's ImageView
+                currentDialogImageView = dialogImageView;
                 showPictureDialog();
             });
         }
 
         etBirthDate.setOnClickListener(v -> {
-            currentDialogBirthDateEditText = etBirthDate; // Store reference
+            currentDialogBirthDateEditText = etBirthDate;
             openDialog();
         });
 
@@ -178,39 +195,104 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 String newBirthDate = etBirthDate.getText().toString();
 
 
-                if(newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty() || newBirthDate.isEmpty()) {
+                if (newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty() || newBirthDate.isEmpty()) {
                     showError("יש למלא את כל השדות!");
                     return;
                 }
 
-                User updatedUser = new User();
-                updatedUser.setId(currentUser != null ? currentUser.getId() : "");
-                updatedUser.setUserEmail(newEmail);
-                updatedUser.setPhone(newPhone);
-                updatedUser.setUserName(newUsername);
-                updatedUser.setUserBirthDate(newBirthDate);
+                String validEmail = Validator.isValidEmail(newEmail);
+                String validUsername = Validator.isValidUsername(newUsername);
+                String validPhone = Validator.isValidPhone(newPhone);
 
-                if (imageViewProfile != null && imageViewProfile.getDrawable() != null) {
-                    String base64Image = imageViewToBase64(imageViewProfile);
-                    if (base64Image != null) {
-                        updatedUser.setImageProfile(base64Image);
-                    }
-                } else if (currentUser != null) {
-                    updatedUser.setImageProfile(currentUser.getImageProfile());
+                if (!validEmail.isEmpty()) {
+                    Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!validUsername.isEmpty()) {
+                    Toast.makeText(getContext(), validUsername, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!validPhone.isEmpty()) {
+                    Toast.makeText(getContext(), validPhone, Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
-                if (currentUser != null) {
-                    updatedUser.setBadPoints(currentUser.getBadPoints());
-                    updatedUser.setSumCount(currentUser.getSumCount());
-                }
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                presenter.submitClicked(updatedUser);
-                dialog.dismiss();
+                db.collection("users")
+                        .whereEqualTo("userEmail", newEmail)
+                        .get()
+                        .addOnCompleteListener(emailTask -> {
+                            if (emailTask.isSuccessful()) {
+                                boolean emailExists = !emailTask.getResult().isEmpty() &&
+                                        (currentUser == null || !newEmail.equals(currentUser.getUserEmail()));
+                                if (emailExists) {
+                                    etEditEmail.setError("האימייל הזה כבר בשימוש");
+                                    return;
+                                }
+
+                                db.collection("users")
+                                        .whereEqualTo("userName", newUsername)
+                                        .get()
+                                        .addOnCompleteListener(usernameTask -> {
+                                            if (usernameTask.isSuccessful()) {
+                                                boolean usernameExists = !usernameTask.getResult().isEmpty() &&
+                                                        (currentUser == null || !newUsername.equals(currentUser.getUserName()));
+                                                if (usernameExists) {
+                                                    etEditUsername.setError("השם הזה כבר בשימוש");
+                                                    return;
+                                                }
+
+
+                                                User updatedUser = new User();
+                                                updatedUser.setId(currentUser != null ? currentUser.getId() : "");
+                                                updatedUser.setUserEmail(newEmail);
+                                                updatedUser.setPhone(newPhone);
+                                                updatedUser.setUserName(newUsername);
+                                                updatedUser.setUserBirthDate(newBirthDate);
+
+                                                if (currentUser != null) {
+                                                    updatedUser.setUserPass(currentUser.getUserPass());
+                                                    updatedUser.setBadPoints(currentUser.getBadPoints());
+                                                    updatedUser.setSumCount(currentUser.getSumCount());
+                                                }
+
+                                                if (currentDialogImageView != null && currentDialogImageView.getDrawable() != null) {
+                                                    String base64Image = imageViewToBase64(currentDialogImageView);
+                                                    if (base64Image != null) {
+                                                        updatedUser.setImageProfile(base64Image);
+                                                    }
+                                                } else if (currentUser != null) {
+                                                    updatedUser.setImageProfile(currentUser.getImageProfile());
+                                                }
+
+                                                if (currentUser != null) {
+                                                    updatedUser.setBadPoints(currentUser.getBadPoints());
+                                                    updatedUser.setSumCount(currentUser.getSumCount());
+                                                }
+
+                                                presenter.submitClicked(updatedUser);
+                                                dialog.dismiss();
+
+
+
+                                            } else {
+                                                Log.d("Firestore", "שגיאה בבדיקת שם משתמש: ", usernameTask.getException());
+                                            }
+                                        });
+
+                            } else {
+                                Log.d("Firestore", "שגיאה בבדיקת אימייל: ", emailTask.getException());
+                            }
+                        });
             }
         });
 
         dialog.show();
     }
+
+
+
 
     private String imageViewToBase64(ImageView imageView) {
         Drawable drawable = imageView.getDrawable();
@@ -225,34 +307,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
     }
 
-
-
-//    private void saveUserData() {
-//        String newEmail = etEmail.getText().toString().trim();
-//        String newPhone = etPhoneNumber.getText().toString().trim();
-//        String newUsername = etUsername.getText().toString().trim();
-//
-//        if (newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty()) {
-//            showError("יש למלא את כל השדות!");
-//            return;
-//        }
-//
-//        User updatedUser = new User();
-//        updatedUser.setUserEmail(newEmail);
-//        updatedUser.setPhone(newPhone);
-//        updatedUser.setUserName(newUsername);
-//
-//        presenter.updateUserData(updatedUser);
-//    }
-//
-//    public void onUpdateSuccess() {
-//        Toast.makeText(getContext(), "פרטים עודכנו בהצלחה!", Toast.LENGTH_SHORT).show();
-//        presenter.loadUserData(); // טען מחדש את הנתונים
-//    }
-//
-//    public void onUpdateError(String errorMessage) {
-//        showError(errorMessage);
-//    }
 
 
     public void displayUserData(User user) {
@@ -302,22 +356,28 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     .replace(R.id.flFragment, new SumByUserFragment())
                     .addToBackStack(null)
                     .commit();
-        } else if (view == btnDeleteUser) {
-                new AlertDialog.Builder(getContext())
-                        .setTitle("מחיקת משתמש")
-                        .setMessage("האם ברצונך למחוק את המשתמש? פעולה זו אינה הפיכה.")
-                        .setPositiveButton("כן", (dialog, which) -> {
-                            presenter.deleteUser();
+        }else if (view == btnDeleteUser) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("מחיקת משתמש")
+                    .setMessage("האם ברצונך למחוק את המשתמש? פעולה זו אינה הפיכה.")
+                    .setPositiveButton("כן", (dialog, which) -> {
+                        presenter.deleteUser();
 
-                            getActivity().getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .replace(R.id.flFragment, new RegistrationFragment())
-                                    .commit();
-                        })
-                        .setNegativeButton("לא", null)
-                        .setCancelable(false)
-                        .show();
-        } else if (view == btnLogOut) {
+                        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.clear();
+                        editor.apply();
+
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).updateNavigationHeader();
+                        }
+
+                    })
+                    .setNegativeButton("לא", null)
+                    .setCancelable(false)
+                    .show();
+        }
+        else if (view == btnLogOut) {
             new AlertDialog.Builder(getContext())
                     .setTitle("התנתקות")
                     .setMessage("האם ברצונך להתנתק?")
@@ -387,7 +447,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-
         startActivityForResult(galleryIntent, GALLERY);
     }
 
@@ -430,7 +489,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
         }
 
-        // Clear the reference
         currentDialogImageView = null;
 
         imageView = null;
@@ -445,7 +503,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         if (!wallpaperDirectory.exists()) {
             wallpaperDirectory.mkdirs();
         }
-
 
         try {
             File f = new File(wallpaperDirectory, Calendar.getInstance()
@@ -467,20 +524,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         return "";
     }
 
-
-
-
-    private byte[] imageViewToByte(ImageView image) {
-        Bitmap bitmap=((BitmapDrawable)image.getDrawable()).getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 0, stream);
-        byte[]byteArray=stream.toByteArray();
-        return byteArray;
-    }
-
-
-
-
     public void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
@@ -501,10 +544,12 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
     public void onDeleteSuccess() {
         Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-        onLogOutSuccess();
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, new RegistrationFragment())
+                .commit();
     }
-
-
 
     public void openDialog() {
         final Calendar calendar = Calendar.getInstance();
@@ -516,7 +561,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 (view, year1, month1, dayOfMonth) -> {
                     String date = String.format("%02d/%02d/%04d", dayOfMonth, (month1 + 1), year1);
 
-                    // Check if we're updating the dialog's EditText or the main fragment's EditText
                     if (currentDialogBirthDateEditText != null) {
                         currentDialogBirthDateEditText.setText(date);
                     } else if (etBirthDate != null) {
@@ -529,18 +573,11 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         datePickerDialog.show();
     }
 
-//    public void showSuccessMessage(String message) {
-//        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-//    }
-
     @Override
     public void onResume() {
         super.onResume();
-        // Reload user data to reflect any changes (like updated summary count)
         if (presenter != null) {
             presenter.loadUserData();
         }
     }
-
-
 }

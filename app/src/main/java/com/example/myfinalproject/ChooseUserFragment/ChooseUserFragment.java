@@ -18,10 +18,9 @@ import android.widget.Toast;
 
 import com.example.myfinalproject.Adapters.UserAdapter;
 import com.example.myfinalproject.CallBacks.OnUserClickListener;
-import com.example.myfinalproject.CallBacks.UsersCallback;
 
 import com.example.myfinalproject.Message.MessageFragment;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.ReportFragment.ReportFragment;
 import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
@@ -41,6 +40,8 @@ public class ChooseUserFragment extends Fragment {
     private SearchView searchView;
     private ArrayList<User> fullUserList = new ArrayList<>();
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +52,7 @@ public class ChooseUserFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_user, container, false);
-        loadUsers();
+        presenter.loadUsers();
         return view;
     }
 
@@ -91,7 +92,7 @@ public class ChooseUserFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterUsersByName(newText);
+                presenter.filterUsersByName(newText);
                 return true;
             }
         });
@@ -142,49 +143,25 @@ public class ChooseUserFragment extends Fragment {
                 .commit();
     }
 
-    private void filterUsersByName(String query) {
+
+
+    public void onUsersLoaded(List<User> users) {
         userList.clear();
-        if (query.isEmpty()) {
-            userList.addAll(fullUserList);
-        } else {
-            String lowerCaseQuery = query.toLowerCase().trim();
-            for (User user : fullUserList) {
-                if (user.getUserName().toLowerCase().contains(lowerCaseQuery)) {
-                    userList.add(user);
-                }
-            }
-        }
+        fullUserList.clear();
+        fullUserList.addAll(users);
+        userList.addAll(users);
         userAdapter.notifyDataSetChanged();
     }
 
-    private void loadUsers() {
-        presenter.loadUsers(new UsersCallback() {
-            @Override
-            public void onSuccess(List<User> users) {
-                if (getActivity() == null) return;
-
-                getActivity().runOnUiThread(() -> {
-                    userList.clear();
-                    fullUserList.clear();
-                    fullUserList.addAll(users);
-                    userList.addAll(users);
-                    userAdapter.notifyDataSetChanged();
-                });
-            }
-
-
-            @Override
-            public void onError(String message) {
-                if (getActivity() == null) return;
-
-                getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "שגיאה בטעינת משתמשים:  " + message,
-                                Toast.LENGTH_SHORT).show()
-                );
-            }
-        });
+    public void onUsersLoadError(String message) {
+        Toast.makeText(getContext(), "שגיאה בטעינת משתמשים: " + message, Toast.LENGTH_SHORT).show();
     }
 
+    public void onUsersFiltered(List<User> filteredUsers) {
+        userList.clear();
+        userList.addAll(filteredUsers);
+        userAdapter.notifyDataSetChanged();
+    }
 
 
     public ChooseUserFragment() {

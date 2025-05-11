@@ -1,6 +1,6 @@
 package com.example.myfinalproject.Message;
 
-import com.example.myfinalproject.Models.Message;
+import com.example.myfinalproject.DataModels.Message;
 
 import java.util.List;
 

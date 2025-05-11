@@ -35,6 +35,7 @@ public class CountdownTimerService extends Service {
 
     public class LocalBinder extends Binder {
         public CountdownTimerService getService() {
+
             return CountdownTimerService.this;
         }
     }
@@ -80,7 +81,6 @@ public class CountdownTimerService extends Service {
         isTimerRunning = true;
         this.notificationMinutes = notificationMinutes;
 
-        // Send notification when timer starts
         if (notificationsEnabled) {
             sendStartNotification(millisInFuture);
         }
@@ -90,12 +90,10 @@ public class CountdownTimerService extends Service {
             public void onTick(long millisUntilFinished) {
                 timeRemaining = millisUntilFinished;
 
-                // Update UI callback
                 if (timerUpdateCallback != null) {
                     timerUpdateCallback.onTimerUpdate(millisUntilFinished);
                 }
 
-                // Send notification when reaching the specified minutes before end
                 if (notificationsEnabled && !notificationSent && notificationMinutes > 0) {
                     if (millisUntilFinished <= notificationMinutes * 60 * 1000 &&
                             millisUntilFinished > (notificationMinutes * 60 * 1000 - 1000)) {
@@ -110,12 +108,10 @@ public class CountdownTimerService extends Service {
                 timeRemaining = 0;
                 isTimerRunning = false;
 
-                // Update UI callback
                 if (timerUpdateCallback != null) {
                     timerUpdateCallback.onTimerFinish();
                 }
 
-                // Send notification when timer ends
                 if (notificationsEnabled) {
                     sendFinishNotification();
                 }
@@ -133,7 +129,6 @@ public class CountdownTimerService extends Service {
             countDownTimer.cancel();
             isTimerRunning = false;
 
-            // Update the foreground notification to show paused state
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.notify(NOTIFICATION_ID, createForegroundNotification("טיימר מושהה"));
         }
@@ -161,9 +156,6 @@ public class CountdownTimerService extends Service {
         this.notificationsEnabled = enabled;
     }
 
-    public boolean areNotificationsEnabled() {
-        return notificationsEnabled;
-    }
 
     public void setTimerUpdateCallback(TimeCallback callback) {
         this.timerUpdateCallback = callback;

@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myfinalproject.Models.Profession;
+import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
 

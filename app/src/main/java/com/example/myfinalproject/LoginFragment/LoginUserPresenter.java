@@ -1,35 +1,33 @@
 package com.example.myfinalproject.LoginFragment;
 
+import com.example.myfinalproject.CallBacks.LoginCallback;
 import com.example.myfinalproject.CallBacks.UserCallback;
-import com.example.myfinalproject.Database.UserDatabase;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.Repositories.UserRepository;
+import com.example.myfinalproject.DataModels.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginUserPresenter {
 
-    private final LoginView view;
-    private final UserDatabase userDb;
+    private final LoginCallback view;
+    private final UserRepository userDb;
 
-    public LoginUserPresenter(LoginView view) {
+    public LoginUserPresenter(LoginCallback view) {
         this.view = view;
-        this.userDb = new UserDatabase();
+        this.userDb = new UserRepository();
     }
 
     public void loginUser(String username, String password) {
         userDb.getUser(username, new UserCallback() {
             @Override
             public void onUserReceived(User user) {
-                // Get the email from the user object
+
                 String email = user.getUserEmail();
 
-                // Check if the password is the placeholder from a reset
                 if (user.getUserPass().equals("RESET_WITH_FIREBASE_AUTH")) {
-                    // This user reset their password via email, authenticate directly with Firebase
                     FirebaseAuth auth = FirebaseAuth.getInstance();
                     auth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    // Update the password in Firestore
                                     user.setUserPass(password);
                                     userDb.updateUser(user, new UserCallback() {
                                         @Override
@@ -47,7 +45,6 @@ public class LoginUserPresenter {
                                 }
                             });
                 } else {
-                    // Normal login flow
                     if (user.getUserPass().equals(password)) {
                         view.showLoginSuccess(user);
                     } else {

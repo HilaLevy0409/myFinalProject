@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_edit"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="ערוך"
+            android:contentDescription="עריכה"
             android:tint="@android:color/holo_blue_dark"
             android:visibility="gone" />
 

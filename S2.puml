@@ -1,0 +1,129 @@
+@startuml
+class com.example.myfinalproject.WritingSumFragment.WritingSumFragment {
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- Button btnUploadPhoto
+- SummaryPresenter summaryPresenter
+- EditText etSummaryTitle
+- ImageView imageViewSummary
+- MaterialCardView writeSummaryCard
+- String selectedClass
+- Summary summary
+- boolean isWriteMode
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showWriteMode()
+- void showUploadMode()
++ void onClick(View)
+- boolean validateInputs()
+- void saveSummaryData()
+- String bitmapToBase64(Bitmap)
+- void showToast(String)
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
+- void createCustomDialog()
+}
+
+
+class com.example.myfinalproject.SumFragment.SumFragment {
+- {static} String TAG
+- Button btnReport
+- RatingBar ratingBarSum
+- TextView tvText
+- ImageView sumImage
+- FirebaseFirestore db
+- FirebaseAuth mAuth
+- String summaryId
+- boolean isFavorite
+- TextToSpeech textToSpeech
+- boolean isSpeaking
+- SeekBar seekBarSpeed
+- float speechRate
+- FloatingActionButton fabExport
+- ImageButton ImgBtnDeleteSum
+- boolean isAuthor
++ {static} SumFragment newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void initTextToSpeech()
+- void speedControl()
+- void speakText()
+- void resetSpeech()
+- void updateButtons()
+- void loadSummaryData()
+- void displaySummaryData(DocumentSnapshot)
+- void deleteSummary()
+- void checkIfFavorite()
+- void updateFavoriteButton()
+- void toggleFavorite()
++ void onClick(View)
++ void onDestroy()
+- void shareSummary(String)
+}
+
+
+class com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask {
+~ ImageView imageView
+# Bitmap doInBackground(String)
+# void onPostExecute(Bitmap)
+}
+
+
+class com.example.myfinalproject.WritingSumFragment.SummaryPresenter {
+- WritingSumFragment view
+- SummaryRepository summaryDb
+~ Summary summary
++ void submitSummaryClicked(Summary)
+}
+
+
+class com.example.myfinalproject.SumReviewFragment.SumReviewFragment {
+- {static} String TAG
+- RecyclerView rvReviews
+- ReviewAdapter reviewAdapter
+- List<Review> reviewList
+- TextView tvReviewsCount
+- EditText etReviewText
+- RatingBar ratingBar
+- Button btnSubmitReview
+- String summaryId
+- float initialRating
+- FirebaseFirestore db
+- FirebaseAuth mAuth
+- boolean hasReviewed
+- ListenerRegistration reviewsListener
++ {static} SumReviewFragment newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onResume()
++ void onPause()
+- void fetchCurrentUserName()
+- void processReviewsSnapshot(QuerySnapshot)
+- void checkIfUserReviewed()
+- void enableReviewForm()
+- void disableReviewForm()
+- void submitReview()
+- void updateAverageRating()
++ void onDeleteReview(Review,int)
++ void onEditReview(Review,int)
++ void onSaveChanges(Review,int,String,float)
++ float calculateAverageRating()
+}
+
+
+
+
+com.example.myfinalproject.WritingSumFragment.OnClickListener <|.. com.example.myfinalproject.WritingSumFragment.WritingSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.WritingSumFragment.WritingSumFragment
+com.example.myfinalproject.SumFragment.OnClickListener <|.. com.example.myfinalproject.SumFragment.SumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SumFragment.SumFragment
+com.example.myfinalproject.SumFragment.SumFragment +.. com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask
+com.example.myfinalproject.SumFragment.AsyncTask <|-- com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask
+com.example.myfinalproject.CallBacks.ReviewCallback <|.. com.example.myfinalproject.SumReviewFragment.SumReviewFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SumReviewFragment.SumReviewFragment
+@enduml

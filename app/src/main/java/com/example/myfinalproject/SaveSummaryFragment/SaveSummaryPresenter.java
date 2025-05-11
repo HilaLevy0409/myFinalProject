@@ -2,7 +2,7 @@ package com.example.myfinalproject.SaveSummaryFragment;
 
 import android.util.Log;
 
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

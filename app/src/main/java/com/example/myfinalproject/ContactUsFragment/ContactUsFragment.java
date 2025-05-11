@@ -17,14 +17,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.myfinalproject.Database.NotificationAdminDatabase;
-import com.example.myfinalproject.Models.NotificationAdmin;
+import com.example.myfinalproject.Repositories.NotificationAdminRepository;
+import com.example.myfinalproject.DataModels.NotificationAdmin;
 import com.example.myfinalproject.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class ContactUsFragment extends Fragment {
@@ -35,7 +33,7 @@ public class ContactUsFragment extends Fragment {
     private TextInputLayout tilCustomReason;
     private Button btnSendContact;
     private TextView tvSubmitStatus;
-    private NotificationAdminDatabase notificationRepository;
+    private NotificationAdminRepository notificationRepository;
     private boolean isUserLoggedIn = false;
     private String loggedInUsername = "";
 
@@ -51,7 +49,7 @@ public class ContactUsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_us, container, false);
 
-        notificationRepository = new NotificationAdminDatabase();
+        notificationRepository = new NotificationAdminRepository();
 
         checkUserLoginStatus();
 

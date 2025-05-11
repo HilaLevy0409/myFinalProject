@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myfinalproject.Adapters.MessageAdapter;
-import com.example.myfinalproject.Models.Message;
+import com.example.myfinalproject.DataModels.Message;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;

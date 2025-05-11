@@ -1,11 +1,7 @@
-package com.example.myfinalproject.Models;
+package com.example.myfinalproject.DataModels;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class NotificationAdmin {
     @DocumentId

@@ -20,9 +20,12 @@ import android.widget.Toast;
 
 import com.example.myfinalproject.CallBacks.SummariesCallback;
 import com.example.myfinalproject.Adapters.SummaryAdapter;
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumFragment.SumFragment;
+import com.example.myfinalproject.UserProfileFragment.UserProfileFragment;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +63,8 @@ public class SumByUserFragment extends Fragment {
             Log.d(TAG, "Username from arguments: " + userName);
         }
         summaryList = new ArrayList<>();
+
+
     }
 
     @Override
@@ -145,6 +150,8 @@ public class SumByUserFragment extends Fragment {
                         }
                     }
                     summaryAdapter.notifyDataSetChanged();
+
+
                 });
             }
 
@@ -162,6 +169,11 @@ public class SumByUserFragment extends Fragment {
             }
         });
     }
+
+
+
+
+
 
     private void navigateToSummaryView(Summary summary) {
         if (getActivity() != null) {

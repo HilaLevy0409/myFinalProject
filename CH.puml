@@ -1,0 +1,91 @@
+@startuml
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment {
+- Button btnAdd
+- ListView listViewSummaries
+- SummaryAdapter summaryAdapter
+- ArrayList<Summary> summaryList
+- ChooseSumPresenter chooseSumPresenter
+- SearchView searchView
+- String selectedClass
+- ArrayList<Summary> fullSummaryList
+- TextView tvNoSummaries
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void loadSummaries()
+- void showSum(Summary)
+}
+
+
+class com.example.myfinalproject.ChooseUserFragment.ChooseUserPresenter {
+- ChooseUserFragment view
+- UserRepository userDatabase
+- List<User> fullUserList
++ void loadUsers()
++ void filterUsersByName(String)
+}
+
+
+class com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment {
++ {static} ChooseClassFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+class com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment {
+- RecyclerView recyclerProfessions
+- ProfessionAdapter adapter
+- TabLayout tabLayout
+- SearchView searchView
+- LinearLayout emptyState
+- TextView tvSubtitle
+- String selectedClass
++ {static} ChooseProfessionFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- List<Profession> createProfessionsList()
+- void checkForEmptyState()
++ void onProfessionClick(Profession)
+}
+
+
+class com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment {
+- ListView listViewUsers
+- UserAdapter userAdapter
+- ArrayList<User> userList
+- ChooseUserPresenter presenter
+- SearchView searchView
+- ArrayList<User> fullUserList
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void navigateToReportFragment(User)
+- void navigateToSummaryByUserFragment(User)
+- void navigateToMessagesFragment(User)
++ void onUsersLoaded(List<User>)
++ void onUsersLoadError(String)
++ void onUsersFiltered(List<User>)
++ {static} ChooseUserFragment newInstance()
+}
+
+
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumPresenter {
+- ChooseSumFragment view
+- SummaryRepository summaryDb
++ void loadSummaries(SummariesCallback,String,String)
++ List<Summary> filterSummariesByTitle(List<Summary>,String)
+}
+
+
+
+
+com.example.myfinalproject.ChooseSumFragment.OnClickListener <|.. com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment
+com.example.myfinalproject.ChooseProfessionFragment.ProfessionClickListener <|.. com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment
+@enduml

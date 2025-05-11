@@ -1,0 +1,63 @@
+@startuml
+class com.example.myfinalproject.SaveSummaryFragment.SaveSummaryPresenter {
+- {static} String TAG
+- SaveSummaryFragment fragment
+- FirebaseAuth auth
+- FirebaseFirestore firestore
+- List<Summary> allSummaries
++ void loadSavedSummaries()
+- void loadSummary(String)
++ void handleSummaryClick(Summary)
++ void filterSummaries(String)
+}
+
+
+class com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment {
+- {static} String TAG
+- ListView listViewSummaries
+- SearchView searchView
+- SummaryAdapter summaryAdapter
+- List<Summary> savedSummaries
+- SaveSummaryPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void updateSummaryList(List<Summary>)
++ void showLoadError(String)
++ void navigateToSummary(Summary)
+}
+
+
+class com.example.myfinalproject.SumByUserFragment.SumByUserFragment {
+- {static} String TAG
+- ListView listViewSummaries
+- SummaryAdapter summaryAdapter
+- ArrayList<Summary> summaryList
+- SumByUserPresenter presenter
+- SearchView searchView
+- TextView tvNoSummaries
+- String userName
++ {static} SumByUserFragment newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void loadSummaries()
+- void navigateToSummaryView(Summary)
++ void showError(String)
+}
+
+
+class com.example.myfinalproject.SumByUserFragment.SumByUserPresenter {
+- {static} String TAG
+- SumByUserFragment view
+- String userName
+- CollectionReference summariesCollection
++ void loadUserSummaries(SummariesCallback)
++ void filterSummaries(String,List<Summary>,SummaryAdapter)
+}
+
+
+
+
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SumByUserFragment.SumByUserFragment
+@enduml

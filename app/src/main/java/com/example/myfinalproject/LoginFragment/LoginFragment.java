@@ -5,23 +5,18 @@ import static com.example.myfinalproject.Utils.Validator.isValidPassword;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,28 +29,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myfinalproject.AdminFragment.AdminFragment;
+import com.example.myfinalproject.CallBacks.LoginCallback;
 import com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment;
 import com.example.myfinalproject.MainActivity;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.List;
-import java.util.Objects;
 
 
-public class LoginFragment extends Fragment implements View.OnClickListener, LoginView {
+public class LoginFragment extends Fragment implements View.OnClickListener, LoginCallback {
 
     private Button btnNext, btnForgotPass, btnFinish, btnRegisterNow;
     private EditText etUsername, etPassword, etEmailS;

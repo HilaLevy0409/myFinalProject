@@ -4,16 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.myfinalproject.CallBacks.UserCallback;
-import com.example.myfinalproject.Database.UserDatabase;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.Repositories.UserRepository;
+import com.example.myfinalproject.DataModels.User;
 
 public class UserProfilePresenter {
     private UserProfileFragment view;
-    private UserDatabase database;
+    private UserRepository database;
 
     public UserProfilePresenter(UserProfileFragment view) {
         this.view = view;
-        this.database = new UserDatabase();
+        this.database = new UserRepository();
     }
 
     public void loadUserData() {

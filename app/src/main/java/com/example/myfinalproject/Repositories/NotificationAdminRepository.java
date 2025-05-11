@@ -1,25 +1,23 @@
-package com.example.myfinalproject.Database;
+package com.example.myfinalproject.Repositories;
 
-import com.example.myfinalproject.Models.NotificationAdmin;
+import com.example.myfinalproject.DataModels.NotificationAdmin;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
-public class NotificationAdminDatabase {
-    private static NotificationAdminDatabase instance;
+public class NotificationAdminRepository {
+    private static NotificationAdminRepository instance;
     private final CollectionReference notifications;
 
-    public NotificationAdminDatabase() {
+    public NotificationAdminRepository() {
         notifications = FirebaseFirestore.getInstance().collection("notifications");
 
     }
 
-    public static NotificationAdminDatabase getInstance() {
+    public static NotificationAdminRepository getInstance() {
         if (instance == null) {
-            instance = new NotificationAdminDatabase();
+            instance = new NotificationAdminRepository();
         }
         return instance;
     }
@@ -38,11 +36,11 @@ public class NotificationAdminDatabase {
         return notifications.orderBy("timestamp", Query.Direction.DESCENDING);
     }
 
-    public Query getNotificationsByType(String type) {
-        return notifications
-                .whereEqualTo("type", type)
-                .orderBy("timestamp", Query.Direction.DESCENDING);
-    }
+//    public Query getNotificationsByType(String type) {
+//        return notifications
+//                .whereEqualTo("type", type)
+//                .orderBy("timestamp", Query.Direction.DESCENDING);
+//    }
 
 
     public Task<Void> deleteNotification(String notificationId) {

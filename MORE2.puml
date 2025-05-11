@@ -1,0 +1,61 @@
+@startuml
+class com.example.myfinalproject.Event.AlarmManagerFragment {
+- EditText etEventTitle
+- Button btnAddEvent
+- int year
+- boolean dateSelected
+- boolean timeSelected
+- int durationHour
+- boolean durationSelected
+- int reminderYear
+- boolean reminderDateSelected
+- boolean reminderTimeSelected
+- {static} int PERMISSION_REQUEST_CODE
+- {static} String TAG
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showDatePickerDialog()
+- void showTimePickerDialog()
+- void showDurationPickerDialog()
+- void showReminderDatePickerDialog()
+- void showReminderTimePickerDialog()
+- long getDefaultCalendarId()
+- void addEventToCalendar()
+- void clearInputFields()
++ void onRequestPermissionsResult(int,String[],int[])
+}
+
+
+class com.example.myfinalproject.Timer.TimerFragment {
+- TextView tvTimerDisplay
+- EditText etHours
+- Button btnStart
+- SwitchMaterial switchNotification
+- TimerPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void inputValidation(EditText)
++ void onStart()
++ void onStop()
++ void updateTimerDisplay(long)
++ void updateButtonStates(boolean)
++ void resetButtonStates()
++ void setStopContinueButtonText(String)
++ void setStopContinueButtonEnabled(boolean)
++ void setStartButtonEnabled(boolean)
++ void showMessage(String)
++ void clearInputFields()
++ int getHours()
++ int getMinutes()
++ int getSeconds()
++ String getNotificationTime()
++ boolean isNotificationEnabled()
+- int parseInputField(EditText,int)
+}
+
+
+
+
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.Event.AlarmManagerFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.Timer.TimerFragment
+@enduml

@@ -5,7 +5,6 @@ import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,23 +15,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myfinalproject.Adapters.NotificationsAdminAdapter;
-import com.example.myfinalproject.AdminFragment.AdminFragment;
-import com.example.myfinalproject.Database.NotificationAdminDatabase;
+import com.example.myfinalproject.Repositories.NotificationAdminRepository;
 import com.example.myfinalproject.ManageUserFragment.ManageUserFragment;
-import com.example.myfinalproject.Models.NotificationAdmin;
+import com.example.myfinalproject.DataModels.NotificationAdmin;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumFragment.SumFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.TypedValue;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -44,7 +40,7 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
     private TabLayout tabLayout;
     private RecyclerView recyclerNotifications;
     private NotificationsAdminAdapter adapter;
-    private NotificationAdminDatabase notificationRepository;
+    private NotificationAdminRepository notificationRepository;
 
     private AlertDialog currentDialog;
 
@@ -58,7 +54,7 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        notificationRepository = NotificationAdminDatabase.getInstance();
+        notificationRepository = NotificationAdminRepository.getInstance();
     }
 
     @Override
@@ -249,7 +245,7 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
                                                 .commit();
                                     } else {
                                         android.util.Log.d("ClickableSpan", "No summary found, navigating to user: " + reportedName);
-                                        Toast.makeText(getContext(), "לא נמצא סיכום", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "לא נמצא ", Toast.LENGTH_SHORT).show();
                                     }
 
                                     if (currentDialog != null && currentDialog.isShowing()) {
@@ -381,7 +377,7 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                 .setTitle(title)
                 .setView(messageView)
-                .setPositiveButton("סגור", null)
+                .setPositiveButton("סגירה", null)
                 .setNeutralButton("סימון כטופל", (dialogInterface, which) -> {
                     adapter.removeNotification(notification);
                     notificationRepository.deleteNotification(notification.getId());

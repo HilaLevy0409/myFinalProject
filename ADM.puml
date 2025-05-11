@@ -1,0 +1,51 @@
+@startuml
+class com.example.myfinalproject.AdminFragment.AdminFragment {
+- Button btnSend
+- TextView tvNumUsers
++ {static} AdminFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void navigateToUserProfile(String)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment {
+- Button btnContinue
+- EditText etAdmin
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment {
+- TabLayout tabLayout
+- RecyclerView recyclerNotifications
+- NotificationsAdminAdapter adapter
+- NotificationAdminRepository notificationRepository
+- AlertDialog currentDialog
+- {static} int TAB_ALL
+- {static} int TAB_MESSAGES
+- {static} int TAB_REPORTS
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void loadNotifications(int)
++ void onNotificationClick(NotificationAdmin)
+- void showNotificationDetailsDialog(NotificationAdmin)
+- void navigateToManageUserFragment(String)
++ void onStart()
+}
+
+
+
+
+com.example.myfinalproject.AdminFragment.OnClickListener <|.. com.example.myfinalproject.AdminFragment.AdminFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.AdminFragment.AdminFragment
+com.example.myfinalproject.AdminLoginFragment.OnClickListener <|.. com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment
+com.example.myfinalproject.NoticesAdminFragment.OnNotificationClickListener <|.. com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment
+@enduml

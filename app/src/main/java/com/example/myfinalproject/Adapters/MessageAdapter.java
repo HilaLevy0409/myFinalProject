@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myfinalproject.Models.Message;
+import com.example.myfinalproject.DataModels.Message;
 import com.example.myfinalproject.R;
 
 import java.text.SimpleDateFormat;

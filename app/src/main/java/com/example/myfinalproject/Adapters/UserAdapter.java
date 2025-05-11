@@ -18,7 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.myfinalproject.CallBacks.OnUserClickListener;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.R;
 
 import java.util.List;
@@ -70,23 +70,23 @@ public class UserAdapter extends ArrayAdapter<User> {
         holder.tvUserName.setText(user.getUserName());
         holder.tvSumNumTitle.setText("מספר סיכומים שנכתבו: " + (user.getSumCount() > 0 ? user.getSumCount() : "0"));
 
-        holder.btnReport.setOnClickListener(v -> {
-            if (onClickedReport != null) {
-                onClickedReport.onUserClick(position);
-            }
-        });
-
-        holder.btnSummaryByUser.setOnClickListener(v -> {
-            if (onClickedSummaryByUser != null) {
-                onClickedSummaryByUser.onUserClick(position);
-            }
-        });
-
-        holder.btnSendMessage.setOnClickListener(v -> {
-            if (onClickedSendMessage != null) {
-                onClickedSendMessage.onUserClick(position);
-            }
-        });
+//        holder.btnReport.setOnClickListener(v -> {
+//            if (onClickedReport != null) {
+//                onClickedReport.onUserClick(position);
+//            }
+//        });
+//
+//        holder.btnSummaryByUser.setOnClickListener(v -> {
+//            if (onClickedSummaryByUser != null) {
+//                onClickedSummaryByUser.onUserClick(position);
+//            }
+//        });
+//
+//        holder.btnSendMessage.setOnClickListener(v -> {
+//            if (onClickedSendMessage != null) {
+//                onClickedSendMessage.onUserClick(position);
+//            }
+//        });
 
 
 
@@ -111,9 +111,9 @@ public class UserAdapter extends ArrayAdapter<User> {
         Button btnReport, btnSummaryByUser, btnSendMessage;
     }
 
-    public void updateUsers(List<User> newUsers) {
-        users.clear();
-        users.addAll(newUsers);
-        notifyDataSetChanged();
-    }
+//    public void updateUsers(List<User> newUsers) {
+//        users.clear();
+//        users.addAll(newUsers);
+//        notifyDataSetChanged();
+//    }
 }

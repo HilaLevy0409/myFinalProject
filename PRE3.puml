@@ -1,0 +1,26 @@
+@startuml
+class com.example.myfinalproject.ChooseUserFragment.ChooseUserPresenter {
+- ChooseUserFragment view
+- UserRepository userDatabase
+- List<User> fullUserList
++ void loadUsers()
++ void filterUsersByName(String)
+}
+
+
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumPresenter {
+- ChooseSumFragment view
+- SummaryRepository summaryDb
++ void loadSummaries(SummariesCallback,String,String)
++ List<Summary> filterSummariesByTitle(List<Summary>,String)
+}
+
+
+class com.example.myfinalproject.LoginFragment.LoginUserPresenter {
+- LoginCallback view
+- UserRepository userDb
++ void loginUser(String,String)
+}
+
+
+@enduml

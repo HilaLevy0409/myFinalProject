@@ -105,7 +105,6 @@ public class TimerPresenter {
                             return;
                         }
 
-                        // Fix: Compare in seconds instead of minutes
                         long totalSeconds = timerService.getTimeRemaining() / 1000;
                         long notificationSeconds = notificationMinutes * 60;
 
@@ -183,7 +182,5 @@ public class TimerPresenter {
         }
     }
 
-    public boolean isTimerPaused() {
-        return isTimerPaused;
-    }
+
 }

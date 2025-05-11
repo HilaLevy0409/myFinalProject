@@ -1,6 +1,7 @@
 package com.example.myfinalproject.SumFragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
+
+import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 
 import com.example.myfinalproject.ReportFragment.ReportFragment;
@@ -19,7 +22,10 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.myfinalproject.WritingSumFragment.SummaryPresenter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -43,7 +49,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "SumFragment";
 
-    private Button btnReport, btnSaveSummary, btnStart, btnStopContinue, btnReset;
+    private Button btnReport, btnSaveSummary, btnStart, btnReset;
     private RatingBar ratingBarSum;
     private TextView tvText, tvTopic, tvAuthor, tvAverage;
     private ImageView sumImage;
@@ -57,14 +63,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private SeekBar seekBarSpeed;
 
     private float speechRate = 1.0f;
-    private String currentText = "";
     private FloatingActionButton fabExport;
 
-    private int currentPosition = 0;
-    private static final int PARAGRAPH_LENGTH = 200;
 
     private ImageButton ImgBtnDeleteSum;
     private boolean isAuthor = false;
+
 
     public SumFragment() {
     }
@@ -111,7 +115,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         fabExport = view.findViewById(R.id.fabExport);
 
         btnStart = view.findViewById(R.id.btnStart);
-        btnStopContinue = view.findViewById(R.id.btnStopContinue);
         btnReset = view.findViewById(R.id.btnReset);
 
         seekBarSpeed = view.findViewById(R.id.seekBarSpeed);
@@ -120,7 +123,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         btnSaveSummary.setOnClickListener(this);
         fabExport.setOnClickListener(this);
         btnStart.setOnClickListener(this);
-        btnStopContinue.setOnClickListener(this);
         btnReset.setOnClickListener(this);
 
         ImgBtnDeleteSum = view.findViewById(R.id.ImgBtnDeleteSum);
@@ -138,15 +140,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         loadSummaryData();
         checkIfFavorite();
 
-//        ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
-//
-//            if (fromUser) {
-//                getActivity().getSupportFragmentManager().beginTransaction()
-//                        .replace(R.id.flFragment, new SumReviewFragment())
-//                        .addToBackStack(null)
-//                        .commit();
-//            }
-//        });
+
 
         ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
             if (fromUser) {
@@ -163,6 +157,41 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         .commit();
             }
         });
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        Log.d(TAG, "summaryId: " + summaryId);
+
+        if (currentUser != null && summaryId != null) {
+            FirebaseFirestore.getInstance()
+                    .collection("summaries")
+                    .document(summaryId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String authorId = documentSnapshot.getString("userId");
+                            String currentUserId = currentUser.getUid();
+
+                            Log.d(TAG, "userId from Firestore: " + authorId);
+                            Log.d(TAG, "currentUserId: " + currentUserId);
+
+
+                            Log.d(TAG, "authorId from Firestore: " + authorId);
+                            Log.d(TAG, "currentUserId: " + currentUserId);
+
+                            if (authorId != null && authorId.equals(currentUserId)) {
+                                ImgBtnDeleteSum.setVisibility(View.VISIBLE);
+                                Log.d(TAG, "כפתור הפח מוצג - היוזר הוא המחבר");
+                            } else {
+                                Log.d(TAG, "היוזר לא המחבר או authorId ריק");
+                            }
+                        } else {
+                            Log.e(TAG, "הסיכום לא קיים במסד הנתונים");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "שגיאה בהבאת הסיכום", e);
+                    });
+        }
 
 
     }
@@ -190,28 +219,18 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                             }
                         }
 
+
+
                         @Override
                         public void onDone(String utteranceId) {
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
-                                    if (utteranceId.equals("endOfText")) {
-                                        isSpeaking = false;
-                                        currentPosition = 0;
-                                        updateButtons();
-                                    } else {
-                                        int chunkIndex = Integer.parseInt(utteranceId.replace("chunk_", ""));
-                                        currentPosition = Math.min(chunkIndex * PARAGRAPH_LENGTH, currentText.length());
-
-                                        if (isSpeaking && currentPosition < currentText.length()) {
-                                            speakFromCurrentPosition();
-                                        } else {
-                                            isSpeaking = false;
-                                            updateButtons();
-                                        }
-                                    }
+                                    isSpeaking = false;
+                                    updateButtons();
                                 });
                             }
                         }
+
 
                         @Override
                         public void onError(String utteranceId) {
@@ -255,98 +274,53 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+
+
     private void speakText() {
         if (textToSpeech == null) return;
 
-        if (currentText.isEmpty() && tvText.getVisibility() == View.VISIBLE) {
-            currentText = tvText.getText().toString();
-        }
+        String text = tvText.getText().toString();
 
-        if (currentText.isEmpty()) {
+        if (text.isEmpty()) {
             Toast.makeText(getContext(), "אין טקסט להקראה", Toast.LENGTH_SHORT).show();
             return;
         }
 
         btnStart.setEnabled(false);
-        btnStopContinue.setEnabled(true);
         btnReset.setEnabled(true);
 
-        speakFromCurrentPosition();
+        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "fullText");
         isSpeaking = true;
-        btnStopContinue.setText("עצור");
     }
 
-    private void speakFromCurrentPosition() {
-        if (currentPosition >= currentText.length()) {
-            currentPosition = 0;
-        }
 
-        String textToRead;
-        if (currentPosition + PARAGRAPH_LENGTH >= currentText.length()) {
-            textToRead = currentText.substring(currentPosition);
 
-            HashMap<String, String> params = new HashMap<>();
-            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "endOfText");
-            textToSpeech.speak(textToRead, TextToSpeech.QUEUE_FLUSH, params);
-        } else {
-            textToRead = currentText.substring(currentPosition, currentPosition + PARAGRAPH_LENGTH);
-
-            HashMap<String, String> params = new HashMap<>();
-            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "chunk_" + (currentPosition + PARAGRAPH_LENGTH) / PARAGRAPH_LENGTH);
-            textToSpeech.speak(textToRead, TextToSpeech.QUEUE_FLUSH, params);
-        }
-    }
-
-    private void restartSpeech() {
-        if (textToSpeech == null) return;
-
-        textToSpeech.stop();
-        currentPosition = 0;
-        isSpeaking = false;
-        btnStopContinue.setText("עצור");
-
-        if (currentText.isEmpty() && tvText.getVisibility() == View.VISIBLE) {
-            currentText = tvText.getText().toString();
-        }
-
-        if (currentText.isEmpty()) {
-            Toast.makeText(getContext(), "אין טקסט להקראה", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        speakFromCurrentPosition();
-        isSpeaking = true;
-        updateButtons();
-    }
 
     private void resetSpeech() {
         if (textToSpeech == null) return;
 
         textToSpeech.stop();
-        currentPosition = 0;
         isSpeaking = false;
-        btnStopContinue.setText("עצור");
 
         btnStart.setEnabled(true);
-        btnStopContinue.setEnabled(false);
         btnReset.setEnabled(false);
     }
 
+
+
     private void updateButtons() {
-        boolean hasText = currentText != null && !currentText.isEmpty();
+        String text = tvText.getText().toString();
+        boolean hasText = !text.isEmpty();
 
         if (isSpeaking) {
             btnStart.setEnabled(false);
-            btnStopContinue.setEnabled(true);
             btnReset.setEnabled(true);
         } else {
-            if (currentPosition == 0) {
-                btnStart.setEnabled(hasText);
-                btnStopContinue.setEnabled(false);
-                btnReset.setEnabled(false);
-            }
+            btnStart.setEnabled(hasText);
+            btnReset.setEnabled(false);
         }
     }
+
 
     private void loadSummaryData() {
         if (summaryId == null || summaryId.isEmpty()) {
@@ -359,6 +333,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         displaySummaryData(documentSnapshot);
+
                     } else {
                         Log.e(TAG, "No such document");
                         Toast.makeText(getContext(), "הסיכום לא נמצא", Toast.LENGTH_SHORT).show();
@@ -369,6 +344,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(getContext(), "שגיאה בטעינת הסיכום", Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 
     private void displaySummaryData(DocumentSnapshot document) {
         String topic = document.getString("summaryTitle");
@@ -382,6 +359,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             Log.d(TAG, "Author name set from summary: " + authorName);
         } else {
             String authorId = document.getString("userId");
+
             if (authorId != null) {
                 db.collection("users").document(authorId)
                         .get()
@@ -431,8 +409,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         if (imageData != null && !imageData.isEmpty()) {
             tvText.setVisibility(View.GONE);
             sumImage.setVisibility(View.VISIBLE);
-            currentText = "";
-            currentPosition = 0;
 
             try {
                 Log.d(TAG, "Loading Base64 image");
@@ -454,17 +430,14 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText(summaryContent);
-            currentText = summaryContent;
-            currentPosition = 0;
         } else {
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText("אין תוכן זמין");
-            currentText = "";
-            currentPosition = 0;
         }
 
         updateButtons();
+
 
 
     }
@@ -495,6 +468,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 .setNegativeButton("לא", null)
                 .show();
     }
+
+
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView imageView;
@@ -638,20 +613,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             toggleFavorite();
         } else if (view == btnStart) {
             speakText();
-        } else if (view == btnStopContinue) {
-            if (isSpeaking) {
-                textToSpeech.stop();
-                isSpeaking = false;
-                btnStopContinue.setText("המשך");
-            } else {
-                speakFromCurrentPosition();
-                isSpeaking = true;
-                btnStopContinue.setText("עצור");
-                btnStart.setEnabled(false);
-                btnReset.setEnabled(true);
-            }
         } else if (view == fabExport) {
-            shareSummary();
+            shareSummary(tvTopic.getText().toString());
         } else if(view == btnReset) {
             resetSpeech();
         }else if (view == ImgBtnDeleteSum) {
@@ -668,16 +631,22 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         super.onDestroy();
     }
 
-    private void shareSummary() {
-        if (currentText != null && !currentText.isEmpty()) {
+    private void shareSummary(String summaryTitle) {
+        String summaryContent = tvText.getText().toString();
+
+        if (summaryContent != null && !summaryContent.isEmpty()) {
+            String shareContent = "נושא הסיכום: " + summaryTitle + "\n\n" + summaryContent;
+
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, currentText);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareContent);
             startActivity(Intent.createChooser(shareIntent, "שיתוף סיכום באמצעות:"));
         } else {
             Toast.makeText(getContext(), "אין תוכן לשתף", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
 
 }

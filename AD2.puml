@@ -1,0 +1,61 @@
+@startuml
+class com.example.myfinalproject.Adapters.UserAdapter {
+- Context context
+- List<User> users
+- OnUserClickListener onClickedReport
+- OnUserClickListener onClickedSummaryByUser
+- OnUserClickListener onClickedSendMessage
++ View getView(int,View,ViewGroup)
+}
+
+
+class com.example.myfinalproject.Adapters.UserAdapter$ViewHolder {
+~ ImageView imgUserProfile
+~ TextView tvUserName
+~ Button btnReport
+}
+
+class com.example.myfinalproject.Adapters.ReviewAdapter {
+- {static} String TAG
+- List<Review> reviewList
+- String userId
+- ReviewCallback callback
++ ReviewViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ReviewViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.myfinalproject.Adapters.ReviewAdapter$ReviewViewHolder {
+~ TextView tvUser
+~ RatingBar rbReviewRating
+~ ImageButton imgBtnEditReview
+~ Button btnSaveChanges
+}
+
+class com.example.myfinalproject.Adapters.SummaryAdapter {
+- Context context
+- List<Summary> summaries
++ View getView(int,View,ViewGroup)
++ void updateSummaries(List<Summary>)
+}
+
+
+class com.example.myfinalproject.Adapters.SummaryAdapter$ViewHolder {
+~ ImageView imageSum
+~ TextView tvClass
+~ TextView tvProfessional
+~ TextView tvSummaryTitle
+~ TextView tvCreatedDate
+}
+
+
+
+android.widget.ArrayAdapter <|-- com.example.myfinalproject.Adapters.UserAdapter
+com.example.myfinalproject.Adapters.UserAdapter +.. com.example.myfinalproject.Adapters.UserAdapter$ViewHolder
+com.example.myfinalproject.Adapters.Adapter <|-- com.example.myfinalproject.Adapters.ReviewAdapter
+com.example.myfinalproject.Adapters.ReviewAdapter +.. com.example.myfinalproject.Adapters.ReviewAdapter$ReviewViewHolder
+com.example.myfinalproject.Adapters.ViewHolder <|-- com.example.myfinalproject.Adapters.ReviewAdapter$ReviewViewHolder
+android.widget.ArrayAdapter <|-- com.example.myfinalproject.Adapters.SummaryAdapter
+com.example.myfinalproject.Adapters.SummaryAdapter +.. com.example.myfinalproject.Adapters.SummaryAdapter$ViewHolder
+@enduml

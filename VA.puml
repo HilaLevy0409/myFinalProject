@@ -1,0 +1,11 @@
+@startuml
+class com.example.myfinalproject.Utils.Validator {
++ {static} String isValidUsername(String)
++ {static} String isValidPassword(String)
++ {static} String isValidEmail(String)
++ {static} String isValidPhone(String)
++ {static} String isValidBirthDate(String)
++ {static} String isValidImageProfile(String)
+}
+
+@enduml

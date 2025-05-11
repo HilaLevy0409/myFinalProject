@@ -1,0 +1,61 @@
+@startuml
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment {
+- Button btnAdd
+- ListView listViewSummaries
+- SummaryAdapter summaryAdapter
+- ArrayList<Summary> summaryList
+- ChooseSumPresenter chooseSumPresenter
+- SearchView searchView
+- String selectedClass
+- ArrayList<Summary> fullSummaryList
+- TextView tvNoSummaries
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void loadSummaries()
+- void showSum(Summary)
+}
+
+
+class com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment {
++ {static} ChooseClassFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+class com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment {
+- RecyclerView recyclerProfessions
+- ProfessionAdapter adapter
+- TabLayout tabLayout
+- SearchView searchView
+- LinearLayout emptyState
+- TextView tvSubtitle
+- String selectedClass
++ {static} ChooseProfessionFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- List<Profession> createProfessionsList()
+- void checkForEmptyState()
++ void onProfessionClick(Profession)
+}
+
+
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumPresenter {
+- ChooseSumFragment view
+- SummaryRepository summaryDb
++ void loadSummaries(SummariesCallback,String,String)
++ List<Summary> filterSummariesByTitle(List<Summary>,String)
+}
+
+
+
+
+com.example.myfinalproject.ChooseSumFragment.OnClickListener <|.. com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment
+com.example.myfinalproject.ChooseProfessionFragment.ProfessionClickListener <|.. com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment
+@enduml

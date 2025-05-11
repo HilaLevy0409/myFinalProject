@@ -1,8 +1,6 @@
 package com.example.myfinalproject.Message;
 
-import com.example.myfinalproject.Models.Message;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.myfinalproject.DataModels.Message;
 
 import java.util.ArrayList;
 import java.util.List;

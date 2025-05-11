@@ -1,26 +1,21 @@
 package com.example.myfinalproject.RegistrationFragment;
 
-import android.widget.Toast;
-
 import com.example.myfinalproject.CallBacks.AddUserCallback;
-import com.example.myfinalproject.Models.User;
-import com.example.myfinalproject.Database.UserDatabase;
-
-import java.util.Objects;
+import com.example.myfinalproject.DataModels.User;
+import com.example.myfinalproject.Repositories.UserRepository;
 
 
 public class RegisterUserPresenter {
 
     RegistrationFragment view;
-    UserDatabase userDb;
+    UserRepository userDb;
 
-    User user;
     String id;
 
 
     public RegisterUserPresenter(RegistrationFragment view) {
         this.view = view;
-        this.userDb = new UserDatabase();
+        this.userDb = new UserRepository();
 
         this.id = id;
 

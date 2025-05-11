@@ -31,22 +31,6 @@ public class TimerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
 
-        // Initialize views
-        initializeViews(view);
-
-        // Initialize presenter
-        presenter = new TimerPresenter(this);
-
-        // Setup input validation
-        setupInputValidation();
-
-        // Setup listeners
-        setupListeners();
-
-        return view;
-    }
-
-    private void initializeViews(View view) {
         tvTimerDisplay = view.findViewById(R.id.tvTimerDisplay);
         etHours = view.findViewById(R.id.etHoursInput);
         etMinutes = view.findViewById(R.id.etMinutesInput);
@@ -56,14 +40,12 @@ public class TimerFragment extends Fragment {
         btnStart = view.findViewById(R.id.btnStart);
         btnStopContinue = view.findViewById(R.id.btnStopContinue);
         btnReset = view.findViewById(R.id.btnReset);
-    }
 
-    private void setupInputValidation() {
+        presenter = new TimerPresenter(this);
+
         inputValidation(etMinutes);
         inputValidation(etSeconds);
-    }
 
-    private void setupListeners() {
         switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
             etNotificationTime.setEnabled(isChecked);
             if (isChecked && etNotificationTime.getText().toString().isEmpty()) {
@@ -75,7 +57,11 @@ public class TimerFragment extends Fragment {
         btnStopContinue.setOnClickListener(v -> presenter.toggleStopContinue());
         btnStart.setOnClickListener(v -> presenter.startTimer());
         btnReset.setOnClickListener(v -> presenter.resetTimer());
+
+
+        return view;
     }
+
 
     private void inputValidation(final EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
@@ -114,7 +100,6 @@ public class TimerFragment extends Fragment {
         presenter.unbindService();
     }
 
-    // View methods for presenter
     public void updateTimerDisplay(long millisRemaining) {
         int hours = (int) (millisRemaining / (1000 * 60 * 60));
         int minutes = (int) (millisRemaining % (1000 * 60 * 60)) / (1000 * 60);
@@ -166,7 +151,6 @@ public class TimerFragment extends Fragment {
         etNotificationTime.setText("");
     }
 
-    // Getter methods for presenter
     public int getHours() {
         return parseInputField(etHours, 0);
     }

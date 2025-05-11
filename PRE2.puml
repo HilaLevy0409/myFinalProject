@@ -1,0 +1,33 @@
+@startuml
+class com.example.myfinalproject.RegistrationFragment.RegisterUserPresenter {
+~ RegistrationFragment view
+~ UserRepository userDb
+~ String id
++ void submitClicked(User)
+}
+
+
+class com.example.myfinalproject.SaveSummaryFragment.SaveSummaryPresenter {
+- {static} String TAG
+- SaveSummaryFragment fragment
+- FirebaseAuth auth
+- FirebaseFirestore firestore
+- List<Summary> allSummaries
++ void loadSavedSummaries()
+- void loadSummary(String)
++ void handleSummaryClick(Summary)
++ void filterSummaries(String)
+}
+
+
+class com.example.myfinalproject.SumByUserFragment.SumByUserPresenter {
+- {static} String TAG
+- SumByUserFragment view
+- String userName
+- CollectionReference summariesCollection
++ void loadUserSummaries(SummariesCallback)
++ void filterSummaries(String,List<Summary>,SummaryAdapter)
+}
+
+
+@enduml

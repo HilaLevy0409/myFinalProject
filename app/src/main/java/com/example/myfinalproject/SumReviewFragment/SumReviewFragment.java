@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.example.myfinalproject.Adapters.ReviewAdapter;
 import com.example.myfinalproject.CallBacks.ReviewCallback;
-import com.example.myfinalproject.Models.Review;
+import com.example.myfinalproject.DataModels.Review;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -368,7 +368,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         new AlertDialog.Builder(getContext())
                 .setTitle("מחיקת ביקורת")
                 .setMessage("האם למחוק את הביקורת?")
-                .setPositiveButton("מחק", (dialog, which) -> {
+                .setPositiveButton("מחיקה", (dialog, which) -> {
                     if (review.getReviewId() != null) {
                         db.collection("reviews").document(review.getReviewId())
                                 .delete()

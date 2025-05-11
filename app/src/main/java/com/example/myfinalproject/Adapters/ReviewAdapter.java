@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myfinalproject.CallBacks.ReviewCallback;
-import com.example.myfinalproject.Models.Review;
+import com.example.myfinalproject.DataModels.Review;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -127,10 +127,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return reviewList != null ? reviewList.size() : 0;
     }
 
-    public void updateReviews(List<Review> newReviews) {
-        this.reviewList = newReviews;
-        notifyDataSetChanged();
-    }
+//    public void updateReviews(List<Review> newReviews) {
+//        this.reviewList = newReviews;
+//        notifyDataSetChanged();
+//    }
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
         TextView tvUser, tvWritingReview, tvReviewTimestamp;

@@ -6,29 +6,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myfinalproject.Adapters.ProfessionAdapter;
 import com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment;
-import com.example.myfinalproject.Models.Profession;
+import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.R;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ChooseProfessionFragment extends Fragment implements ProfessionAdapter.ProfessionClickListener {
@@ -184,90 +179,19 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
 
     @Override
     public void onProfessionClick(Profession profession) {
-        showProfessionNotificationDialog(profession.getName());
-    }
-
-    private void showProfessionNotificationDialog(String professionName) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("עדוכנים על סיכומים")
-                .setMessage("האם ברצונך לקבל עדכונים בעת עליית סיכום במקצוע " + professionName + "?")
-                .setPositiveButton("כן, אשמח!", (dialog, which) -> {
-                    Toast.makeText(getContext(), "נרשמת לקבלת עדכונים עבור " + professionName, Toast.LENGTH_SHORT).show();
-                    subscribeToProfessionNotifications(professionName);
-                    goToNextScreen(professionName);
-                })
-                .setNegativeButton("לא, רוצה לעבור למסך הבא", (dialog, which) -> {
-                    goToNextScreen(professionName);
-                })
-                .setNeutralButton("לא רוצה לקבל עדכונים יותר", (dialog, which) -> {
-                    if (auth.getCurrentUser() == null) {
-                        Toast.makeText(getContext(), "אינך רשום לקבלת עדכונים", Toast.LENGTH_SHORT).show();
-                        goToNextScreen(professionName);
-                    } else {
-                        unsubscribeFromProfessionNotifications(professionName);
-                        unsubscribeFromFCMTopic(professionName);
-                        goToNextScreen(professionName);
-                    }
-                })
-                .setCancelable(false)
-                .show();
-    }
-
-    private void subscribeToProfessionNotifications(String professionName) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = auth.getCurrentUser().getUid();
-
-        db.collection("notifications_subscriptions")
-                .document(userId)
-                .set(new HashMap<String, Object>() {{
-                    put("professionName", professionName);
-                    put("className", selectedClass);
-                }})
-                .addOnSuccessListener(aVoid -> {
-                    String topic = selectedClass + "_" + professionName.replaceAll("\\s+", "_");
-//                    FirebaseMessaging.getInstance().subscribeToTopic(topic);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בהרשמה", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void unsubscribeFromProfessionNotifications(String professionName) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = auth.getCurrentUser().getUid();
-
-        db.collection("notifications_subscriptions")
-                .document(userId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "הסרת הרשמה מהתראות עבור " + professionName, Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בהסרת ההרשמה", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void unsubscribeFromFCMTopic(String professionName) {
-        String topic = selectedClass + "_" + professionName.replaceAll("\\s+", "_");
-//        FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
-    }
-
-    private void goToNextScreen(String professionName) {
+        ChooseSumFragment chooseSumFragment = new ChooseSumFragment();
         Bundle args = new Bundle();
         args.putString("selected_class", selectedClass);
-        args.putString("selected_profession", professionName);
-
-        ChooseSumFragment chooseSumFragment = new ChooseSumFragment();
+        args.putString("selected_profession", profession.getName());
         chooseSumFragment.setArguments(args);
 
-        getActivity().getSupportFragmentManager()
+        requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, chooseSumFragment)
                 .addToBackStack(null)
                 .commit();
     }
+
+
+
 }

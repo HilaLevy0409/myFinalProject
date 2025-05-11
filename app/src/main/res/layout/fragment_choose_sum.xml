@@ -8,12 +8,17 @@
     android:padding="16dp"
     tools:context="ChooseSumFragment.ChooseSumFragment">
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="8dp">
+
+
+
 
         <TextView
             android:layout_width="0dp"
@@ -56,7 +61,15 @@
         android:dividerHeight="8dp"
         android:padding="8dp" />
 
-
+    <TextView
+        android:id="@+id/tvNoSummaries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="אין סיכומים להצגה"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
 
 

@@ -1,34 +1,29 @@
-package com.example.myfinalproject.Database;
+package com.example.myfinalproject.Repositories;
 
 import android.util.Log;
 
 import com.example.myfinalproject.CallBacks.AddUserCallback;
-import com.example.myfinalproject.CallBacks.SummariesCallback;
 import com.example.myfinalproject.CallBacks.UserCallback;
 import com.example.myfinalproject.CallBacks.UsersCallback;
-import com.example.myfinalproject.Models.Summary;
-import com.example.myfinalproject.Models.User;
+import com.example.myfinalproject.DataModels.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public class UserDatabase {
+public class UserRepository {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore database;
 
 
-    public UserDatabase() {
+    public UserRepository() {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
     }
@@ -78,16 +73,15 @@ public class UserDatabase {
 
 
     public void getUser(final String username, final UserCallback callback) {
-
         Query userQuery = database.collection("users").whereEqualTo("userName", username);
 
         userQuery.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-
                         DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null) {
+                            user.setId(documentSnapshot.getId());
                             callback.onUserReceived(user);
                         } else {
                             callback.onError("נתוני המשתמש אינם חוקיים");
@@ -104,6 +98,7 @@ public class UserDatabase {
     }
 
 
+
     public void updateUserPassword(String userEmail, String newPassword, UserCallback callback) {
         database.collection("users")
                 .whereEqualTo("userEmail", userEmail)
@@ -113,10 +108,8 @@ public class UserDatabase {
                         DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null) {
-                            // Update password
                             user.setUserPass(newPassword);
 
-                            // Save updated user
                             database.collection("users").document(user.getId())
                                     .set(user)
                                     .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
@@ -165,30 +158,30 @@ public class UserDatabase {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
-    public void decrementUserSummaryCount(String userId, UserCallback callback) {
-        // Get a reference to the user document
-        DocumentReference userRef = database.collection("users").document(userId);
-
-        // Use a transaction to ensure atomic update
-        database.runTransaction(transaction -> {
-            DocumentSnapshot userSnapshot = transaction.get(userRef);
-            User user = userSnapshot.toObject(User.class);
-
-            if (user != null) {
-                // Decrement the summary count (ensure it doesn't go below 0)
-                int currentCount = user.getSumCount();
-                int newCount = Math.max(0, currentCount - 1);
-                transaction.update(userRef, "sumCount", newCount);
-            }
-
-            return null;
-        }).addOnSuccessListener(result -> {
-            // After successful update, retrieve the updated user
-            getUserById(userId, callback);
-        }).addOnFailureListener(e -> {
-            callback.onError("Failed to update summary count: " + e.getMessage());
-        });
-    }
+//    public void decrementUserSummaryCount(String userId, UserCallback callback) {
+//        // Get a reference to the user document
+//        DocumentReference userRef = database.collection("users").document(userId);
+//
+//        // Use a transaction to ensure atomic update
+//        database.runTransaction(transaction -> {
+//            DocumentSnapshot userSnapshot = transaction.get(userRef);
+//            User user = userSnapshot.toObject(User.class);
+//
+//            if (user != null) {
+//                // Decrement the summary count (ensure it doesn't go below 0)
+//                int currentCount = user.getSumCount();
+//                int newCount = Math.max(0, currentCount - 1);
+//                transaction.update(userRef, "sumCount", newCount);
+//            }
+//
+//            return null;
+//        }).addOnSuccessListener(result -> {
+//            // After successful update, retrieve the updated user
+//            getUserById(userId, callback);
+//        }).addOnFailureListener(e -> {
+//            callback.onError("Failed to update summary count: " + e.getMessage());
+//        });
+//    }
 
 
 

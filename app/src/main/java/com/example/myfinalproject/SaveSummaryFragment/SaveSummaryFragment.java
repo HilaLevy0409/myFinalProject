@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.myfinalproject.Adapters.SummaryAdapter;
-import com.example.myfinalproject.Models.Summary;
+import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumFragment.SumFragment;
 

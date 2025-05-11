@@ -1,0 +1,576 @@
+@startuml
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment {
+- Button btnAdd
+- ListView listViewSummaries
+- SummaryAdapter summaryAdapter
+- ArrayList<Summary> summaryList
+- ChooseSumPresenter chooseSumPresenter
+- SearchView searchView
+- String selectedClass
+- ArrayList<Summary> fullSummaryList
+- TextView tvNoSummaries
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void loadSummaries()
+- void showSum(Summary)
+}
+
+
+class com.example.myfinalproject.UserProfileFragment.UserProfilePresenter {
+- UserProfileFragment view
+- UserRepository database
++ void loadUserData()
++ void logOut()
++ void deleteUser()
++ void submitClicked(User)
+}
+
+
+class com.example.myfinalproject.ChooseUserFragment.ChooseUserPresenter {
+- ChooseUserFragment view
+- UserRepository userDatabase
+- List<User> fullUserList
++ void loadUsers()
++ void filterUsersByName(String)
+}
+
+
+class com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment {
++ {static} ChooseClassFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+class com.example.myfinalproject.SaveSummaryFragment.SaveSummaryPresenter {
+- {static} String TAG
+- SaveSummaryFragment fragment
+- FirebaseAuth auth
+- FirebaseFirestore firestore
+- List<Summary> allSummaries
++ void loadSavedSummaries()
+- void loadSummary(String)
++ void handleSummaryClick(Summary)
++ void filterSummaries(String)
+}
+
+
+class com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment {
+- Button btnContinue
+- EditText etAdmin
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment {
+- ListView listViewUsers
+- UserAdapter userAdapter
+- ArrayList<User> userList
+- ChooseUserPresenter presenter
+- SearchView searchView
+- ArrayList<User> fullUserList
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void navigateToReportFragment(User)
+- void navigateToSummaryByUserFragment(User)
+- void navigateToMessagesFragment(User)
++ void onUsersLoaded(List<User>)
++ void onUsersLoadError(String)
++ void onUsersFiltered(List<User>)
++ {static} ChooseUserFragment newInstance()
+}
+
+
+class com.example.myfinalproject.Timer.TimerFragment {
+- TextView tvTimerDisplay
+- EditText etHours
+- Button btnStart
+- SwitchMaterial switchNotification
+- TimerPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void inputValidation(EditText)
++ void onStart()
++ void onStop()
++ void updateTimerDisplay(long)
++ void updateButtonStates(boolean)
++ void resetButtonStates()
++ void setStopContinueButtonText(String)
++ void setStopContinueButtonEnabled(boolean)
++ void setStartButtonEnabled(boolean)
++ void showMessage(String)
++ void clearInputFields()
++ int getHours()
++ int getMinutes()
++ int getSeconds()
++ String getNotificationTime()
++ boolean isNotificationEnabled()
+- int parseInputField(EditText,int)
+}
+
+
+class com.example.myfinalproject.WritingSumFragment.SummaryPresenter {
+- WritingSumFragment view
+- SummaryRepository summaryDb
+~ Summary summary
++ void submitSummaryClicked(Summary)
+}
+
+
+class com.example.myfinalproject.QuestionsFragment.QuestionsFragment {
+- Button btnContact
++ {static} QuestionsFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.ContactUsFragment.ContactUsFragment {
+- EditText etUserName
+- RadioGroup contactReasonGroup
+- RadioButton rbOther
+- TextInputLayout tilCustomReason
+- Button btnSendContact
+- TextView tvSubmitStatus
+- NotificationAdminRepository notificationRepository
+- boolean isUserLoggedIn
+- String loggedInUsername
++ {static} ContactUsFragment newInstance()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void checkUserLoginStatus()
++ void onViewCreated(View,Bundle)
+- void sendMessage()
+- void clearForm()
+}
+
+
+class com.example.myfinalproject.LoginFragment.LoginFragment {
+- Button btnNext
+- EditText etUsername
+- DatabaseReference mDatabase
+- FirebaseFirestore database
+- LoginUserPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void createCustomDialog()
+- void askUserToUpdatePasswordInFirestore()
+- void updatePasswordStrengthView(String,TextView)
+- int calculatePasswordStrength(String)
++ void showLoginSuccess(User)
+- void saveUserToLocalStorage(User)
++ void showLoginFailure(String)
+}
+
+
+class com.example.myfinalproject.WritingSumFragment.WritingSumFragment {
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- Button btnUploadPhoto
+- SummaryPresenter summaryPresenter
+- EditText etSummaryTitle
+- ImageView imageViewSummary
+- MaterialCardView writeSummaryCard
+- String selectedClass
+- Summary summary
+- boolean isWriteMode
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showWriteMode()
+- void showUploadMode()
++ void onClick(View)
+- boolean validateInputs()
+- void saveSummaryData()
+- String bitmapToBase64(Bitmap)
+- void showToast(String)
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
+- void createCustomDialog()
+}
+
+
+class com.example.myfinalproject.Event.AlarmManagerFragment {
+- EditText etEventTitle
+- Button btnAddEvent
+- int year
+- boolean dateSelected
+- boolean timeSelected
+- int durationHour
+- boolean durationSelected
+- int reminderYear
+- boolean reminderDateSelected
+- boolean reminderTimeSelected
+- {static} int PERMISSION_REQUEST_CODE
+- {static} String TAG
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showDatePickerDialog()
+- void showTimePickerDialog()
+- void showDurationPickerDialog()
+- void showReminderDatePickerDialog()
+- void showReminderTimePickerDialog()
+- long getDefaultCalendarId()
+- void addEventToCalendar()
+- void clearInputFields()
++ void onRequestPermissionsResult(int,String[],int[])
+}
+
+
+class com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment {
+- {static} String TAG
+- ListView listViewSummaries
+- SearchView searchView
+- SummaryAdapter summaryAdapter
+- List<Summary> savedSummaries
+- SaveSummaryPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void updateSummaryList(List<Summary>)
++ void showLoadError(String)
++ void navigateToSummary(Summary)
+}
+
+
+class com.example.myfinalproject.SumFragment.SumFragment {
+- {static} String TAG
+- Button btnReport
+- RatingBar ratingBarSum
+- TextView tvText
+- ImageView sumImage
+- FirebaseFirestore db
+- FirebaseAuth mAuth
+- String summaryId
+- boolean isFavorite
+- TextToSpeech textToSpeech
+- boolean isSpeaking
+- SeekBar seekBarSpeed
+- float speechRate
+- FloatingActionButton fabExport
+- ImageButton ImgBtnDeleteSum
+- boolean isAuthor
++ {static} SumFragment newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void initTextToSpeech()
+- void speedControl()
+- void speakText()
+- void resetSpeech()
+- void updateButtons()
+- void loadSummaryData()
+- void displaySummaryData(DocumentSnapshot)
+- void deleteSummary()
+- void checkIfFavorite()
+- void updateFavoriteButton()
+- void toggleFavorite()
++ void onClick(View)
++ void onDestroy()
+- void shareSummary(String)
+}
+
+
+class com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask {
+~ ImageView imageView
+# Bitmap doInBackground(String)
+# void onPostExecute(Bitmap)
+}
+
+
+class com.example.myfinalproject.SumByUserFragment.SumByUserFragment {
+- {static} String TAG
+- ListView listViewSummaries
+- SummaryAdapter summaryAdapter
+- ArrayList<Summary> summaryList
+- SumByUserPresenter presenter
+- SearchView searchView
+- TextView tvNoSummaries
+- String userName
++ {static} SumByUserFragment newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void loadSummaries()
+- void navigateToSummaryView(Summary)
++ void showError(String)
+}
+
+
+class com.example.myfinalproject.RegistrationFragment.RegistrationFragment {
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- StorageReference mStorage
+- Button btnUploadPhoto
+- EditText etEmail
+- Uri imageUri
+- RegisterUserPresenter presenter
+- ImageView imageViewProfile
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void checkIfEmailExists(String)
+- void checkIfUsernameExists(String)
++ void onClick(View)
+- void saveUserData(String)
++ void submitClicked(User)
++ void openDialog()
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
+- String imageViewToBase64(ImageView)
+}
+
+
+class com.example.myfinalproject.Timer.TimerPresenter {
+- TimerFragment view
+- Context context
+- CountdownTimerService timerService
+- boolean isBound
+- boolean isTimerPaused
+- ServiceConnection serviceConnection
++ void bindService()
++ void unbindService()
++ void onNotificationSwitchChanged(boolean)
++ void toggleStopContinue()
++ void startTimer()
++ void resetTimer()
+}
+
+
+class com.example.myfinalproject.SumReviewFragment.SumReviewFragment {
+- {static} String TAG
+- RecyclerView rvReviews
+- ReviewAdapter reviewAdapter
+- List<Review> reviewList
+- TextView tvReviewsCount
+- EditText etReviewText
+- RatingBar ratingBar
+- Button btnSubmitReview
+- String summaryId
+- float initialRating
+- FirebaseFirestore db
+- FirebaseAuth mAuth
+- boolean hasReviewed
+- ListenerRegistration reviewsListener
++ {static} SumReviewFragment newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onResume()
++ void onPause()
+- void fetchCurrentUserName()
+- void processReviewsSnapshot(QuerySnapshot)
+- void checkIfUserReviewed()
+- void enableReviewForm()
+- void disableReviewForm()
+- void submitReview()
+- void updateAverageRating()
++ void onDeleteReview(Review,int)
++ void onEditReview(Review,int)
++ void onSaveChanges(Review,int,String,float)
++ float calculateAverageRating()
+}
+
+
+class com.example.myfinalproject.ReportFragment.ReportFragment {
+- EditText etUserNameOrTopic
+- RadioGroup reportReasonGroup
+- RadioButton rbOther
+- TextInputLayout tilCustomReason
+- Button btnSendReport
+- TextView tvSubmitStatus
+- NotificationAdminRepository notificationRepository
+- boolean isUserLoggedIn
+- String loggedInUsername
++ {static} ReportFragment newInstance()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void checkUserLoginStatus()
++ void onViewCreated(View,Bundle)
+- void submitReport()
+- void clearForm()
+}
+
+
+class com.example.myfinalproject.AdminFragment.AdminFragment {
+- Button btnSend
+- TextView tvNumUsers
++ {static} AdminFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void navigateToUserProfile(String)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment {
+- RecyclerView recyclerProfessions
+- ProfessionAdapter adapter
+- TabLayout tabLayout
+- SearchView searchView
+- LinearLayout emptyState
+- TextView tvSubtitle
+- String selectedClass
++ {static} ChooseProfessionFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- List<Profession> createProfessionsList()
+- void checkForEmptyState()
++ void onProfessionClick(Profession)
+}
+
+
+class com.example.myfinalproject.ManageUserFragment.ManageUserFragment {
+- int badPoints
+- TextView tvBadPoints
+- Button btnAddPoint
+- User currentUser
+- String userId
+- ImageView imgUserProfile
++ {static} ManageUserFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void updateBadPointsInDatabase()
+- void updateBadPointsText()
+- void loadProfilePicture(String)
+- void loadUserByUsername(String)
+}
+
+
+class com.example.myfinalproject.UserProfileFragment.UserProfileFragment {
+- TextView tvEmail
+- Button btnShowSummaries
+- ImageView imageView
+- UserProfilePresenter presenter
+- EditText etEmail
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- User currentUser
+- ImageView currentDialogImageView
+- EditText currentDialogBirthDateEditText
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void createCustomDialog()
+- String imageViewToBase64(ImageView)
++ void displayUserData(User)
++ void onClick(View)
++ void submitClicked(User)
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
++ void showError(String)
++ void onLogOutSuccess()
++ void onDeleteSuccess()
++ void openDialog()
++ void onResume()
+}
+
+
+class com.example.myfinalproject.SumByUserFragment.SumByUserPresenter {
+- {static} String TAG
+- SumByUserFragment view
+- String userName
+- CollectionReference summariesCollection
++ void loadUserSummaries(SummariesCallback)
++ void filterSummaries(String,List<Summary>,SummaryAdapter)
+}
+
+
+class com.example.myfinalproject.ChooseSumFragment.ChooseSumPresenter {
+- ChooseSumFragment view
+- SummaryRepository summaryDb
++ void loadSummaries(SummariesCallback,String,String)
++ List<Summary> filterSummariesByTitle(List<Summary>,String)
+}
+
+
+class com.example.myfinalproject.LoginFragment.LoginUserPresenter {
+- LoginCallback view
+- UserRepository userDb
++ void loginUser(String,String)
+}
+
+
+class com.example.myfinalproject.RegistrationFragment.RegisterUserPresenter {
+~ RegistrationFragment view
+~ UserRepository userDb
+~ String id
++ void submitClicked(User)
+}
+
+
+class com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment {
+- TabLayout tabLayout
+- RecyclerView recyclerNotifications
+- NotificationsAdminAdapter adapter
+- NotificationAdminRepository notificationRepository
+- AlertDialog currentDialog
+- {static} int TAB_ALL
+- {static} int TAB_MESSAGES
+- {static} int TAB_REPORTS
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void loadNotifications(int)
++ void onNotificationClick(NotificationAdmin)
+- void showNotificationDetailsDialog(NotificationAdmin)
+- void navigateToManageUserFragment(String)
++ void onStart()
+}
+
+
+
+
+com.example.myfinalproject.ChooseSumFragment.OnClickListener <|.. com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment
+com.example.myfinalproject.AdminLoginFragment.OnClickListener <|.. com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.Timer.TimerFragment
+com.example.myfinalproject.QuestionsFragment.OnClickListener <|.. com.example.myfinalproject.QuestionsFragment.QuestionsFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.QuestionsFragment.QuestionsFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ContactUsFragment.ContactUsFragment
+com.example.myfinalproject.LoginFragment.OnClickListener <|.. com.example.myfinalproject.LoginFragment.LoginFragment
+com.example.myfinalproject.CallBacks.LoginCallback <|.. com.example.myfinalproject.LoginFragment.LoginFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.LoginFragment.LoginFragment
+com.example.myfinalproject.WritingSumFragment.OnClickListener <|.. com.example.myfinalproject.WritingSumFragment.WritingSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.WritingSumFragment.WritingSumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.Event.AlarmManagerFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SaveSummaryFragment.SaveSummaryFragment
+com.example.myfinalproject.SumFragment.OnClickListener <|.. com.example.myfinalproject.SumFragment.SumFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SumFragment.SumFragment
+com.example.myfinalproject.SumFragment.SumFragment +.. com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask
+com.example.myfinalproject.SumFragment.AsyncTask <|-- com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SumByUserFragment.SumByUserFragment
+com.example.myfinalproject.RegistrationFragment.OnClickListener <|.. com.example.myfinalproject.RegistrationFragment.RegistrationFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.RegistrationFragment.RegistrationFragment
+com.example.myfinalproject.CallBacks.ReviewCallback <|.. com.example.myfinalproject.SumReviewFragment.SumReviewFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.SumReviewFragment.SumReviewFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ReportFragment.ReportFragment
+com.example.myfinalproject.AdminFragment.OnClickListener <|.. com.example.myfinalproject.AdminFragment.AdminFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.AdminFragment.AdminFragment
+com.example.myfinalproject.ChooseProfessionFragment.ProfessionClickListener <|.. com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ChooseProfessionFragment.ChooseProfessionFragment
+com.example.myfinalproject.ManageUserFragment.OnClickListener <|.. com.example.myfinalproject.ManageUserFragment.ManageUserFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ManageUserFragment.ManageUserFragment
+com.example.myfinalproject.UserProfileFragment.OnClickListener <|.. com.example.myfinalproject.UserProfileFragment.UserProfileFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.UserProfileFragment.UserProfileFragment
+com.example.myfinalproject.NoticesAdminFragment.OnNotificationClickListener <|.. com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment
+@enduml

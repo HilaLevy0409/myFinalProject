@@ -1,0 +1,72 @@
+@startuml
+class com.example.myfinalproject.Adapters.ClassAdapter {
+- Context context
+- String[] classes
+- Random random
++ int getCount()
++ Object getItem(int)
++ long getItemId(int)
++ View getView(int,View,ViewGroup)
+}
+
+
+class com.example.myfinalproject.Adapters.ProfessionAdapter {
+- List<Profession> professions
+- List<Profession> filteredProfessions
+- Context context
+- ProfessionClickListener listener
++ ProfessionViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ProfessionViewHolder,int)
++ int getItemCount()
++ void filterByCategory(String)
++ void filterByQuery(String)
+}
+
+
+class com.example.myfinalproject.Adapters.ProfessionAdapter$ProfessionViewHolder {
+~ TextView tvProfessionName
+~ MaterialCardView cardProfession
+}
+
+interface com.example.myfinalproject.Adapters.ProfessionAdapter$ProfessionClickListener {
+~ void onProfessionClick(Profession)
+}
+
+class com.example.myfinalproject.Adapters.NotificationsAdminAdapter {
+- List<NotificationAdmin> notificationsList
+- OnNotificationClickListener listener
++ NotificationViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(NotificationViewHolder,int)
++ int getItemCount()
++ void updateData(List<NotificationAdmin>)
++ void removeNotification(NotificationAdmin)
+}
+
+
+interface com.example.myfinalproject.Adapters.NotificationsAdminAdapter$OnNotificationClickListener {
+~ void onNotificationClick(NotificationAdmin)
+}
+
+class com.example.myfinalproject.Adapters.NotificationsAdminAdapter$NotificationViewHolder {
+- TextView tvUserName
+- TextView tvTimestamp
+- TextView tvContent
+- TextView tvType
+- TextView tvReason
+- MaterialCardView cardNotification
++ void bind(NotificationAdmin)
+}
+
+
+
+
+android.widget.BaseAdapter <|-- com.example.myfinalproject.Adapters.ClassAdapter
+com.example.myfinalproject.Adapters.Adapter <|-- com.example.myfinalproject.Adapters.ProfessionAdapter
+com.example.myfinalproject.Adapters.ProfessionAdapter +.. com.example.myfinalproject.Adapters.ProfessionAdapter$ProfessionViewHolder
+com.example.myfinalproject.Adapters.ViewHolder <|-- com.example.myfinalproject.Adapters.ProfessionAdapter$ProfessionViewHolder
+com.example.myfinalproject.Adapters.ProfessionAdapter +.. com.example.myfinalproject.Adapters.ProfessionAdapter$ProfessionClickListener
+com.example.myfinalproject.Adapters.Adapter <|-- com.example.myfinalproject.Adapters.NotificationsAdminAdapter
+com.example.myfinalproject.Adapters.NotificationsAdminAdapter +.. com.example.myfinalproject.Adapters.NotificationsAdminAdapter$OnNotificationClickListener
+com.example.myfinalproject.Adapters.NotificationsAdminAdapter +.. com.example.myfinalproject.Adapters.NotificationsAdminAdapter$NotificationViewHolder
+com.example.myfinalproject.Adapters.ViewHolder <|-- com.example.myfinalproject.Adapters.NotificationsAdminAdapter$NotificationViewHolder
+@enduml

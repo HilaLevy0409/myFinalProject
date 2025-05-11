@@ -79,8 +79,7 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red" />
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -103,8 +102,6 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
                />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -129,8 +126,7 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
+
                />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -156,8 +152,7 @@
                 android:clickable="true"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
+
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -181,8 +176,6 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
                 />
 
 
@@ -208,8 +201,7 @@
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
 
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
+
                />
         </com.google.android.material.textfield.TextInputLayout>
 
