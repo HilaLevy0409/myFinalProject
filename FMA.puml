@@ -1,0 +1,25 @@
+@startuml
+class com.example.myfinalproject.FirstActivity {
+- ProgressBar progressBar
+- TextView tvLoading
+- int progressStatus
+# void onCreate(Bundle)
+- void animateImageView(ImageView)
+}
+
+
+class com.example.myfinalproject.MainActivity {
+- DrawerLayout drawerLayout
++ void updateNavigationHeader()
+# void onCreate(Bundle)
++ boolean onNavigationItemSelected(MenuItem)
++ void onBackPressed()
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.myfinalproject.FirstActivity
+com.example.myfinalproject.OnNavigationItemSelectedListener <|.. com.example.myfinalproject.MainActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.myfinalproject.MainActivity
+@enduml

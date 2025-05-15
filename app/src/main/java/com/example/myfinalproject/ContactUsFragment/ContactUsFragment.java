@@ -29,7 +29,6 @@ public class ContactUsFragment extends Fragment {
 
     private EditText etUserName, etContactDetails, etCustomReason;
     private RadioGroup contactReasonGroup;
-    private RadioButton rbOther;
     private TextInputLayout tilCustomReason;
     private Button btnSendContact;
     private TextView tvSubmitStatus;
@@ -70,7 +69,6 @@ public class ContactUsFragment extends Fragment {
         etUserName = view.findViewById(R.id.etUserName);
         etContactDetails = view.findViewById(R.id.etContactDetails);
         contactReasonGroup = view.findViewById(R.id.contactReasonGroup);
-        rbOther = view.findViewById(R.id.rbOther);
         tilCustomReason = view.findViewById(R.id.tilCustomReason);
         etCustomReason = view.findViewById(R.id.etCustomReason);
         btnSendContact = view.findViewById(R.id.btnSendContact);

@@ -1,6 +1,7 @@
 package com.example.myfinalproject.UserProfileFragment;
 
-import static com.google.firebase.appcheck.internal.util.Logger.TAG;
+
+import static com.example.myfinalproject.Utils.Validator.isValidPassword;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -10,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
@@ -23,15 +25,21 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+
 import android.text.Editable;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,35 +53,32 @@ import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.Utils.Validator;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class UserProfileFragment extends Fragment implements View.OnClickListener {
     private TextView tvEmail, tvPhoneNumber, tvBirthDate, tvUsername, tvBadPoints, tvSumNum;
-    private Button btnShowSummaries, btnDeleteUser, btnLogOut, btnEdit, btnFinish, btnUploadPhoto, btnSaveSummary, btnSendMessage;
-    private ImageView imageView, imageViewProfileEdit;
+    private Button btnShowSummaries, btnDeleteUser, btnLogOut, btnEdit, btnUploadPhoto, btnSaveSummary, btnSendMessage, btnChangePassword, btnFinish;
+    private ImageView imageView;
     private UserProfilePresenter presenter;
-    private EditText etEmail, etPhoneNumber, etUsername, etBirthDate;
+    private EditText etBirthDate, etEmailS;
+    private FirebaseFirestore database;
+
 
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
     private User currentUser;
-
-
     private ImageView currentDialogImageView;
-
     private EditText currentDialogBirthDateEditText;
-
-
 
 
     @Override
@@ -83,59 +88,40 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     }
 
 
-
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         presenter = new UserProfilePresenter(this);
         presenter.loadUserData();
-
-
         tvEmail = view.findViewById(R.id.tvEmail);
         tvPhoneNumber = view.findViewById(R.id.tvPhoneNumber);
         tvUsername = view.findViewById(R.id.tvUsername);
         tvBirthDate = view.findViewById(R.id.tvBirthDate);
         tvBadPoints = view.findViewById(R.id.tvBadPoints);
         tvSumNum = view.findViewById(R.id.tvSumNum);
-
-
         btnShowSummaries = view.findViewById(R.id.btnShowSummaries);
         btnDeleteUser = view.findViewById(R.id.btnDeleteUser);
         btnLogOut = view.findViewById(R.id.btnLogOut);
         btnEdit = view.findViewById(R.id.btnEdit);
         imageView = view.findViewById(R.id.imageView);
-
-        etEmail = view.findViewById(R.id.etEmail);
-        etPhoneNumber = view.findViewById(R.id.etPhoneNumber);
-        etUsername = view.findViewById(R.id.etUsername);
-        imageViewProfileEdit = view.findViewById(R.id.imageViewProfileEdit);
-        btnFinish = view.findViewById(R.id.btnFinish);
-
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
         btnSaveSummary = view.findViewById(R.id.btnSaveSummary);
-
+        btnChangePassword = view.findViewById(R.id.btnChangePassword);
+        btnFinish = view.findViewById(R.id.btnFinish);
 
         btnShowSummaries.setOnClickListener(this);
         btnDeleteUser.setOnClickListener(this);
         btnLogOut.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
+        btnChangePassword.setOnClickListener(this);
 
 
         btnSaveSummary.setOnClickListener(this);
         btnSendMessage.setOnClickListener(this);
 
-
+        database = FirebaseFirestore.getInstance();
 
     }
-
-
-
-
-
-
-
-
 
     private void createCustomDialog() {
         final Dialog dialog = new Dialog(getContext());
@@ -194,7 +180,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 String newUsername = etEditUsername.getText().toString().trim();
                 String newBirthDate = etBirthDate.getText().toString();
 
-
                 if (newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty() || newBirthDate.isEmpty()) {
                     showError("יש למלא את כל השדות!");
                     return;
@@ -230,7 +215,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                     etEditEmail.setError("האימייל הזה כבר בשימוש");
                                     return;
                                 }
-
                                 db.collection("users")
                                         .whereEqualTo("userName", newUsername)
                                         .get()
@@ -242,7 +226,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                     etEditUsername.setError("השם הזה כבר בשימוש");
                                                     return;
                                                 }
-
 
                                                 User updatedUser = new User();
                                                 updatedUser.setId(currentUser != null ? currentUser.getId() : "");
@@ -256,7 +239,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                     updatedUser.setBadPoints(currentUser.getBadPoints());
                                                     updatedUser.setSumCount(currentUser.getSumCount());
                                                 }
-
                                                 if (currentDialogImageView != null && currentDialogImageView.getDrawable() != null) {
                                                     String base64Image = imageViewToBase64(currentDialogImageView);
                                                     if (base64Image != null) {
@@ -265,24 +247,16 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                 } else if (currentUser != null) {
                                                     updatedUser.setImageProfile(currentUser.getImageProfile());
                                                 }
-
                                                 if (currentUser != null) {
                                                     updatedUser.setBadPoints(currentUser.getBadPoints());
                                                     updatedUser.setSumCount(currentUser.getSumCount());
                                                 }
-
                                                 presenter.submitClicked(updatedUser);
                                                 dialog.dismiss();
 
-
-
-                                            } else {
-                                                Log.d("Firestore", "שגיאה בבדיקת שם משתמש: ", usernameTask.getException());
                                             }
                                         });
 
-                            } else {
-                                Log.d("Firestore", "שגיאה בבדיקת אימייל: ", emailTask.getException());
                             }
                         });
             }
@@ -307,8 +281,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
     }
 
-
-
     public void displayUserData(User user) {
         this.currentUser = user;
         tvEmail.setText("אימייל: " + user.getUserEmail());
@@ -322,30 +294,24 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         if (imageProfileData != null && !imageProfileData.isEmpty()) {
             try {
                 if (imageProfileData.startsWith("/9j/") || imageProfileData.startsWith("iVBOR")) {
-                    Log.d("USER_PROFILE_TAG", "Decoding Base64 image");
                     byte[] decodedString = android.util.Base64.decode(imageProfileData, android.util.Base64.DEFAULT);
                     Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                     if (bitmap != null) {
                         imageView.setImageBitmap(bitmap);
-                        Log.d("USER_PROFILE_TAG", "Base64 image set successfully");
-                    } else {
-                        Log.d("USER_PROFILE_TAG", "Failed to decode bitmap from Base64");
                     }
                 } else {
                     Uri imageUri = Uri.parse(imageProfileData);
                     try {
-                        Log.d("USER_PROFILE_TAG", "Loading image from URI");
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
                         imageView.setImageBitmap(bitmap);
-                        Log.d("USER_PROFILE_TAG", "URI image set successfully");
                     } catch (IOException e) {
                         Log.e("USER_PROFILE_TAG", "Error loading image from URI", e);
                     }
                 }
             } catch (Exception e) {
+                Log.e("USER_PROFILE_TAG", "שגיאה בעת הצגת תמונת הפרופיל", e);
+
             }
-        } else {
-            Log.d("USER_PROFILE_TAG", "No image profile data available");
         }
     }
     @Override
@@ -371,7 +337,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                         if (getActivity() instanceof MainActivity) {
                             ((MainActivity) getActivity()).updateNavigationHeader();
                         }
-
                     })
                     .setNegativeButton("לא", null)
                     .setCancelable(false)
@@ -413,6 +378,8 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     .replace(R.id.flFragment, new ChooseMessageFragment())
                     .addToBackStack(null)
                     .commit();
+        }  if (view == btnChangePassword) {
+            createCustomDialogPass();
         }
 
     }
@@ -455,7 +422,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         startActivityForResult(intent, CAMERA);
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -495,7 +461,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
     }
 
-
     public String saveImage(Bitmap myBitmap) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
@@ -503,7 +468,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         if (!wallpaperDirectory.exists()) {
             wallpaperDirectory.mkdirs();
         }
-
         try {
             File f = new File(wallpaperDirectory, Calendar.getInstance()
                     .getTimeInMillis() + ".jpg");
@@ -514,8 +478,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     new String[]{f.getPath()},
                     new String[]{"image/jpeg"}, null);
             fo.close();
-            Log.d("TAG", "File Saved::--->" + f.getAbsolutePath());
-
 
             return f.getAbsolutePath();
         } catch (IOException e1) {
@@ -572,6 +534,266 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
         datePickerDialog.show();
     }
+    private void createCustomDialogPass() {
+        Dialog dialog = new Dialog(getContext());
+        dialog.setTitle("שחזור סיסמה");
+        dialog.setContentView(R.layout.pass_dialog);
+
+        etEmailS = dialog.findViewById(R.id.etEmailS);
+        btnFinish = dialog.findViewById(R.id.btnFinish);
+        ProgressBar progressBar = dialog.findViewById(R.id.progressBar);
+
+        btnFinish.setOnClickListener(v -> {
+            String emailSend = etEmailS.getText().toString().trim();
+
+            if (emailSend.isEmpty()) {
+                Toast.makeText(getContext(), "נא להזין אימייל", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String validEmail = Validator.isValidEmail(emailSend);
+            if (!validEmail.isEmpty()) {
+                Toast.makeText(getContext(), validEmail, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            btnFinish.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+
+            database.collection("users")
+                    .whereEqualTo("userEmail", emailSend)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            auth.sendPasswordResetEmail(emailSend)
+                                    .addOnCompleteListener(resetTask -> {
+                                        progressBar.setVisibility(View.GONE);
+                                        btnFinish.setVisibility(View.VISIBLE);
+
+                                        if (resetTask.isSuccessful()) {
+                                            Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
+
+                                            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("PasswordResetPrefs", Context.MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putBoolean(emailSend, true);
+                                            editor.apply();
+
+                                            dialog.dismiss();
+
+                                            askUserToUpdatePasswordInFirestore();
+
+                                        } else {
+                                            Exception exception = resetTask.getException();
+                                            if (exception != null) {
+                                                String errorMessage = exception.getMessage();
+
+                                                if (errorMessage != null && errorMessage.contains("no user record")) {
+                                                    Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה: " + errorMessage, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        }
+                                    });
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            btnFinish.setVisibility(View.VISIBLE);
+                            Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        progressBar.setVisibility(View.GONE);
+                        btnFinish.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), "שגיאה בבדיקת האימייל: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        });
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+    }
+
+
+
+
+
+    private void askUserToUpdatePasswordInFirestore() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
+        builder.setTitle("עדכון סיסמה במערכת");
+
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        final EditText input = new EditText(getContext());
+        input.setHint("הקלד/י את הסיסמה החדשה");
+        input.setGravity(Gravity.RIGHT);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        final ImageView togglePasswordVisibility = new ImageView(getContext());
+        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
+        togglePasswordVisibility.setPadding(20, 20, 20, 20);
+
+        LinearLayout passwordLayout = new LinearLayout(getContext());
+        passwordLayout.setOrientation(LinearLayout.HORIZONTAL);
+        passwordLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        passwordLayout.addView(input, inputParams);
+        passwordLayout.addView(togglePasswordVisibility);
+
+        layout.addView(passwordLayout);
+
+        final TextView passwordStrength = new TextView(getContext());
+        passwordStrength.setTextSize(14);
+        passwordStrength.setPadding(0, (int)(8 * getResources().getDisplayMetrics().density), 0, 0);
+        layout.addView(passwordStrength);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("עדכון", null);
+        builder.setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
+
+        android.app.AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(d -> {
+            Button positiveButton = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(v -> {
+                String newPassword = input.getText().toString().trim();
+
+                if (TextUtils.isEmpty(newPassword)) {
+                    input.setError("יש להזין סיסמה");
+                    input.requestFocus();
+                    return;
+                }
+
+                String validationMessage = isValidPassword(newPassword);
+                if (!validationMessage.isEmpty()) {
+                    input.setError(validationMessage);
+                    input.requestFocus();
+                    return;
+                }
+
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (firebaseUser != null) {
+                    firebaseUser.updatePassword(newPassword)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    String email = firebaseUser.getEmail();
+                                    if (email == null) {
+                                        Toast.makeText(getContext(), "לא ניתן למצוא את כתובת האימייל של המשתמש", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    FirebaseFirestore.getInstance()
+                                            .collection("users")
+                                            .whereEqualTo("userEmail", email)
+                                            .get()
+                                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                                if (!queryDocumentSnapshots.isEmpty()) {
+                                                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                                                    document.getReference().update("userPass", newPassword)
+                                                            .addOnSuccessListener(aVoid -> {
+                                                                Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+                                                                dialog.dismiss();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                            });
+                                                } else {
+                                                    Toast.makeText(getContext(), "לא נמצא משתמש תואם במסד הנתונים", Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+
+                                } else {
+                                    Exception exception = task.getException();
+                                    Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה ב-Firebase: " + (exception != null ? exception.getMessage() : ""), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                }
+            });
+
+            input.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                @Override public void afterTextChanged(Editable s) {
+                    updatePasswordStrengthView(s.toString(), passwordStrength);
+                }
+            });
+
+            togglePasswordVisibility.setOnClickListener(v -> {
+                if (input.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
+                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
+                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
+                    }).start();
+                } else {
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
+                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
+                    }).start();
+                }
+
+                input.setSelection(input.getText().length());
+            });
+
+        });
+
+        dialog.show();
+    }
+
+    private void updatePasswordStrengthView(String password, TextView passwordStrength) {
+        int strength = calculatePasswordStrength(password);
+        String strengthMessage;
+
+        if (strength < 3) {
+            strengthMessage = "סיסמה חלשה";
+            passwordStrength.setTextColor(Color.RED);
+        } else if (strength < 5) {
+            strengthMessage = "סיסמה בינונית";
+            passwordStrength.setTextColor(Color.YELLOW);
+        } else {
+            strengthMessage = "סיסמה חזקה";
+            passwordStrength.setTextColor(Color.GREEN);
+        }
+
+        passwordStrength.setText(strengthMessage);
+    }
+
+    private int calculatePasswordStrength(String password) {
+        int strength = 0;
+
+        if (password.matches(".*[A-Z].*")) {
+            strength++;
+        }
+
+        if (password.matches(".*[a-z].*")) {
+            strength++;
+        }
+
+        if (password.matches(".*\\d.*")) {
+            strength++;
+        }
+
+        if (password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            strength++;
+        }
+
+        if (password.length() >= 8) {
+            strength++;
+        }
+
+        return strength;
+    }
 
     @Override
     public void onResume() {
@@ -580,4 +802,5 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             presenter.loadUserData();
         }
     }
+
 }

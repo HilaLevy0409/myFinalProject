@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,18 +27,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.List;
 
 public class WritingSumFragment extends Fragment implements View.OnClickListener {
 
@@ -51,10 +47,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private EditText etSummaryTitle, etSummaryContent;
     private ImageView imageViewSummary;
     private MaterialCardView writeSummaryCard, uploadSummaryCard;
-
-
-
-
     private String selectedClass, selectedProfession;
 
     private Summary summary;
@@ -70,7 +62,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
             selectedProfession = getArguments().getString("selected_profession", "");
-            Log.d("WritingSumFragment", "Received: class=" + selectedClass + ", profession=" + selectedProfession);
         }
     }
 
@@ -195,35 +186,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
 
 
-//    private void saveSummaryData() {
-//        String summaryTitle = etSummaryTitle.getText().toString().trim();
-//
-//        summary.setClassOption(selectedClass);
-//        summary.setProfession(selectedProfession);
-//        summary.setSummaryTitle(summaryTitle);
-//
-//        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//        summary.setUserId(userId);
-//
-//
-//        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
-//        String currentUsername = prefs.getString("username", "אנונימי");
-//        summary.setUserName(currentUsername);
-//
-//        if (isWriteMode) {
-//            String summaryContent = etSummaryContent.getText().toString().trim();
-//            summary.setSummaryContent(summaryContent);
-//            summary.setImage(null);
-//        } else {
-//            if (imageViewSummary.getDrawable() != null) {
-//                String base64Image = bitmapToBase64(((BitmapDrawable) imageViewSummary.getDrawable()).getBitmap());
-//                summary.setImage(base64Image);
-//            }
-//            summary.setSummaryContent("");
-//        }
-//
-//        summaryPresenter.submitSummaryClicked(summary);
-//    }
+
 
     private void saveSummaryData() {
         String summaryTitle = etSummaryTitle.getText().toString().trim();
@@ -354,7 +317,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
                     new String[]{f.getPath()},
                     new String[]{"image/jpeg"}, null);
             fo.close();
-            Log.d("TAG", "File Saved::--->" + f.getAbsolutePath());
 
             return f.getAbsolutePath();
         } catch (IOException e1) {

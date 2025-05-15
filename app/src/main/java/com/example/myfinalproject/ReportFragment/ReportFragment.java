@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +31,6 @@ public class ReportFragment extends Fragment {
 
     private EditText etUserNameOrTopic, etUserName, etCustomReason, etReportDetails;
     private RadioGroup reportReasonGroup;
-    private RadioButton rbOther;
     private TextInputLayout tilCustomReason;
     private Button btnSendReport;
     private TextView tvSubmitStatus;
@@ -76,7 +74,6 @@ public class ReportFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         etUserNameOrTopic = view.findViewById(R.id.etUserNameOrTopic);
         reportReasonGroup = view.findViewById(R.id.reportReasonGroup);
-        rbOther = view.findViewById(R.id.rbOther);
         tilCustomReason = view.findViewById(R.id.tilCustomReason);
         etCustomReason = view.findViewById(R.id.etCustomReason);
         etReportDetails = view.findViewById(R.id.etReport);
@@ -165,22 +162,16 @@ public class ReportFragment extends Fragment {
             summaryId = bundle.getString("summaryId");
             if (summaryId != null && !summaryId.isEmpty()) {
 
-                android.util.Log.d("ReportFragment", "Setting summaryId: " + summaryId);
 
 
                 report.setId(summaryId);
 
-                android.util.Log.d("ReportFragment", "Created report with summaryId: " + summaryId);
             }
         }
 
         btnSendReport.setEnabled(false);
 
 
-        android.util.Log.d("ReportFragment", "Sending report: " +
-                "type=" + report.getType() +
-                ", reportedName=" + reportedUserName +
-                ", summaryId=" + summaryId);
 
 
         if (summaryId != null) {

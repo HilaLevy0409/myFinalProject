@@ -3,7 +3,6 @@ package com.example.myfinalproject.ChooseSumFragment;
 
 import android.os.Bundle;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +25,8 @@ import com.example.myfinalproject.R;
 import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 
 import com.example.myfinalproject.SumFragment.SumFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
@@ -51,13 +52,12 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         summaryList = new ArrayList<>();
-        chooseSumPresenter = new ChooseSumPresenter(this);
+        chooseSumPresenter = new ChooseSumPresenter();
 
 
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
             selectedProfession = getArguments().getString("selected_profession", "");
-            Log.d("ChooseSumFragment", "Received: class=" + selectedClass + ", profession=" + selectedProfession);
 
 
         }
@@ -68,11 +68,11 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choose_sum, container, false);
-        loadSummaries();
-        return view;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {FirebaseAuth.getInstance().signOut(); // רק לבדיק
+
+        return inflater.inflate(R.layout.fragment_choose_sum, container, false);
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -91,8 +91,8 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 //            btnAdd.setEnabled(true);
 //        }
 
-
         tvNoSummaries = view.findViewById(R.id.tvNoSummaries);
+
 
         btnAdd.setOnClickListener(this);
 
@@ -128,7 +128,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
             }
         });
 
-
+        loadSummaries();
 
     }
 

@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SumReviewFragment extends Fragment implements ReviewCallback {
-    private static final String TAG = "SumReviewFragment";
 
     private RecyclerView rvReviews;
     private ReviewAdapter reviewAdapter;
@@ -69,8 +67,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         if (getArguments() != null) {
             summaryId = getArguments().getString("summaryId");
             initialRating = getArguments().getFloat("rating", 0f);
-            Log.d(TAG, "SummaryId from arguments: " + summaryId);
-            Log.d(TAG, "Initial rating: " + initialRating);
+
         }
 
         db = FirebaseFirestore.getInstance();
@@ -93,12 +90,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         btnSubmitReview = view.findViewById(R.id.btnSubmitReview);
 
 
-        if (tvReviewsCount == null) {
-            Log.e(TAG, "tvReviewsCount not found in layout");
-        }
-        if (rvReviews == null) {
-            Log.e(TAG, "rvReviews not found in layout");
-        }
 
 
         if (initialRating > 0 && ratingBar != null) {
@@ -112,8 +103,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
 
         if (btnSubmitReview != null) {
             btnSubmitReview.setOnClickListener(v -> submitReview());
-        } else {
-            Log.e(TAG, "btnSubmitReview not found in layout");
         }
 
         return view;
@@ -127,15 +116,15 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
-            Log.d(TAG, "Current user ID: " + currentUserId);
+
             fetchCurrentUserName();
         } else {
-            Log.d(TAG, "No user is currently logged in");
+
             tvName.setText("משתמש אנונימי");
         }
 
         if (summaryId == null || summaryId.isEmpty()) {
-            Log.e(TAG, "Summary ID is missing, cannot set up reviews listener");
+
             return;
         }
 
@@ -144,7 +133,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
             reviewsListener.remove();
         }
 
-        Log.d(TAG, "Setting up real-time listener for reviews of summary: " + summaryId);
+
 
 
         Query query = db.collection("reviews")
@@ -154,7 +143,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
 
         reviewsListener = query.addSnapshotListener((value, error) -> {
             if (error != null) {
-                Log.e(TAG, "Error listening for review changes", error);
+
                 return;
             }
 
@@ -186,19 +175,19 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                         currentUserName = documentSnapshot.getString("userName");
                         if (currentUserName != null && !currentUserName.isEmpty()) {
                             tvName.setText(currentUserName);
-                            Log.d(TAG, "Current user name: " + currentUserName);
+
                         } else {
                             tvName.setText("משתמש");
-                            Log.d(TAG, "Username not found in user document");
+
                         }
                     } else {
                         tvName.setText("משתמש");
-                        Log.d(TAG, "User document not found");
+
                     }
                 })
                 .addOnFailureListener(e -> {
                     tvName.setText("משתמש");
-                    Log.e(TAG, "Error fetching user document", e);
+
                 });
     }
 
@@ -211,12 +200,10 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
             if (review != null) {
                 review.setReviewId(document.getId());
                 reviewList.add(review);
-                Log.d(TAG, "Added/Updated review: " + review.getReviewId() + " by " + review.getUserName());
             }
         }
 
         int reviewCount = reviewList.size();
-        Log.d(TAG, "Total reviews: " + reviewCount);
 
         if (tvReviewsCount != null) {
             tvReviewsCount.setText("(" + reviewCount + ")");
@@ -233,12 +220,10 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
     private void checkIfUserReviewed() {
         if (currentUserId == null || summaryId == null) {
             hasReviewed = false;
-            Log.d(TAG, "Cannot check if user reviewed: user ID or summary ID is null");
             enableReviewForm();
             return;
         }
 
-        Log.d(TAG, "Checking if user " + currentUserId + " has already reviewed summary " + summaryId);
 
         db.collection("reviews")
                 .whereEqualTo("summaryId", summaryId)
@@ -249,7 +234,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
 
                     if (hasReviewed) {
 
-                        Log.d(TAG, "User has already reviewed this summary");
 
                         if (getActivity() != null && !getActivity().isFinishing()) {
                             Toast.makeText(getContext(), "כבר כתבת ביקורת לסיכום זה", Toast.LENGTH_SHORT).show();
@@ -270,12 +254,10 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                         }
                     } else {
 
-                        Log.d(TAG, "User has not reviewed this summary yet");
                         enableReviewForm();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error checking if user reviewed", e);
 
                     hasReviewed = false;
                     enableReviewForm();
@@ -330,7 +312,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 .add(newReview)
                 .addOnSuccessListener(documentReference -> {
                     String reviewId = documentReference.getId();
-                    Log.d(TAG, "Review added with ID: " + reviewId);
 
 
                     etReviewText.setText("");
@@ -344,9 +325,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                     Toast.makeText(getContext(), "תודה על הביקורת שלך!", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בשליחת הביקורת: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Error adding review", e);
-                });
+                    Toast.makeText(getContext(), "שגיאה בשליחת הביקורת: " + e.getMessage(), Toast.LENGTH_SHORT).show();});
     }
 
     private void updateAverageRating() {
@@ -355,9 +334,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
 
         if (summaryId != null && !summaryId.isEmpty()) {
             DocumentReference summaryRef = db.collection("summaries").document(summaryId);
-            summaryRef.update("averageRating", averageRating)
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Average rating updated to " + averageRating))
-                    .addOnFailureListener(e -> Log.e(TAG, "Error updating average rating", e));
+            summaryRef.update("averageRating", averageRating);
         }
     }
 
@@ -373,7 +350,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                         db.collection("reviews").document(review.getReviewId())
                                 .delete()
                                 .addOnSuccessListener(aVoid -> {
-                                    Log.d(TAG, "Review deleted: " + review.getReviewId());
+
 
                                     reviewList.remove(position);
                                     reviewAdapter.notifyItemRemoved(position);
@@ -392,7 +369,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(getContext(), "שגיאה במחיקת הביקורת", Toast.LENGTH_SHORT).show();
-                                    Log.e(TAG, "Error deleting review", e);
+
                                 });
                     }
                 })
@@ -430,7 +407,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 "reviewText", newText,
                 "rating", newRating
         ).addOnSuccessListener(aVoid -> {
-            Log.d(TAG, "Review updated successfully: " + review.getReviewId());
 
             review.setReviewText(newText);
             review.setRating(newRating);
@@ -441,7 +417,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
             Toast.makeText(getContext(), "הביקורת עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(e -> {
             Toast.makeText(getContext(), "שגיאה בעדכון הביקורת: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Error updating review", e);
         });
     }
 

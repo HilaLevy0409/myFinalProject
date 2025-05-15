@@ -367,7 +367,36 @@
                             android:backgroundTint="#FFB3A7"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"/>
+
+
                     </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnChangePassword"
+                            android:layout_width="0dp"
+                            android:layout_height="100dp"
+                            android:layout_weight="1"
+                            android:text="שינוי\nסיסמה"
+                            android:textSize="14sp"
+                            android:textAlignment="center"
+                            android:textStyle="bold"
+                            app:icon="@android:drawable/ic_lock_lock"
+                            app:iconGravity="top"
+                            app:iconSize="32dp"
+                            app:cornerRadius="16dp"
+                            android:backgroundTint="#B3E5FC"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:layout_marginEnd="8dp"/>
+
+
+                    </LinearLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

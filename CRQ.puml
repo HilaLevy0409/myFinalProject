@@ -1,0 +1,54 @@
+@startuml
+class com.example.myfinalproject.QuestionsFragment.QuestionsFragment {
+- Button btnContact
++ {static} QuestionsFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+}
+
+
+class com.example.myfinalproject.ContactUsFragment.ContactUsFragment {
+- EditText etUserName
+- RadioGroup contactReasonGroup
+- TextInputLayout tilCustomReason
+- Button btnSendContact
+- TextView tvSubmitStatus
+- NotificationAdminRepository notificationRepository
+- boolean isUserLoggedIn
+- String loggedInUsername
++ {static} ContactUsFragment newInstance()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void checkUserLoginStatus()
++ void onViewCreated(View,Bundle)
+- void sendMessage()
+- void clearForm()
+}
+
+
+class com.example.myfinalproject.ReportFragment.ReportFragment {
+- EditText etUserNameOrTopic
+- RadioGroup reportReasonGroup
+- TextInputLayout tilCustomReason
+- Button btnSendReport
+- TextView tvSubmitStatus
+- NotificationAdminRepository notificationRepository
+- boolean isUserLoggedIn
+- String loggedInUsername
++ {static} ReportFragment newInstance()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void checkUserLoginStatus()
++ void onViewCreated(View,Bundle)
+- void submitReport()
+- void clearForm()
+}
+
+
+
+
+com.example.myfinalproject.QuestionsFragment.OnClickListener <|.. com.example.myfinalproject.QuestionsFragment.QuestionsFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.QuestionsFragment.QuestionsFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ContactUsFragment.ContactUsFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.ReportFragment.ReportFragment
+@enduml

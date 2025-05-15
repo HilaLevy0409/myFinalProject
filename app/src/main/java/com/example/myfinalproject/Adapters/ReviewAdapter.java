@@ -22,12 +22,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
-    private static final String TAG = "ReviewAdapter";
-
     private List<Review> reviewList;
     private String userId;
     private ReviewCallback callback;
-
 
     public ReviewAdapter(List<Review> reviewList, ReviewCallback callback) {
         this.reviewList = reviewList;
@@ -46,7 +43,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
-
         if (reviewList == null || position < 0 || position >= reviewList.size()) {
             return;
         }
@@ -73,7 +69,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
             holder.imgBtnDeleteReview.setVisibility(isUserReview ? View.VISIBLE : View.GONE);
             holder.imgBtnEditReview.setVisibility(isUserReview ? View.VISIBLE : View.GONE);
-
             holder.btnSaveChanges.setVisibility(View.GONE);
             holder.tvWritingReview.setFocusable(false);
             holder.tvWritingReview.setClickable(false);
@@ -87,14 +82,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
             holder.imgBtnEditReview.setOnClickListener(v -> {
                 boolean isEditing = holder.btnSaveChanges.getVisibility() == View.VISIBLE;
-
                 if (!isEditing) {
                     holder.btnSaveChanges.setVisibility(View.VISIBLE);
                     holder.tvWritingReview.setFocusableInTouchMode(true);
                     holder.tvWritingReview.setClickable(true);
                     holder.tvWritingReview.requestFocus();
                     holder.rbReviewRating.setIsIndicator(false);
-
                     if (callback != null) {
                         callback.onEditReview(review, holder.getAdapterPosition());
                     }
@@ -105,14 +98,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
                     holder.rbReviewRating.setIsIndicator(true);
                 }
             });
-
             holder.btnSaveChanges.setOnClickListener(v -> {
                 if (callback != null) {
                     String newText = holder.tvWritingReview.getText().toString();
                     float newRating = holder.rbReviewRating.getRating();
                     callback.onSaveChanges(review, holder.getAdapterPosition(), newText, newRating);
                 }
-
                 holder.btnSaveChanges.setVisibility(View.GONE);
                 holder.tvWritingReview.setFocusable(false);
                 holder.tvWritingReview.setClickable(false);
@@ -127,20 +118,13 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return reviewList != null ? reviewList.size() : 0;
     }
 
-//    public void updateReviews(List<Review> newReviews) {
-//        this.reviewList = newReviews;
-//        notifyDataSetChanged();
-//    }
-
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
         TextView tvUser, tvWritingReview, tvReviewTimestamp;
         RatingBar rbReviewRating;
         ImageButton imgBtnEditReview, imgBtnDeleteReview;
         Button btnSaveChanges;
-
         ReviewViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvUser = itemView.findViewById(R.id.tvUser);
             tvWritingReview = itemView.findViewById(R.id.tvWritingReview);
             tvReviewTimestamp = itemView.findViewById(R.id.tvReviewTimestamp);

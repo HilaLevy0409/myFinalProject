@@ -1,6 +1,5 @@
 package com.example.myfinalproject.Adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,7 +39,6 @@ public class UserAdapter extends ArrayAdapter<User> {
         this.onClickedSendMessage = onClickedSendMessage;
     }
 
-    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -70,26 +68,6 @@ public class UserAdapter extends ArrayAdapter<User> {
         holder.tvUserName.setText(user.getUserName());
         holder.tvSumNumTitle.setText("מספר סיכומים שנכתבו: " + (user.getSumCount() > 0 ? user.getSumCount() : "0"));
 
-//        holder.btnReport.setOnClickListener(v -> {
-//            if (onClickedReport != null) {
-//                onClickedReport.onUserClick(position);
-//            }
-//        });
-//
-//        holder.btnSummaryByUser.setOnClickListener(v -> {
-//            if (onClickedSummaryByUser != null) {
-//                onClickedSummaryByUser.onUserClick(position);
-//            }
-//        });
-//
-//        holder.btnSendMessage.setOnClickListener(v -> {
-//            if (onClickedSendMessage != null) {
-//                onClickedSendMessage.onUserClick(position);
-//            }
-//        });
-
-
-
         if (user.getImageProfile() != null && !user.getImageProfile().isEmpty()) {
             try {
                 byte[] decodedString = Base64.decode(user.getImageProfile(), Base64.DEFAULT);
@@ -111,9 +89,4 @@ public class UserAdapter extends ArrayAdapter<User> {
         Button btnReport, btnSummaryByUser, btnSendMessage;
     }
 
-//    public void updateUsers(List<User> newUsers) {
-//        users.clear();
-//        users.addAll(newUsers);
-//        notifyDataSetChanged();
-//    }
 }

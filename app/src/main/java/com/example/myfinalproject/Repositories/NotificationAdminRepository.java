@@ -36,11 +36,7 @@ public class NotificationAdminRepository {
         return notifications.orderBy("timestamp", Query.Direction.DESCENDING);
     }
 
-//    public Query getNotificationsByType(String type) {
-//        return notifications
-//                .whereEqualTo("type", type)
-//                .orderBy("timestamp", Query.Direction.DESCENDING);
-//    }
+
 
 
     public Task<Void> deleteNotification(String notificationId) {

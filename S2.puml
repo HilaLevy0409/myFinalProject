@@ -30,7 +30,6 @@ class com.example.myfinalproject.WritingSumFragment.WritingSumFragment {
 
 
 class com.example.myfinalproject.SumFragment.SumFragment {
-- {static} String TAG
 - Button btnReport
 - RatingBar ratingBarSum
 - TextView tvText
@@ -77,13 +76,11 @@ class com.example.myfinalproject.SumFragment.SumFragment$DownloadImageTask {
 class com.example.myfinalproject.WritingSumFragment.SummaryPresenter {
 - WritingSumFragment view
 - SummaryRepository summaryDb
-~ Summary summary
 + void submitSummaryClicked(Summary)
 }
 
 
 class com.example.myfinalproject.SumReviewFragment.SumReviewFragment {
-- {static} String TAG
 - RecyclerView rvReviews
 - ReviewAdapter reviewAdapter
 - List<Review> reviewList

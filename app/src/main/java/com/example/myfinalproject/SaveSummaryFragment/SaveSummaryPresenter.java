@@ -1,6 +1,5 @@
 package com.example.myfinalproject.SaveSummaryFragment;
 
-import android.util.Log;
 
 import com.example.myfinalproject.DataModels.Summary;
 import com.google.firebase.auth.FirebaseAuth;
@@ -12,7 +11,6 @@ import java.util.List;
 
 public class SaveSummaryPresenter {
 
-    private static final String TAG = "SaveSummaryPresenter";
     private SaveSummaryFragment fragment;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
@@ -43,7 +41,6 @@ public class SaveSummaryPresenter {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error getting saved summaries", e);
                     fragment.showLoadError("שגיאה בטעינת הסיכומים השמורים");
                 });
     }
@@ -60,23 +57,19 @@ public class SaveSummaryPresenter {
                             }
                             allSummaries.add(summary);
                             fragment.updateSummaryList(allSummaries);
-                            Log.d(TAG, "Loaded summary: " + summary.getSummaryTitle() + " with ID: " + summary.getSummaryId());
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading summary", e);
                     fragment.showLoadError("שגיאה בטעינת הסיכום");
                 });
     }
 
     public void handleSummaryClick(Summary summary) {
         if (summary == null) {
-            Log.e(TAG, "Cannot navigate to SumFragment: summary is null");
             return;
         }
 
-        Log.d(TAG, "Handling click on summary with ID: " + summary.getSummaryId());
         fragment.navigateToSummary(summary);
     }
 

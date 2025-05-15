@@ -38,8 +38,7 @@ import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -47,7 +46,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
     private Button btnNext, btnForgotPass, btnFinish, btnRegisterNow;
     private EditText etUsername, etPassword, etEmailS;
-    private DatabaseReference mDatabase;
     private FirebaseFirestore database;
     private LoginUserPresenter presenter;
 
@@ -67,7 +65,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         btnForgotPass = view.findViewById(R.id.btnForgotPass);
         btnRegisterNow = view.findViewById(R.id.btnRegisterNow);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("users");
         database = FirebaseFirestore.getInstance();
         presenter = new LoginUserPresenter(this);
 
@@ -228,6 +225,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 //    }
 
 
+
+
     private void askUserToUpdatePasswordInFirestore() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("עדכון סיסמה במערכת");
@@ -288,17 +287,44 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (firebaseUser != null) {
-                    FirebaseFirestore.getInstance()
-                            .collection("users")
-                            .document(firebaseUser.getUid())
-                            .update("userPass", newPassword)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    firebaseUser.updatePassword(newPassword)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    String email = firebaseUser.getEmail();
+                                    if (email == null) {
+                                        Toast.makeText(getContext(), "לא ניתן למצוא את כתובת האימייל של המשתמש", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    FirebaseFirestore.getInstance()
+                                            .collection("users")
+                                            .whereEqualTo("userEmail", email)
+                                            .get()
+                                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                                if (!queryDocumentSnapshots.isEmpty()) {
+                                                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                                                    document.getReference().update("userPass", newPassword)
+                                                            .addOnSuccessListener(aVoid -> {
+                                                                Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+                                                                dialog.dismiss();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                            });
+                                                } else {
+                                                    Toast.makeText(getContext(), "לא נמצא משתמש תואם במסד הנתונים", Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+                                    
+                                } else {
+                                    Exception exception = task.getException();
+                                    Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה ב-Firebase: " + (exception != null ? exception.getMessage() : ""), Toast.LENGTH_SHORT).show();
+                                }
                             });
+
                 }
             });
 
@@ -389,7 +415,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateNavigationHeader();
         }
-
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, new ChooseClassFragment())

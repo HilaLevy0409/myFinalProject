@@ -15,7 +15,6 @@ public class Summary {
     private String summaryContent;
     private String image;
     private @ServerTimestamp Date createdDate;
-    private float rating;
     private String userName;
     private String userId;
 
@@ -63,15 +62,6 @@ public class Summary {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
-    public float getRating() {
-        return rating;
-    }
-
-    public void setRating(float rating) {
-        this.rating = rating;
-    }
-
 
 
 

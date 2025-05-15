@@ -73,7 +73,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
             holder.tvCreatedDate.setText("נוצר בתאריך: " + sdf.format(createdDate));
         } else {
-            // Add this to show when the date is null
             holder.tvCreatedDate.setText("תאריך לא זמין");
             Log.d("SummaryAdapter", "Date is null for summary: " + summary.getSummaryId());
         }
@@ -88,10 +87,10 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             } catch (Exception e) {
                 Toast.makeText(context, "שגיאה בטעינת התמונה", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
-                holder.imageSum.setImageResource(R.drawable.newlogo); // מציגה את הלוגו אם יש בעיה בתמונה
+                holder.imageSum.setImageResource(R.drawable.newlogo);
             }
         } else {
-            holder.imageSum.setImageResource(R.drawable.newlogo); // אם אין תמונה, מציגה את הלוגו
+            holder.imageSum.setImageResource(R.drawable.newlogo);
         }
 
 

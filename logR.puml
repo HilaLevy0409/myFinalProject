@@ -1,0 +1,66 @@
+@startuml
+class com.example.myfinalproject.RegistrationFragment.RegisterUserPresenter {
+~ RegistrationFragment view
+~ UserRepository userDb
++ void submitClicked(User)
+}
+
+
+class com.example.myfinalproject.RegistrationFragment.RegistrationFragment {
+- {static} String IMAGE_DIRECTORY
+- int GALLERY
+- Button btnUploadPhoto
+- EditText etEmail
+- Uri imageUri
+- RegisterUserPresenter presenter
+- ImageView imageViewProfile
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void checkIfEmailExists(String)
+- void checkIfUsernameExists(String)
++ void onClick(View)
+- void saveUserData(String)
++ void submitClicked(User)
++ void openDialog()
+- void showPictureDialog()
++ void choosePhotoFromGallary()
+- void takePhotoFromCamera()
++ void onActivityResult(int,int,Intent)
++ String saveImage(Bitmap)
+- String imageViewToBase64(ImageView)
+}
+
+
+class com.example.myfinalproject.LoginFragment.LoginUserPresenter {
+- LoginCallback view
+- UserRepository userDb
++ void loginUser(String,String)
+}
+
+
+class com.example.myfinalproject.LoginFragment.LoginFragment {
+- Button btnNext
+- EditText etUsername
+- FirebaseFirestore database
+- LoginUserPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onClick(View)
+- void createCustomDialog()
+- void askUserToUpdatePasswordInFirestore()
+- void updatePasswordStrengthView(String,TextView)
+- int calculatePasswordStrength(String)
++ void showLoginSuccess(User)
+- void saveUserToLocalStorage(User)
++ void showLoginFailure(String)
+}
+
+
+
+
+com.example.myfinalproject.RegistrationFragment.OnClickListener <|.. com.example.myfinalproject.RegistrationFragment.RegistrationFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.RegistrationFragment.RegistrationFragment
+com.example.myfinalproject.LoginFragment.OnClickListener <|.. com.example.myfinalproject.LoginFragment.LoginFragment
+com.example.myfinalproject.CallBacks.LoginCallback <|.. com.example.myfinalproject.LoginFragment.LoginFragment
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.LoginFragment.LoginFragment
+@enduml

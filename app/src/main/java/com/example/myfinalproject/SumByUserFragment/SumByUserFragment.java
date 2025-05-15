@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,16 +23,13 @@ import com.example.myfinalproject.Adapters.SummaryAdapter;
 import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.SumFragment.SumFragment;
-import com.example.myfinalproject.UserProfileFragment.UserProfileFragment;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class SumByUserFragment extends Fragment {
-    private static final String TAG = "SumByUserFragment";
 
     private ListView listViewSummaries;
     private SummaryAdapter summaryAdapter;
@@ -60,7 +57,6 @@ public class SumByUserFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             userName = getArguments().getString("userName");
-            Log.d(TAG, "Username from arguments: " + userName);
         }
         summaryList = new ArrayList<>();
 
@@ -85,7 +81,6 @@ public class SumByUserFragment extends Fragment {
         if (userName == null || userName.isEmpty()) {
             SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
             userName = prefs.getString("username", "המשתמש הנוכחי");
-            Log.d(TAG, "Username from SharedPreferences: " + userName);
         }
 
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
@@ -98,8 +93,7 @@ public class SumByUserFragment extends Fragment {
 
         listViewSummaries.setOnItemClickListener((parent, viewItem, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
-            Log.d(TAG, "Summary selected: " + selectedSummary.getSummaryTitle() +
-                    ", ID: " + selectedSummary.getSummaryId());
+
             navigateToSummaryView(selectedSummary);
         });
 
@@ -123,31 +117,23 @@ public class SumByUserFragment extends Fragment {
     }
 
     private void loadSummaries() {
-        Log.d(TAG, "Loading summaries for user: " + userName);
         presenter.loadUserSummaries(new SummariesCallback() {
             @Override
             public void onSuccess(List<Summary> summaries) {
                 if (getActivity() == null) return;
 
-                Log.d(TAG, "Successfully loaded " + summaries.size() + " summaries");
 
                 getActivity().runOnUiThread(() -> {
                     summaryList.clear();
                     if (summaries.isEmpty()) {
-                        Log.d(TAG, "No summaries found, showing empty message");
                         listViewSummaries.setVisibility(View.GONE);
                         tvNoSummaries.setVisibility(View.VISIBLE);
                     } else {
-                        Log.d(TAG, "Displaying " + summaries.size() + " summaries");
                         listViewSummaries.setVisibility(View.VISIBLE);
                         tvNoSummaries.setVisibility(View.GONE);
                         summaryList.addAll(summaries);
 
-                        for (Summary summary : summaries) {
-                            Log.d(TAG, "Summary in list: ID=" + summary.getSummaryId() +
-                                    ", Title=" + summary.getSummaryTitle() +
-                                    ", Author=" + summary.getUserName());
-                        }
+
                     }
                     summaryAdapter.notifyDataSetChanged();
 
@@ -159,7 +145,6 @@ public class SumByUserFragment extends Fragment {
             public void onError(String message) {
                 if (getActivity() == null) return;
 
-                Log.e(TAG, "Error loading summaries: " + message);
 
                 getActivity().runOnUiThread(() -> {
                     listViewSummaries.setVisibility(View.GONE);
@@ -177,7 +162,6 @@ public class SumByUserFragment extends Fragment {
 
     private void navigateToSummaryView(Summary summary) {
         if (getActivity() != null) {
-            Log.d(TAG, "Navigating to SumFragment with summaryId: " + summary.getSummaryId());
 
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -191,7 +175,6 @@ public class SumByUserFragment extends Fragment {
     }
 
     public void showError(String message) {
-        Log.e(TAG, "Error: " + message);
         if (getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }

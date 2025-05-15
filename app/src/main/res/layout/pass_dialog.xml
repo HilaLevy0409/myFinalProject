@@ -44,9 +44,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:textAlignment="viewEnd"
                     android:textSize="15sp"
 
-                    app:errorEnabled="true"
-                    app:errorTextColor="@color/red"
-                    app:endIconMode="clear_text"/>
+                   />
             </com.google.android.material.textfield.TextInputLayout>
 
     <ProgressBar
@@ -79,6 +77,15 @@ xmlns:android="http://schemas.android.com/apk/res/android"
         android:text="הסיסמה החדשה חייבת לכלול לפחות 8 תווים, תו מיוחד, אות גדולה, אות קטנה וספרה."
         android:textSize="14sp"
         android:layout_marginTop="8dp"
+        android:padding="5dp"/>
+    <TextView
+        android:id="@+id/tvResetPasswordInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:text="אם שינית את הסיסמה דרך הקישור שנשלח למייל, יש לעדכן את הסיסמה החדשה גם בחלונית הבאה כדי שתוכל/י להתחבר."
+        android:textSize="14sp"
+        android:layout_marginTop="12dp"
         android:padding="5dp"/>
 
 

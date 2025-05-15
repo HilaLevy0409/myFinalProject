@@ -120,6 +120,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                         bundle.putString("userBirthDate", user.getUserBirthDate());
                         bundle.putInt("badPoints", user.getBadPoints());
                         bundle.putInt("sumCount", user.getSumCount());
+                        bundle.putString("profilePicData", user.getImageProfile());
                         ManageUserFragment manageUserFragment = new ManageUserFragment();
                         manageUserFragment.setArguments(bundle);
                         getActivity().getSupportFragmentManager()

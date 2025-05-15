@@ -99,33 +99,6 @@ public class UserRepository {
 
 
 
-    public void updateUserPassword(String userEmail, String newPassword, UserCallback callback) {
-        database.collection("users")
-                .whereEqualTo("userEmail", userEmail)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
-                        User user = documentSnapshot.toObject(User.class);
-                        if (user != null) {
-                            user.setUserPass(newPassword);
-
-                            database.collection("users").document(user.getId())
-                                    .set(user)
-                                    .addOnSuccessListener(aVoid -> callback.onUserReceived(user))
-                                    .addOnFailureListener(e -> callback.onError(e.getMessage()));
-                        } else {
-                            callback.onError("Invalid user data");
-                        }
-                    } else {
-                        callback.onError("User not found");
-                    }
-                })
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-    }
-
-
-
     public void updateUser(User user, UserCallback callback) {
         database.collection("users").document(user.getId())
                 .set(user)
@@ -158,30 +131,7 @@ public class UserRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
-//    public void decrementUserSummaryCount(String userId, UserCallback callback) {
-//        // Get a reference to the user document
-//        DocumentReference userRef = database.collection("users").document(userId);
-//
-//        // Use a transaction to ensure atomic update
-//        database.runTransaction(transaction -> {
-//            DocumentSnapshot userSnapshot = transaction.get(userRef);
-//            User user = userSnapshot.toObject(User.class);
-//
-//            if (user != null) {
-//                // Decrement the summary count (ensure it doesn't go below 0)
-//                int currentCount = user.getSumCount();
-//                int newCount = Math.max(0, currentCount - 1);
-//                transaction.update(userRef, "sumCount", newCount);
-//            }
-//
-//            return null;
-//        }).addOnSuccessListener(result -> {
-//            // After successful update, retrieve the updated user
-//            getUserById(userId, callback);
-//        }).addOnFailureListener(e -> {
-//            callback.onError("Failed to update summary count: " + e.getMessage());
-//        });
-//    }
+
 
 
 

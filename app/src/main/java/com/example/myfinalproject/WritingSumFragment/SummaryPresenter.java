@@ -11,7 +11,6 @@ public class SummaryPresenter {
     private WritingSumFragment view;
     private SummaryRepository summaryDb;
 
-    Summary summary;
 
 
 

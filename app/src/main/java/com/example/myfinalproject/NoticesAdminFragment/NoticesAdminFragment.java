@@ -35,7 +35,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoticesAdminFragment extends Fragment implements NotificationsAdminAdapter.OnNotificationClickListener {
+import com.example.myfinalproject.CallBacks.OnNotificationClickListenerCallback;
+
+public class NoticesAdminFragment extends Fragment implements OnNotificationClickListenerCallback {
 
     private TabLayout tabLayout;
     private RecyclerView recyclerNotifications;
@@ -86,18 +88,12 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                // אין צורך
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                // אין צורך
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
-
-
 
     private void loadNotifications(int tabPosition) {
         notificationRepository.getAllNotifications()
@@ -146,12 +142,6 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
 
         SpannableStringBuilder messageBuilder = new SpannableStringBuilder();
 
-        android.util.Log.d("NotificationDialog", "UserName: " + notification.getUserName()
-                + ", UserId: " + notification.getUserId()
-                + ", Type: " + notification.getType()
-                + ", ReportedUserName: " + notification.getReportedUserName()
-                + ", ReportedUserId: " + notification.getReportedUserId()
-                + ", NotificationId: " + notification.getId());
 
         if ("REPORT".equals(notification.getType())) {
 
@@ -233,7 +223,6 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots -> {
                                     if (!queryDocumentSnapshots.isEmpty()) {
-                                        android.util.Log.d("ClickableSpan", "Found summary with title: " + reportedName);
                                         DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
                                         String summaryId = document.getId();
 
@@ -244,7 +233,6 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
                                                 .addToBackStack(null)
                                                 .commit();
                                     } else {
-                                        android.util.Log.d("ClickableSpan", "No summary found, navigating to user: " + reportedName);
                                         Toast.makeText(getContext(), "לא נמצא ", Toast.LENGTH_SHORT).show();
                                     }
 
@@ -253,7 +241,6 @@ public class NoticesAdminFragment extends Fragment implements NotificationsAdmin
                                     }
                                 })
                                 .addOnFailureListener(e -> {
-                                    android.util.Log.d("ClickableSpan", "Error searching summaries: " + e.getMessage());
                                     Toast.makeText(getContext(), "שגיאה בעת חיפוש סיכום", Toast.LENGTH_SHORT).show();
 
                                     if (currentDialog != null && currentDialog.isShowing()) {

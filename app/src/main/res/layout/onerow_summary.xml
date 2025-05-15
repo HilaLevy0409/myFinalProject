@@ -7,10 +7,6 @@
     android:background="@color/white"
     android:gravity="center_vertical">
 
-
-
-
-
     <ImageView
         android:id="@+id/imageSum"
         android:layout_width="90dp"
@@ -33,7 +29,6 @@
             android:text="00:00 - 00/00/0000"
             android:layout_marginTop="4dp"
             android:visibility="visible" />
-
 
         <TextView
             android:id="@+id/tvClassTitle"
@@ -95,8 +90,6 @@
             android:numStars="5"
             android:isIndicator="true"
             android:layout_marginTop="12dp" />
-
-
 
     </LinearLayout>
 

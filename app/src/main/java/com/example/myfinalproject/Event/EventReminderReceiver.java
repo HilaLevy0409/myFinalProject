@@ -14,7 +14,6 @@ import com.example.myfinalproject.R;
 public class EventReminderReceiver extends BroadcastReceiver {
 
     private static final String CHANNEL_ID = "event_reminder_channel";
-    private static final String TAG = "EventReminderReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -22,7 +21,6 @@ public class EventReminderReceiver extends BroadcastReceiver {
             String eventTitle = intent.getStringExtra("eventTitle");
             if (eventTitle == null) {
                 eventTitle = "אירוע מתוזמן";
-                Log.e(TAG, "Event title was null");
             }
 
             createNotificationChannel(context);
@@ -36,12 +34,9 @@ public class EventReminderReceiver extends BroadcastReceiver {
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager != null) {
                 notificationManager.notify((int) System.currentTimeMillis(), builder.build());
-                Log.d(TAG, "Notification sent for event: " + eventTitle);
-            } else {
-                Log.e(TAG, "NotificationManager was null");
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error displaying notification", e);
+            Log.d("", "Error displaying notification");
         }
     }
 

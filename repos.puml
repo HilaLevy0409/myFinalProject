@@ -1,0 +1,32 @@
+@startuml
+class com.example.myfinalproject.Repositories.NotificationAdminRepository {
+- {static} NotificationAdminRepository instance
+- CollectionReference notifications
++ {static} NotificationAdminRepository getInstance()
++ Task<Void> addNotification(NotificationAdmin)
++ Query getAllNotifications()
++ Task<Void> deleteNotification(String)
+}
+
+
+class com.example.myfinalproject.Repositories.UserRepository {
+- FirebaseAuth mAuth
+- FirebaseFirestore database
++ void addUser(User,AddUserCallback)
++ void getUserById(String,UserCallback)
++ void getUser(String,UserCallback)
++ void updateUser(User,UserCallback)
++ void deleteUser(String,UserCallback)
++ void getAllUsers(UsersCallback)
+}
+
+
+class com.example.myfinalproject.Repositories.SummaryRepository {
+- FirebaseFirestore database
++ void addSummary(Summary,AddSummaryCallback)
++ void getAllSummaries(SummariesCallback)
++ void deleteSummary(String,SummaryCallback)
+}
+
+
+@enduml

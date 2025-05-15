@@ -42,9 +42,6 @@
             android:textAlignment="viewEnd"
             android:inputType="textPersonName"
             android:textSize="20sp"
-
-            app:errorEnabled="true"
-            app:errorTextColor="@color/red"
           />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -71,9 +68,6 @@
             android:inputType="textPassword"
             android:textAlignment="viewEnd"
             android:textSize="20sp"
-
-            app:errorEnabled="true"
-            app:errorTextColor="@color/red"
             />
     </com.google.android.material.textfield.TextInputLayout>
 

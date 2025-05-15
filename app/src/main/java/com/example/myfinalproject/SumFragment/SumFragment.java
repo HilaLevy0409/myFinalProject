@@ -1,11 +1,12 @@
 package com.example.myfinalproject.SumFragment;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +14,14 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 
-import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 
 import com.example.myfinalproject.ReportFragment.ReportFragment;
 import com.example.myfinalproject.SumReviewFragment.SumReviewFragment;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myfinalproject.WritingSumFragment.SummaryPresenter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -47,8 +45,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class SumFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = "SumFragment";
-
     private Button btnReport, btnSaveSummary, btnStart, btnReset;
     private RatingBar ratingBarSum;
     private TextView tvText, tvTopic, tvAuthor, tvAverage;
@@ -65,13 +61,11 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private float speechRate = 1.0f;
     private FloatingActionButton fabExport;
 
-
     private ImageButton ImgBtnDeleteSum;
     private boolean isAuthor = false;
 
 
-    public SumFragment() {
-    }
+    public SumFragment() {}
 
     public static SumFragment newInstance(String summaryId) {
         SumFragment fragment = new SumFragment();
@@ -87,9 +81,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             summaryId = getArguments().getString("summaryId");
             float rating = getArguments().getFloat("rating", 0f);
-
         }
-
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
     }
@@ -111,20 +103,15 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         tvAuthor = view.findViewById(R.id.tvAuthor);
         tvAverage = view.findViewById(R.id.tvAverage);
         sumImage = view.findViewById(R.id.imgSum);
-
         fabExport = view.findViewById(R.id.fabExport);
-
         btnStart = view.findViewById(R.id.btnStart);
         btnReset = view.findViewById(R.id.btnReset);
-
         seekBarSpeed = view.findViewById(R.id.seekBarSpeed);
-
         btnReport.setOnClickListener(this);
         btnSaveSummary.setOnClickListener(this);
         fabExport.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         btnReset.setOnClickListener(this);
-
         ImgBtnDeleteSum = view.findViewById(R.id.ImgBtnDeleteSum);
         ImgBtnDeleteSum.setOnClickListener(this);
         ImgBtnDeleteSum.setVisibility(View.GONE);
@@ -139,8 +126,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
         loadSummaryData();
         checkIfFavorite();
-
-
 
         ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
             if (fromUser) {
@@ -157,42 +142,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         .commit();
             }
         });
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        Log.d(TAG, "summaryId: " + summaryId);
-
-        if (currentUser != null && summaryId != null) {
-            FirebaseFirestore.getInstance()
-                    .collection("summaries")
-                    .document(summaryId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String authorId = documentSnapshot.getString("userId");
-                            String currentUserId = currentUser.getUid();
-
-                            Log.d(TAG, "userId from Firestore: " + authorId);
-                            Log.d(TAG, "currentUserId: " + currentUserId);
-
-
-                            Log.d(TAG, "authorId from Firestore: " + authorId);
-                            Log.d(TAG, "currentUserId: " + currentUserId);
-
-                            if (authorId != null && authorId.equals(currentUserId)) {
-                                ImgBtnDeleteSum.setVisibility(View.VISIBLE);
-                                Log.d(TAG, "כפתור הפח מוצג - היוזר הוא המחבר");
-                            } else {
-                                Log.d(TAG, "היוזר לא המחבר או authorId ריק");
-                            }
-                        } else {
-                            Log.e(TAG, "הסיכום לא קיים במסד הנתונים");
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "שגיאה בהבאת הסיכום", e);
-                    });
-        }
-
 
     }
 
@@ -206,8 +155,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(getContext(), "שפה עברית אינה נתמכת במכשיר זה", Toast.LENGTH_SHORT).show();
 
                 } else {
-
-
                     textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                         @Override
                         public void onStart(String utteranceId) {
@@ -219,8 +166,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                             }
                         }
 
-
-
                         @Override
                         public void onDone(String utteranceId) {
                             if (getActivity() != null) {
@@ -230,7 +175,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                                 });
                             }
                         }
-
 
                         @Override
                         public void onError(String utteranceId) {
@@ -246,8 +190,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 }
             } else {
                 Toast.makeText(getContext(), "אתחול מנוע הקראה נכשל", Toast.LENGTH_SHORT).show();
-
-
             }
         });
     }
@@ -255,7 +197,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private void speedControl() {
         seekBarSpeed.setMax(20);
         seekBarSpeed.setProgress(10);
-
         seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -274,8 +215,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-
-
     private void speakText() {
         if (textToSpeech == null) return;
 
@@ -285,7 +224,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getContext(), "אין טקסט להקראה", Toast.LENGTH_SHORT).show();
             return;
         }
-
         btnStart.setEnabled(false);
         btnReset.setEnabled(true);
 
@@ -293,20 +231,13 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         isSpeaking = true;
     }
 
-
-
-
     private void resetSpeech() {
         if (textToSpeech == null) return;
-
         textToSpeech.stop();
         isSpeaking = false;
-
         btnStart.setEnabled(true);
         btnReset.setEnabled(false);
     }
-
-
 
     private void updateButtons() {
         String text = tvText.getText().toString();
@@ -321,30 +252,35 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     private void loadSummaryData() {
         if (summaryId == null || summaryId.isEmpty()) {
-            Log.e(TAG, "Summary ID is null or empty");
             return;
         }
-
         db.collection("summaries").document(summaryId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        displaySummaryData(documentSnapshot);
+                        String authorId = documentSnapshot.getString("userId");
+                        FirebaseUser currentUser = mAuth.getCurrentUser();
 
+                        if (currentUser != null && authorId != null &&
+                                authorId.equals(currentUser.getUid())) {
+                            isAuthor = true;
+                            ImgBtnDeleteSum.setVisibility(View.VISIBLE);
+                        } else {
+                            isAuthor = false;
+                            ImgBtnDeleteSum.setVisibility(View.GONE);
+                        }
+
+                        displaySummaryData(documentSnapshot);
                     } else {
-                        Log.e(TAG, "No such document");
                         Toast.makeText(getContext(), "הסיכום לא נמצא", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error getting document", e);
                     Toast.makeText(getContext(), "שגיאה בטעינת הסיכום", Toast.LENGTH_SHORT).show();
                 });
     }
-
 
 
     private void displaySummaryData(DocumentSnapshot document) {
@@ -356,7 +292,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         String authorName = document.getString("userName");
         if (authorName != null && !authorName.isEmpty()) {
             tvAuthor.setText("נכתב על ידי: " + authorName);
-            Log.d(TAG, "Author name set from summary: " + authorName);
         } else {
             String authorId = document.getString("userId");
 
@@ -368,32 +303,18 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                                 String userName = userDoc.getString("userName");
                                 if (userName != null && !userName.isEmpty()) {
                                     tvAuthor.setText("נכתב על ידי: " + userName);
-                                    Log.d(TAG, "Author name set from user document: " + userName);
                                 } else {
                                     tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
-                                    Log.d(TAG, "Username not found in user document");
-                                }
-
-                                if (mAuth.getCurrentUser() != null &&
-                                        authorId.equals(mAuth.getCurrentUser().getUid())) {
-                                    isAuthor = true;
-                                    ImgBtnDeleteSum.setVisibility(View.VISIBLE);
-                                } else {
-                                    isAuthor = false;
-                                    ImgBtnDeleteSum.setVisibility(View.GONE);
                                 }
                             } else {
                                 tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
-                                Log.d(TAG, "User document not found for ID: " + authorId);
                             }
                         })
                         .addOnFailureListener(e -> {
                             tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
-                            Log.e(TAG, "Error fetching user document", e);
                         });
             } else {
                 tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
-                Log.d(TAG, "No author ID in summary document");
             }
         }
 
@@ -411,19 +332,15 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             sumImage.setVisibility(View.VISIBLE);
 
             try {
-                Log.d(TAG, "Loading Base64 image");
                 byte[] decodedString = android.util.Base64.decode(imageData, android.util.Base64.DEFAULT);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
                 if (bitmap != null) {
                     sumImage.setImageBitmap(bitmap);
-                    Log.d(TAG, "Base64 image set successfully");
                 } else {
-                    Log.d(TAG, "Failed to decode bitmap from Base64");
                     sumImage.setImageResource(R.drawable.newlogo);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error handling image", e);
                 sumImage.setImageResource(R.drawable.newlogo);
             }
         } else if (summaryContent != null && !summaryContent.isEmpty()) {
@@ -437,9 +354,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
 
         updateButtons();
-
-
-
     }
 
     private void deleteSummary() {
@@ -447,7 +361,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getContext(), "רק יוצר הסיכום יכול למחוק אותו", Toast.LENGTH_SHORT).show();
             return;
         }
-
         new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle("מחיקת סיכום")
                 .setMessage("האם ברצונך למחוק את הסיכום?")
@@ -461,15 +374,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                                 }
                             })
                             .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error deleting summary", e);
                                 Toast.makeText(getContext(), "שגיאה במחיקת הסיכום", Toast.LENGTH_SHORT).show();
                             });
                 })
                 .setNegativeButton("לא", null)
                 .show();
     }
-
-
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView imageView;
@@ -491,7 +401,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 InputStream input = connection.getInputStream();
                 bitmap = BitmapFactory.decodeStream(input);
             } catch (IOException e) {
-                Log.e(TAG, "Error downloading image", e);
+                Log.e("", "שגיאה בהורדת התמונה", e);
             }
             return bitmap;
         }
@@ -512,7 +422,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
 
         String userId = mAuth.getCurrentUser().getUid();
-
         db.collection("users").document(userId)
                 .collection("favorites").document(summaryId)
                 .get()
@@ -521,7 +430,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                     updateFavoriteButton();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error checking favorite status", e);
+                    Log.e("", "שגיאה בבדיקת מצב מועדף", e);
+
                 });
     }
 
@@ -554,7 +464,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                                 .update("favoritesCount", FieldValue.increment(-1));
                     })
                     .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error removing from favorites", e);
                         Toast.makeText(getContext(), "שגיאה בהסרה מהמועדפים", Toast.LENGTH_SHORT).show();
                     });
         } else {
@@ -568,11 +477,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         updateFavoriteButton();
                         Toast.makeText(getContext(), "נוסף למועדפים", Toast.LENGTH_SHORT).show();
 
-                        db.collection("summaries").document(summaryId)
-                                .update("favoritesCount", FieldValue.increment(1));
                     })
                     .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error adding to favorites", e);
                         Toast.makeText(getContext(), "שגיאה בהוספה למועדפים", Toast.LENGTH_SHORT).show();
                     });
         }
@@ -582,29 +488,13 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
 
         if (view == btnReport) {
-
-            android.util.Log.d("SumFragment", "Report clicked with summaryId: " + summaryId);
-
-
             ReportFragment reportFragment = new ReportFragment();
-
-
             Bundle args = new Bundle();
-
-
             args.putString("userName", tvTopic.getText().toString());
-
-
             if (summaryId != null && !summaryId.isEmpty()) {
                 args.putString("summaryId", summaryId);
-
-                android.util.Log.d("SumFragment", "Passing summaryId to report: " + summaryId);
-            } else {
-                android.util.Log.d("SumFragment", "Warning: No summaryId available to pass!");
             }
-
             reportFragment.setArguments(args);
-
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, reportFragment)
                     .addToBackStack(null)
@@ -645,8 +535,4 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getContext(), "אין תוכן לשתף", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
-
 }

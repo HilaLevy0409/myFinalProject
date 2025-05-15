@@ -2,6 +2,7 @@ package com.example.myfinalproject;
 
 import android.app.Dialog;
 import android.content.SharedPreferences;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,9 +30,12 @@ import com.google.firebase.FirebaseApp;
 
 import androidx.appcompat.widget.Toolbar;
 
+
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
+
     public void updateNavigationHeader() {
         NavigationView navigationView = findViewById(R.id.navView);
         View headerView = navigationView.getHeaderView(0);
@@ -74,27 +78,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
-//        tvUserName.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-//                boolean userLoggedIn = prefs.getBoolean("isLoggedIn", false);
-//
-//                if (userLoggedIn) {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.flFragment, new UserProfileFragment())
-//                            .commit();
-//                } else {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.flFragment, new LoginFragment())
-//                            .commit();
-//                }
-//
-//                drawerLayout.closeDrawer(GravityCompat.START);
-//            }
-//        });
 
 
         tvUserName.setOnClickListener(new View.OnClickListener() {
@@ -227,6 +210,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
 
 }

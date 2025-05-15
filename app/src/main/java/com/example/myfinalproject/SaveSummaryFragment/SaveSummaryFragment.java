@@ -1,7 +1,6 @@
 package com.example.myfinalproject.SaveSummaryFragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,6 @@ import java.util.List;
 
 public class SaveSummaryFragment extends Fragment {
 
-    private static final String TAG = "SaveSummaryFragment";
     private ListView listViewSummaries;
     private SearchView searchView;
     private SummaryAdapter summaryAdapter;
@@ -92,11 +90,9 @@ public class SaveSummaryFragment extends Fragment {
 
     public void navigateToSummary(Summary summary) {
         if (summary == null) {
-            Log.e(TAG, "Cannot navigate to SumFragment: summary is null");
             return;
         }
 
-        Log.d(TAG, "Navigating to SumFragment with summary ID: " + summary.getSummaryId());
 
         SumFragment sumFragment = SumFragment.newInstance(summary.getSummaryId());
 
@@ -113,8 +109,6 @@ public class SaveSummaryFragment extends Fragment {
                     .replace(R.id.flFragment, sumFragment)
                     .addToBackStack(null)
                     .commit();
-        } else {
-            Log.e(TAG, "Cannot navigate: getActivity is null");
         }
     }
 

@@ -1,0 +1,123 @@
+@startuml
+class com.example.myfinalproject.Timer.CountdownTimerService {
+- {static} int NOTIFICATION_ID
+- {static} String CHANNEL_ID
+- IBinder binder
+- CountDownTimer countDownTimer
+- long timeRemaining
+- boolean isTimerRunning
+- int notificationMinutes
+- boolean notificationSent
+- boolean notificationsEnabled
+- TimeCallback timerUpdateCallback
++ void onCreate()
++ IBinder onBind(Intent)
++ int onStartCommand(Intent,int,int)
++ void startTimer(long,int)
++ void pauseTimer()
++ void resetTimer()
++ boolean isTimerRunning()
++ long getTimeRemaining()
++ void setNotificationsEnabled(boolean)
++ void setTimerUpdateCallback(TimeCallback)
++ void removeTimerUpdateCallback()
+- String formatTime(long)
+- void createNotificationChannel()
+- Notification createForegroundNotification(String)
+- void sendStartNotification(long)
+- void sendWarningNotification(int)
+- void sendFinishNotification()
++ void onDestroy()
+}
+
+
+class com.example.myfinalproject.Timer.CountdownTimerService$LocalBinder {
++ CountdownTimerService getService()
+}
+
+class com.example.myfinalproject.Event.AlarmManagerFragment {
+- EditText etEventTitle
+- Button btnAddEvent
+- int year
+- boolean dateSelected
+- boolean timeSelected
+- int durationHour
+- boolean durationSelected
+- int reminderYear
+- boolean reminderDateSelected
+- boolean reminderTimeSelected
+- {static} int PERMISSION_REQUEST_CODE
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showDatePickerDialog()
+- void showTimePickerDialog()
+- void showDurationPickerDialog()
+- void showReminderDatePickerDialog()
+- void showReminderTimePickerDialog()
+- long getDefaultCalendarId()
+- void addEventToCalendar()
+- void clearInputFields()
++ void onRequestPermissionsResult(int,String[],int[])
+}
+
+
+class com.example.myfinalproject.Event.EventReminderReceiver {
+- {static} String CHANNEL_ID
++ void onReceive(Context,Intent)
+- void createNotificationChannel(Context)
+}
+
+
+class com.example.myfinalproject.Timer.TimerFragment {
+- TextView tvTimerDisplay
+- EditText etHours
+- Button btnStart
+- SwitchMaterial switchNotification
+- TimerPresenter presenter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void inputValidation(EditText)
++ void onStart()
++ void onStop()
++ void updateTimerDisplay(long)
++ void updateButtonStates(boolean)
++ void resetButtonStates()
++ void setStopContinueButtonText(String)
++ void setStopContinueButtonEnabled(boolean)
++ void setStartButtonEnabled(boolean)
++ void showMessage(String)
++ void clearInputFields()
++ int getHours()
++ int getMinutes()
++ int getSeconds()
++ String getNotificationTime()
++ boolean isNotificationEnabled()
+- int parseInputField(EditText,int)
+}
+
+
+class com.example.myfinalproject.Timer.TimerPresenter {
+- TimerFragment view
+- Context context
+- CountdownTimerService timerService
+- boolean isBound
+- boolean isTimerPaused
+- ServiceConnection serviceConnection
++ void bindService()
++ void unbindService()
++ void onNotificationSwitchChanged(boolean)
++ void toggleStopContinue()
++ void startTimer()
++ void resetTimer()
+}
+
+
+
+
+android.app.Service <|-- com.example.myfinalproject.Timer.CountdownTimerService
+com.example.myfinalproject.Timer.CountdownTimerService +.. com.example.myfinalproject.Timer.CountdownTimerService$LocalBinder
+com.example.myfinalproject.Timer.Binder <|-- com.example.myfinalproject.Timer.CountdownTimerService$LocalBinder
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.Event.AlarmManagerFragment
+android.content.BroadcastReceiver <|-- com.example.myfinalproject.Event.EventReminderReceiver
+androidx.fragment.app.Fragment <|-- com.example.myfinalproject.Timer.TimerFragment
+@enduml

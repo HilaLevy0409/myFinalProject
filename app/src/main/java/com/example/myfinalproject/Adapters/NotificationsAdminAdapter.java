@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myfinalproject.CallBacks.OnNotificationClickListenerCallback;
 import com.example.myfinalproject.DataModels.NotificationAdmin;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
@@ -23,15 +24,13 @@ import java.util.TimeZone;
 public class NotificationsAdminAdapter extends RecyclerView.Adapter<NotificationsAdminAdapter.NotificationViewHolder> {
 
     private List<NotificationAdmin> notificationsList;
-    private final OnNotificationClickListener listener;
+    private final OnNotificationClickListenerCallback callback;
 
-    public interface OnNotificationClickListener {
-        void onNotificationClick(NotificationAdmin notification);
-    }
 
-    public NotificationsAdminAdapter(List<NotificationAdmin> notificationsList, OnNotificationClickListener listener) {
+
+    public NotificationsAdminAdapter(List<NotificationAdmin> notificationsList, OnNotificationClickListenerCallback callback) {
         this.notificationsList = notificationsList != null ? notificationsList : new ArrayList<>();
-        this.listener = listener;
+        this.callback = callback;
     }
 
     @NonNull
@@ -108,15 +107,14 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
             } else {
                 tvType.setText("הודעה");
                 tvType.setTextColor(itemView.getContext().getResources().getColor(R.color.orange));
-//                tvReason.setVisibility(View.GONE);
                 tvReason.setVisibility(View.VISIBLE);
                 tvReason.setText("סיבה: " + notification.getContactReason());
             }
 
 
             cardNotification.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onNotificationClick(notification);
+                if (callback != null) {
+                    callback.onNotificationClick(notification);
                 }
             });
         }

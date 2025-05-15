@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myfinalproject.Adapters.ProfessionAdapter;
+import com.example.myfinalproject.CallBacks.ProfessionClickListenerCallback;
 import com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment;
 import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.R;
@@ -26,7 +27,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChooseProfessionFragment extends Fragment implements ProfessionAdapter.ProfessionClickListener {
+public class ChooseProfessionFragment extends Fragment implements ProfessionClickListenerCallback {
 
     private RecyclerView recyclerProfessions;
     private ProfessionAdapter adapter;
@@ -59,7 +60,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionAdap
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_choose_professional, container, false);
+        return inflater.inflate(R.layout.fragment_choose_profession, container, false);
     }
 
 

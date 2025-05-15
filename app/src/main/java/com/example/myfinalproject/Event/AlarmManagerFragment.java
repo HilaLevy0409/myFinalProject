@@ -51,8 +51,6 @@ public class AlarmManagerFragment extends Fragment {
     private boolean reminderTimeSelected = false;
 
     private static final int PERMISSION_REQUEST_CODE = 1;
-    private static final String TAG = "AlarmManagerFragment";
-
     public AlarmManagerFragment() {
     }
 
@@ -192,7 +190,8 @@ public class AlarmManagerFragment extends Fragment {
                 return calendarId;
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error getting calendar ID", e);
+            Log.e("", "שגיאה בקבלת מזהה לוח השנה");
+
         }
 
         selection = CalendarContract.Calendars.VISIBLE + " = 1";
@@ -202,7 +201,8 @@ public class AlarmManagerFragment extends Fragment {
                 return calendarId;
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error getting calendar ID", e);
+            Log.e("", "שגיאה בקבלת מזהה לוח השנה");
+
         }
 
         return 1;
@@ -211,7 +211,7 @@ public class AlarmManagerFragment extends Fragment {
     @SuppressLint("ScheduleExactAlarm")
     private void addEventToCalendar() {
         if (getContext() == null) {
-            Log.e(TAG, "Context is null in addEventToCalendar");
+
             return;
         }
 
@@ -234,8 +234,7 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
-            Log.d(TAG, "Adding event: Title=" + title + ", Date=" + year + "-" + (month + 1) + "-" + day +
-                    ", Time=" + hour + ":" + minute + ", Duration=" + durationHour + ":" + durationMinute);
+
 
             Calendar startTime = Calendar.getInstance();
             startTime.set(year, month, day, hour, minute, 0); // Set seconds to 0
@@ -246,15 +245,15 @@ public class AlarmManagerFragment extends Fragment {
             endTime.add(Calendar.MINUTE, durationMinute);
 
             String timeZone = TimeZone.getDefault().getID();
-            Log.d(TAG, "Using timezone: " + timeZone);
+
 
             long calendarId = getDefaultCalendarId();
             if (calendarId == -1) {
-                Log.e(TAG, "Could not find a valid calendar ID");
+
                 Toast.makeText(getContext(), "לא נמצא יומן תקף במכשיר", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Log.d(TAG, "Using calendar ID: " + calendarId);
+
 
             ContentResolver cr = requireContext().getContentResolver();
             ContentValues values = new ContentValues();
@@ -272,17 +271,14 @@ public class AlarmManagerFragment extends Fragment {
             Uri eventUri = null;
 
             try {
-                Log.d(TAG, "Inserting event into calendar...");
+
                 eventUri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-                Log.d(TAG, "Event URI: " + (eventUri != null ? eventUri.toString() : "null"));
             } catch (Exception e) {
-                Log.e(TAG, "Failed to insert event into calendar", e);
                 Toast.makeText(getContext(), "שגיאה בהוספת אירוע ליומן: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 return;
             }
 
             if (eventUri == null) {
-                Log.e(TAG, "Event URI is null after insertion");
                 Toast.makeText(getContext(), "שגיאה ביצירת האירוע", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -291,14 +287,11 @@ public class AlarmManagerFragment extends Fragment {
             try {
                 String lastPathSegment = eventUri.getLastPathSegment();
                 if (lastPathSegment == null) {
-                    Log.e(TAG, "Event URI last path segment is null");
                     Toast.makeText(getContext(), "שגיאה בזיהוי האירוע", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 eventID = Long.parseLong(lastPathSegment);
-                Log.d(TAG, "Event ID: " + eventID);
             } catch (NumberFormatException e) {
-                Log.e(TAG, "Failed to parse event ID", e);
                 Toast.makeText(getContext(), "שגיאה בזיהוי האירוע", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -309,21 +302,16 @@ public class AlarmManagerFragment extends Fragment {
                 reminderTime = Calendar.getInstance();
                 reminderTime.set(reminderYear, reminderMonth, reminderDay, reminderHour, reminderMinute, 0);
                 reminderTime.set(Calendar.MILLISECOND, 0);
-                Log.d(TAG, "Using custom reminder time: " + reminderTime.getTime());
             } else {
                 reminderTime = (Calendar) startTime.clone();
                 reminderTime.add(Calendar.DAY_OF_MONTH, -1);
-                Log.d(TAG, "Using default reminder time (1 day before): " + reminderTime.getTime());
             }
 
             if (reminderTime.getTimeInMillis() >= startTime.getTimeInMillis()) {
-                Log.e(TAG, "Reminder time is not before event time");
                 Toast.makeText(getContext(), "תזכורת חייבת להיות לפני האירוע", Toast.LENGTH_SHORT).show();
                 try {
                     cr.delete(eventUri, null, null);
-                    Log.d(TAG, "Deleted invalid event");
                 } catch (Exception e) {
-                    Log.e(TAG, "Failed to delete invalid event", e);
                 }
                 return;
             }
@@ -331,7 +319,6 @@ public class AlarmManagerFragment extends Fragment {
 
             long reminderMillis = startTime.getTimeInMillis() - reminderTime.getTimeInMillis();
             int reminderMinutes = (int) (reminderMillis / (60 * 1000));
-            Log.d(TAG, "Reminder minutes before event: " + reminderMinutes);
 
 
             try {
@@ -341,27 +328,22 @@ public class AlarmManagerFragment extends Fragment {
                 reminderValues.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
 
                 Uri reminderUri = cr.insert(CalendarContract.Reminders.CONTENT_URI, reminderValues);
-                Log.d(TAG, "Reminder URI: " + (reminderUri != null ? reminderUri.toString() : "null"));
 
                 if (reminderUri == null) {
-                    Log.e(TAG, "Failed to insert reminder");
                     Toast.makeText(getContext(), "האירוע נוצר אך יש שגיאה בהוספת תזכורת", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error setting calendar reminder", e);
                 Toast.makeText(getContext(), "האירוע נוצר אך יש שגיאה בהוספת תזכורת", Toast.LENGTH_SHORT).show();
             }
 
             Context context = getContext();
             if (context == null) {
-                Log.e(TAG, "Context is null when setting up alarm");
                 return;
             }
 
             try {
                 Intent alarmIntent = new Intent(context, EventReminderReceiver.class);
                 alarmIntent.putExtra("eventTitle", title);
-                Log.d(TAG, "Creating intent for alarm with title: " + title);
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(
                         context,
@@ -373,32 +355,26 @@ public class AlarmManagerFragment extends Fragment {
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
                 if (alarmManager != null) {
-                    Log.d(TAG, "Setting alarm for: " + reminderTime.getTime());
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
                         if (alarmManager.canScheduleExactAlarms()) {
                             alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
-                            Log.d(TAG, "Set exact alarm on Android 12+");
                         } else {
                             alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
-                            Log.d(TAG, "Set inexact alarm on Android 12+ (no permission)");
                             Toast.makeText(context, "אירוע נוסף ליומן, אך ייתכן שהתזכורת לא תהיה מדויקת", Toast.LENGTH_LONG).show();
                             clearInputFields();
                             return;
                         }
                     } else {
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
-                        Log.d(TAG, "Set exact alarm on pre-Android 12");
                     }
 
                     Toast.makeText(context, "אירוע נוסף ליומן עם תזכורת", Toast.LENGTH_SHORT).show();
                     clearInputFields();
                 } else {
-                    Log.e(TAG, "AlarmManager is null");
                     Toast.makeText(context, "אירוע נוסף ליומן, אך יש שגיאה בהגדרת התזכורת", Toast.LENGTH_SHORT).show();
                     clearInputFields();
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error setting alarm", e);
                 Toast.makeText(context, "אירוע נוסף ליומן, אך יש שגיאה בהגדרת התזכורת", Toast.LENGTH_SHORT).show();
                 clearInputFields();
             }
@@ -407,7 +383,6 @@ public class AlarmManagerFragment extends Fragment {
             if (getContext() != null) {
                 Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-            Log.e(TAG, "Unexpected error in addEventToCalendar", e);
         }
     }
 

@@ -1,0 +1,60 @@
+@startuml
+interface com.example.myfinalproject.CallBacks.AddSummaryCallback {
+~ void onSummaryAdd(Summary)
+~ void onError(String)
+}
+
+interface com.example.myfinalproject.CallBacks.SummariesCallback {
+~ void onSuccess(List<Summary>)
+~ void onError(String)
+}
+
+interface com.example.myfinalproject.CallBacks.LoginCallback {
+~ void showLoginSuccess(User)
+~ void showLoginFailure(String)
+}
+
+interface com.example.myfinalproject.CallBacks.UsersCallback {
+~ void onSuccess(List<User>)
+~ void onError(String)
+}
+
+interface com.example.myfinalproject.CallBacks.TimeCallback {
+~ void onTimerUpdate(long)
+~ void onTimerFinish()
+}
+
+interface com.example.myfinalproject.CallBacks.ProfessionClickListenerCallback {
+~ void onProfessionClick(Profession)
+}
+
+interface com.example.myfinalproject.CallBacks.OnNotificationClickListenerCallback {
+~ void onNotificationClick(NotificationAdmin)
+}
+
+interface com.example.myfinalproject.CallBacks.ReviewCallback {
+~ void onDeleteReview(Review,int)
+~ void onEditReview(Review,int)
+~ void onSaveChanges(Review,int,String,float)
+}
+
+interface com.example.myfinalproject.CallBacks.UserCallback {
+~ void onUserReceived(User)
+~ void onError(String)
+}
+
+interface com.example.myfinalproject.CallBacks.OnUserClickListener {
+~ void onUserClick(int)
+}
+
+interface com.example.myfinalproject.CallBacks.AddUserCallback {
+~ void onUserAdd(User)
+~ void onError(String)
+}
+
+interface com.example.myfinalproject.CallBacks.SummaryCallback {
+~ void onSuccess(Summary)
+~ void onError(String)
+}
+
+@enduml

@@ -6,8 +6,7 @@ import com.example.myfinalproject.R;
 import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.Utils.Validator;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -22,7 +21,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +46,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
 
-   private StorageReference mStorage;
 
     private Button btnUploadPhoto, btnN;
     private EditText etEmail, etUser, etPassword, etPassword2, etPhone, etDialogBirthday;
@@ -64,7 +61,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        mStorage = FirebaseStorage.getInstance().getReference("ProfileImages");
+
         presenter = new RegisterUserPresenter(this);
         btnN = view.findViewById(R.id.btnN);
         btnUploadPhoto = view.findViewById(R.id.btnUploadPhoto);
@@ -222,8 +219,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                         } else {
                             etEmail.setError(null);
                         }
-                    } else {
-                        Log.d("Firestore", "שגיאה בבדיקה: ", task.getException());
                     }
                 });
     }
@@ -241,8 +236,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                         } else {
                             etUser.setError(null);
                         }
-                    } else {
-                        Log.d("Firestore", "שגיאה בבדיקת שם משתמש: ", task.getException());
                     }
                 });
     }
@@ -477,8 +470,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                     new String[]{f.getPath()},
                     new String[]{"image/jpeg"}, null);
             fo.close();
-            Log.d("TAG", "File Saved::--->" + f.getAbsolutePath());
-
 
             return f.getAbsolutePath();
         } catch (IOException e1) {

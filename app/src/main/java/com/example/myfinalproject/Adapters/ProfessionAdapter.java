@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myfinalproject.CallBacks.ProfessionClickListenerCallback;
 import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
@@ -21,13 +22,13 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
     private List<Profession> professions;
     private List<Profession> filteredProfessions;
     private Context context;
-    private ProfessionClickListener listener;
+    private ProfessionClickListenerCallback callback;
 
-    public ProfessionAdapter(Context context, List<Profession> professions, ProfessionClickListener listener) {
+    public ProfessionAdapter(Context context, List<Profession> professions, ProfessionClickListenerCallback callback) {
         this.context = context;
         this.professions = professions;
         this.filteredProfessions = new ArrayList<>(professions);
-        this.listener = listener;
+        this.callback = callback;
     }
 
     @NonNull
@@ -43,8 +44,8 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
         holder.tvProfessionName.setText(profession.getName());
 
         holder.cardProfession.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onProfessionClick(profession);
+            if (callback != null) {
+                callback.onProfessionClick(profession);
             }
         });
     }
@@ -96,7 +97,5 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
         }
     }
 
-    public interface ProfessionClickListener {
-        void onProfessionClick(Profession profession);
-    }
+
 }

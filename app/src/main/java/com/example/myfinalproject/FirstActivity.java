@@ -24,7 +24,7 @@ public class FirstActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progressBar);
         tvLoading = findViewById(R.id.tvLoading);
-        ImageView imageView = findViewById(R.id.imageView2);
+        ImageView imageView = findViewById(R.id.imgLogo);
         animateImageView(imageView);
 
         Thread t = new Thread() {

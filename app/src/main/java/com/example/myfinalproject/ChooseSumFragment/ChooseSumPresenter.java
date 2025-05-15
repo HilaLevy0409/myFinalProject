@@ -8,11 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChooseSumPresenter {
-    private final ChooseSumFragment view;
     private final SummaryRepository summaryDb;
 
-    public ChooseSumPresenter(ChooseSumFragment view) {
-        this.view = view;
+    public ChooseSumPresenter() {
         this.summaryDb = new SummaryRepository();
     }
 

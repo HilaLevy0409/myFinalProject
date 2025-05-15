@@ -23,11 +23,14 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+
+
 public class ManageUserFragment extends Fragment implements View.OnClickListener {
 
 
 
     private int badPoints = 0;
+
     private TextView tvBadPoints, tvEmail, tvPhone, tvBirthDate, tvSumNum, tvUsername;
     private Button btnAddPoint, btnRemovePoint, btnShowSums, btnSendMessage, btnDeleteUser;
     private User currentUser;
@@ -86,7 +89,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         btnDeleteUser.setOnClickListener(this);
 
 
-
         Bundle bundle = getArguments();
         if (bundle != null) {
             if (bundle.containsKey("username")) {
@@ -108,6 +110,9 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             tvBirthDate.setText("תאריך לידה: " + userBirthDate);
             tvBadPoints.setText("נקודות לרעה: " + badPoints);
             tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
+
+            String profilePicData = bundle.getString("profilePicData");
+            loadProfilePicture(profilePicData);
 
 
             btnDeleteUser.setOnClickListener(v -> {
@@ -139,11 +144,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                         .setCancelable(false)
                         .show();
             });
-
         }
     }
-
-
 
     @Override
     public void onClick(View view) {
@@ -152,14 +154,13 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 badPoints++;
                 updateBadPointsText();
                 updateBadPointsInDatabase();
-//                if (badPoints == 3) {
-//                    showPointsLimitDialog();
-//                }
+
             }
         } else if (view.getId() == R.id.btnRemovePoint) {
             if (badPoints > 0) {
                 badPoints--;
                 updateBadPointsText();
+                updateBadPointsInDatabase();
             }
         } else if (view.getId() == R.id.btnShowSums) {
             SumByUserFragment sumByUserFragment = new SumByUserFragment();
@@ -222,110 +223,40 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         tvBadPoints.setText("נקודות לרעה: " + badPoints);
     }
 
-    private void loadProfilePicture(String profilePicData) {
 
+
+    private void loadProfilePicture(String profilePicData) {
         if (imgUserProfile != null) {
             imgUserProfile.setImageResource(R.drawable.newlogo);
         }
 
-
-        if (profilePicData == null || profilePicData.isEmpty() || imgUserProfile == null) {
-            Log.d("ImageDebug", "No profile picture data or imageView is null");
+        if (profilePicData == null || profilePicData.isEmpty()) {
+            Log.d("ImageDebug", "Profile picture data is empty or null");
             return;
         }
-
-        Log.d("ImageDebug", "Loading profile picture, data length: " + profilePicData.length());
-
-
-        if (profilePicData.contains(";base64,") || profilePicData.startsWith("/9j/") ||
-                profilePicData.startsWith("iVBOR")) {
-
-            try {
-
-                String cleanBase64 = profilePicData;
-                if (profilePicData.contains(",")) {
-                    cleanBase64 = profilePicData.split(",")[1];
-                    Log.d("ImageDebug", "Extracted base64 part after comma");
-                }
-
-
-                while (cleanBase64.length() % 4 != 0) {
-                    cleanBase64 += "=";
-                }
-
-                byte[] decodedString = android.util.Base64.decode(
-                        cleanBase64,
-                        android.util.Base64.DEFAULT
-                );
-
-                if (decodedString == null || decodedString.length == 0) {
-                    Log.e("ImageDebug", "Base64 decoded to empty byte array");
-                    return;
-                }
-
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                        decodedString, 0, decodedString.length
-                );
-
-                if (bitmap != null) {
-                    imgUserProfile.setImageBitmap(bitmap);
-                    Log.d("ImageDebug", "Successfully loaded image from base64");
-                    return;
-                } else {
-                    Log.e("ImageDebug", "Failed to create bitmap from decoded base64");
-                }
-            } catch (IllegalArgumentException e) {
-                Log.e("ImageDebug", "Base64 decode failed - Invalid character: " + e.getMessage());
-            } catch (Exception e) {
-                Log.e("ImageDebug", "Base64 decode failed: " + e.getMessage());
-            }
-        }
-
-
-        if (profilePicData.startsWith("http")) {
-            try {
-
-                new Thread(() -> {
-                    try {
-                        java.net.URL url = new java.net.URL(profilePicData);
-                        final android.graphics.Bitmap bitmap =
-                                android.graphics.BitmapFactory.decodeStream(url.openConnection().getInputStream());
-
-                        if (bitmap != null) {
-                            getActivity().runOnUiThread(() -> {
-                                imgUserProfile.setImageBitmap(bitmap);
-                            });
-                            Log.d("ImageDebug", "Successfully loaded image from URL");
-                        } else {
-                            Log.e("ImageDebug", "Failed to decode bitmap from URL");
-                        }
-                    } catch (Exception e) {
-                        Log.e("ImageDebug", "URL loading failed: " + e.getMessage());
-                    }
-                }).start();
-                return;
-            } catch (Exception e) {
-                Log.e("ImageDebug", "Error setting up URL loading: " + e.getMessage());
-            }
-        }
-
 
         try {
-            android.net.Uri imageUri = android.net.Uri.parse(profilePicData);
-            android.graphics.Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(
-                    getActivity().getContentResolver(), imageUri
-            );
-            imgUserProfile.setImageBitmap(bitmap);
-            Log.d("ImageDebug", "Successfully loaded image from URI");
-            return;
+            String cleanBase64 = profilePicData.trim().replaceAll("\\s", "");
+
+            if (cleanBase64.contains(",")) {
+                cleanBase64 = cleanBase64.split(",")[1];
+            }
+
+            while (cleanBase64.length() % 4 != 0) {
+                cleanBase64 += "=";
+            }
+
+            byte[] decodedBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT);
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+
+            if (bitmap != null) {
+                imgUserProfile.setImageBitmap(bitmap);
+            }
+
         } catch (Exception e) {
-            Log.e("ImageDebug", "URI loading failed: " + e.getMessage());
+            Log.e("ImageDebug", "Failed to decode Base64 image: " + e.getMessage());
         }
-
-        Log.d("ImageDebug", "All image loading methods failed, using default image");
     }
-
-
 
     private void loadUserByUsername(String username) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -343,6 +274,9 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                             tvPhone.setText("מספר טלפון: " + currentUser.getPhone());
                             tvBirthDate.setText("תאריך לידה: " + currentUser.getUserBirthDate());
                             tvBadPoints.setText("נקודות לרעה: " + currentUser.getBadPoints());
+                            tvSumNum.setText("מספר סיכומים שנכתבו: " + currentUser.getSumCount());
+
+
                             badPoints = currentUser.getBadPoints();
                             loadProfilePicture(currentUser.getImageProfile());
                         }

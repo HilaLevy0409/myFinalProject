@@ -8,8 +8,7 @@ public class NotificationAdmin {
     private String id;
     private String userId;
     private String userName;
-    private String reportedUserId;
-    private String reportedUserName;
+    private String reportedUserName; //סיכום/משתמש שעליו מדווחים
     private String content;
     private String type; //הודעה או דיווח
     private String reportReason;
@@ -37,18 +36,6 @@ public class NotificationAdmin {
         }
     }
 
-    public void setReportedUserInfo(String reportedUserId, String reportedUserName) {
-        this.reportedUserId = reportedUserId;
-        this.reportedUserName = reportedUserName;
-    }
-
-    public String getReportedUserId() {
-        return reportedUserId;
-    }
-
-    public void setReportedUserId(String reportedUserId) {
-        this.reportedUserId = reportedUserId;
-    }
 
     public String getReportedUserName() {
         return reportedUserName;
