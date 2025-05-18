@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void updateNavigationHeader() {
         NavigationView navigationView = findViewById(R.id.navView);
         View headerView = navigationView.getHeaderView(0);
+
         TextView tvUserName = headerView.findViewById(R.id.tvUserName);
         ImageView imageViewProfile = headerView.findViewById(R.id.imageViewProfile);
 

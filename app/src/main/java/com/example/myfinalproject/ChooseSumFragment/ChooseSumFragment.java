@@ -68,7 +68,8 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {FirebaseAuth.getInstance().signOut(); // רק לבדיק
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
 
         return inflater.inflate(R.layout.fragment_choose_sum, container, false);
     }
@@ -201,7 +202,6 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
 
         Bundle args = new Bundle();
         args.putString("summaryId", summary.getSummaryId());
-
         sumFragment.setArguments(args);
 
         getActivity().getSupportFragmentManager()

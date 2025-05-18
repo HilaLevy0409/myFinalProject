@@ -73,6 +73,11 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+        }
+
 
         reviewList = new ArrayList<>();
     }
@@ -114,39 +119,31 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         super.onResume();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            currentUserId = currentUser.getUid();
-
-            fetchCurrentUserName();
+        if (currentUser == null) {
+            tvName.setText("משתמש אנונימי");  // עדכון אם לא מחובר
+            Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
+            return;
         } else {
-
-            tvName.setText("משתמש אנונימי");
+            currentUserId = currentUser.getUid();
+            fetchCurrentUserName();  // לוודא שהפונקציה נקראת
         }
+
+
 
         if (summaryId == null || summaryId.isEmpty()) {
-
             return;
         }
-
-
         if (reviewsListener != null) {
             reviewsListener.remove();
         }
-
-
-
-
         Query query = db.collection("reviews")
                 .whereEqualTo("summaryId", summaryId)
                 .orderBy("createdAt", Query.Direction.DESCENDING);
 
-
         reviewsListener = query.addSnapshotListener((value, error) -> {
             if (error != null) {
-
                 return;
             }
-
             if (value != null) {
                 processReviewsSnapshot(value);
             }
@@ -154,6 +151,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
 
         checkIfUserReviewed();
     }
+
 
     @Override
     public void onPause() {
@@ -174,22 +172,21 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                     if (documentSnapshot.exists()) {
                         currentUserName = documentSnapshot.getString("userName");
                         if (currentUserName != null && !currentUserName.isEmpty()) {
-                            tvName.setText(currentUserName);
-
+                            tvName.setText(currentUserName);  // הצגת שם המשתמש
                         } else {
-                            tvName.setText("משתמש");
-
+                            tvName.setText("משתמש");  // שם משתמש ברירת מחדל
                         }
                     } else {
-                        tvName.setText("משתמש");
-
+                        tvName.setText("משתמש");  // שם משתמש ברירת מחדל
                     }
                 })
                 .addOnFailureListener(e -> {
-                    tvName.setText("משתמש");
-
+                    tvName.setText("משתמש");  // שם משתמש ברירת מחדל
                 });
     }
+
+
+
 
 
     private void processReviewsSnapshot(QuerySnapshot snapshot) {

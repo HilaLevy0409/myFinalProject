@@ -231,7 +231,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         }
 
         if (profilePicData == null || profilePicData.isEmpty()) {
-            Log.d("ImageDebug", "Profile picture data is empty or null");
             return;
         }
 

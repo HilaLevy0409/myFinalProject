@@ -28,7 +28,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public int getItemViewType(int position) {
-        // This determines which layout to use based on whether the message was sent or received
         Message message = messages.get(position);
         return message.isSent() ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
     }
@@ -46,26 +45,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         Message message = messages.get(position);
 
         if (message.isSent()) {
-            // This is a message sent by current user
             holder.sentLayout.setVisibility(View.VISIBLE);
             holder.receivedLayout.setVisibility(View.GONE);
 
-            // Just show the message text without adding "נשלח"
             holder.tvSentMessage.setText(message.getText());
 
-            // Format and set timestamp if available
             if (message.getTimestamp() != null) {
                 holder.tvSentTime.setText((message.getTimestamp()));
             }
         } else {
-            // This is a message received from another user
             holder.receivedLayout.setVisibility(View.VISIBLE);
             holder.sentLayout.setVisibility(View.GONE);
 
-            // Just show the message text without adding "התקבל"
             holder.tvReceivedMessage.setText(message.getText());
 
-            // Format and set timestamp if available
             if (message.getTimestamp() != null) {
                 holder.tvReceivedTime.setText((message.getTimestamp()));
             }

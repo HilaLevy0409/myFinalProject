@@ -211,7 +211,6 @@ public class AlarmManagerFragment extends Fragment {
     @SuppressLint("ScheduleExactAlarm")
     private void addEventToCalendar() {
         if (getContext() == null) {
-
             return;
         }
 
@@ -235,10 +234,9 @@ public class AlarmManagerFragment extends Fragment {
             }
 
 
-
             Calendar startTime = Calendar.getInstance();
-            startTime.set(year, month, day, hour, minute, 0); // Set seconds to 0
-            startTime.set(Calendar.MILLISECOND, 0); // Clear milliseconds
+            startTime.set(year, month, day, hour, minute, 0);
+            startTime.set(Calendar.MILLISECOND, 0);
 
             Calendar endTime = (Calendar) startTime.clone();
             endTime.add(Calendar.HOUR_OF_DAY, durationHour);
@@ -312,6 +310,7 @@ public class AlarmManagerFragment extends Fragment {
                 try {
                     cr.delete(eventUri, null, null);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 return;
             }

@@ -446,6 +446,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private void toggleFavorite() {
         if (mAuth.getCurrentUser() == null || summaryId == null) {
             Toast.makeText(getContext(), "יש להתחבר כדי לשמור למועדפים", Toast.LENGTH_SHORT).show();
+            Log.d("SUM_FRAGMENT_USER", String.valueOf(mAuth.getCurrentUser() != null));
+            Log.d("SUM_FRAGMENT_SUMID", summaryId);
             return;
         }
 

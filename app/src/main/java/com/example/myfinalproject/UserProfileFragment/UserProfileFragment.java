@@ -6,6 +6,7 @@ import static com.example.myfinalproject.Utils.Validator.isValidPassword;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -53,6 +54,8 @@ import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 
 import com.example.myfinalproject.MainActivity;
 import com.example.myfinalproject.Utils.Validator;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -575,14 +578,17 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                         if (resetTask.isSuccessful()) {
                                             Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
 
+
                                             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("PasswordResetPrefs", Context.MODE_PRIVATE);
                                             SharedPreferences.Editor editor = sharedPreferences.edit();
                                             editor.putBoolean(emailSend, true);
+                                            editor.putString("lastResetEmail", emailSend);
                                             editor.apply();
 
                                             dialog.dismiss();
 
-                                            askUserToUpdatePasswordInFirestore();
+
+                                            showDirectPasswordUpdateDialog(emailSend);
 
                                         } else {
                                             Exception exception = resetTask.getException();
@@ -614,141 +620,252 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     }
 
 
+    private void showDirectPasswordUpdateDialog(String userEmail) {
+        try {
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
+            builder.setTitle("עדכון סיסמה במערכת");
 
+            LinearLayout layout = new LinearLayout(getContext());
+            layout.setOrientation(LinearLayout.VERTICAL);
+            int padding = (int) (20 * getResources().getDisplayMetrics().density);
+            layout.setPadding(padding, padding, padding, padding);
 
+            TextView messageText = new TextView(getContext());
+            messageText.setText("עדכון סיסמה במערכת:");
+            messageText.setTextSize(16);
+            messageText.setGravity(Gravity.RIGHT);
+            messageText.setPadding(0, 0, 0, padding);
+            layout.addView(messageText);
 
-    private void askUserToUpdatePasswordInFirestore() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
-        builder.setTitle("עדכון סיסמה במערכת");
+            // Current password field
+            final EditText currentPasswordInput = new EditText(getContext());
+            currentPasswordInput.setHint("הקלד/י סיסמה נוכחית");
+            currentPasswordInput.setGravity(Gravity.RIGHT);
+            currentPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            layout.addView(currentPasswordInput);
 
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        layout.setPadding(padding, padding, padding, padding);
+            // New password field
+            final EditText newPasswordInput = new EditText(getContext());
+            newPasswordInput.setHint("הקלד/י סיסמה חדשה");
+            newPasswordInput.setGravity(Gravity.RIGHT);
+            newPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        final EditText input = new EditText(getContext());
-        input.setHint("הקלד/י את הסיסמה החדשה");
-        input.setGravity(Gravity.RIGHT);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            final ImageView toggleNewPasswordVisibility = new ImageView(getContext());
+            toggleNewPasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
+            toggleNewPasswordVisibility.setPadding(20, 20, 20, 20);
 
-        final ImageView togglePasswordVisibility = new ImageView(getContext());
-        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
-        togglePasswordVisibility.setPadding(20, 20, 20, 20);
+            LinearLayout newPasswordLayout = new LinearLayout(getContext());
+            newPasswordLayout.setOrientation(LinearLayout.HORIZONTAL);
+            newPasswordLayout.setGravity(Gravity.CENTER_VERTICAL);
 
-        LinearLayout passwordLayout = new LinearLayout(getContext());
-        passwordLayout.setOrientation(LinearLayout.HORIZONTAL);
-        passwordLayout.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams newPasswordInputParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+            newPasswordLayout.addView(newPasswordInput, newPasswordInputParams);
+            newPasswordLayout.addView(toggleNewPasswordVisibility);
 
-        LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-        passwordLayout.addView(input, inputParams);
-        passwordLayout.addView(togglePasswordVisibility);
+            layout.addView(newPasswordLayout);
 
-        layout.addView(passwordLayout);
+            final TextView passwordStrength = new TextView(getContext());
+            passwordStrength.setTextSize(14);
+            passwordStrength.setPadding(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
+            layout.addView(passwordStrength);
 
-        final TextView passwordStrength = new TextView(getContext());
-        passwordStrength.setTextSize(14);
-        passwordStrength.setPadding(0, (int)(8 * getResources().getDisplayMetrics().density), 0, 0);
-        layout.addView(passwordStrength);
+            builder.setView(layout);
+            builder.setPositiveButton("עדכון", null);
+            builder.setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
 
-        builder.setView(layout);
+            android.app.AlertDialog dialog = builder.create();
 
-        builder.setPositiveButton("עדכון", null);
-        builder.setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
+            dialog.setOnShowListener(d -> {
+                Button positiveButton = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(v -> {
+                    String currentPassword = currentPasswordInput.getText().toString().trim();
+                    String newPassword = newPasswordInput.getText().toString().trim();
 
-        android.app.AlertDialog dialog = builder.create();
+                    if (TextUtils.isEmpty(currentPassword)) {
+                        currentPasswordInput.setError("יש להזין סיסמה נוכחית");
+                        currentPasswordInput.requestFocus();
+                        return;
+                    }
 
-        dialog.setOnShowListener(d -> {
-            Button positiveButton = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setOnClickListener(v -> {
-                String newPassword = input.getText().toString().trim();
+                    if (TextUtils.isEmpty(newPassword)) {
+                        newPasswordInput.setError("יש להזין סיסמה חדשה");
+                        newPasswordInput.requestFocus();
+                        return;
+                    }
 
-                if (TextUtils.isEmpty(newPassword)) {
-                    input.setError("יש להזין סיסמה");
-                    input.requestFocus();
-                    return;
-                }
+                    String validationMessage = isValidPassword(newPassword);
+                    if (!validationMessage.isEmpty()) {
+                        newPasswordInput.setError(validationMessage);
+                        newPasswordInput.requestFocus();
+                        return;
+                    }
 
-                String validationMessage = isValidPassword(newPassword);
-                if (!validationMessage.isEmpty()) {
-                    input.setError(validationMessage);
-                    input.requestFocus();
-                    return;
-                }
+                    ProgressDialog progressDialog = new ProgressDialog(getContext());
+                    progressDialog.setMessage("מעדכן סיסמה...");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
 
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (firebaseUser != null) {
-                    firebaseUser.updatePassword(newPassword)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    String email = firebaseUser.getEmail();
-                                    if (email == null) {
-                                        Toast.makeText(getContext(), "לא ניתן למצוא את כתובת האימייל של המשתמש", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (currentUser == null || currentUser.getEmail() == null || !currentUser.getEmail().equals(userEmail)) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getContext(), "המשתמש אינו מחובר או שהאימייל אינו תואם", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                                    FirebaseFirestore.getInstance()
-                                            .collection("users")
-                                            .whereEqualTo("userEmail", email)
-                                            .get()
-                                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                                if (!queryDocumentSnapshots.isEmpty()) {
-                                                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-                                                    document.getReference().update("userPass", newPassword)
-                                                            .addOnSuccessListener(aVoid -> {
-                                                                Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
-                                                                dialog.dismiss();
-                                                            })
-                                                            .addOnFailureListener(e -> {
-                                                                Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                            });
-                                                } else {
-                                                    Toast.makeText(getContext(), "לא נמצא משתמש תואם במסד הנתונים", Toast.LENGTH_SHORT).show();
-                                                }
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            });
+                    // Get auth credentials from the user for re-authentication
+                    AuthCredential credential = EmailAuthProvider
+                            .getCredential(userEmail, currentPassword); // Use current password from input
 
-                                } else {
-                                    Exception exception = task.getException();
-                                    Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה ב-Firebase: " + (exception != null ? exception.getMessage() : ""), Toast.LENGTH_SHORT).show();
-                                }
+                    currentUser.reauthenticate(credential)
+                            .addOnSuccessListener(aVoid -> {
+                                // Re-authentication successful, now update password
+                                currentUser.updatePassword(newPassword)
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            // Firebase Auth password updated, now update Firestore
+                                            FirebaseFirestore.getInstance()
+                                                    .collection("users")
+                                                    .whereEqualTo("userEmail", userEmail)
+                                                    .get()
+                                                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                                                        if (!queryDocumentSnapshots.isEmpty()) {
+                                                            DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                                                            document.getReference().update("userPass", newPassword)
+                                                                    .addOnSuccessListener(aVoid3 -> {
+                                                                        // Firestore updated, now update SharedPreferences
+                                                                        updateUserSessionData(userEmail, newPassword);
+                                                                        progressDialog.dismiss();
+                                                                        Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+                                                                        dialog.dismiss();
+                                                                        // Refresh user data
+                                                                        if (presenter != null) {
+                                                                            presenter.loadUserData();
+                                                                        }
+                                                                        // Update navigation header
+                                                                        if (getActivity() instanceof MainActivity) {
+                                                                            ((MainActivity) getActivity()).updateNavigationHeader();
+                                                                        }
+                                                                    })
+                                                                    .addOnFailureListener(e -> {
+                                                                        progressDialog.dismiss();
+                                                                        Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                    });
+                                                        } else {
+                                                            progressDialog.dismiss();
+                                                            Toast.makeText(getContext(), "לא נמצא משתמש תואם במסד הנתונים", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        progressDialog.dismiss();
+                                                        Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    });
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            progressDialog.dismiss();
+                                            Toast.makeText(getContext(), "שגיאה בעדכון סיסמת Firebase: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                progressDialog.dismiss();
+                                Toast.makeText(getContext(), "הסיסמה הנוכחית שגויה", Toast.LENGTH_SHORT).show();
+                                currentPasswordInput.setError("הסיסמה הנוכחית שגויה");
+                                currentPasswordInput.requestFocus();
                             });
+                });
 
-                }
+                newPasswordInput.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        updatePasswordStrengthView(s.toString(), passwordStrength);
+                    }
+                });
+
+                toggleNewPasswordVisibility.setOnClickListener(v -> {
+                    if (newPasswordInput.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                        newPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
+                        toggleNewPasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                            toggleNewPasswordVisibility.setImageResource(R.drawable.ic_visibility);
+                            toggleNewPasswordVisibility.animate().alpha(1f).setDuration(200).start();
+                        }).start();
+                    } else {
+                        newPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                        toggleNewPasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                            toggleNewPasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
+                            toggleNewPasswordVisibility.animate().alpha(1f).setDuration(200).start();
+                        }).start();
+                    }
+
+                    newPasswordInput.setSelection(newPasswordInput.getText().length());
+                });
             });
 
-            input.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-                @Override public void afterTextChanged(Editable s) {
-                    updatePasswordStrengthView(s.toString(), passwordStrength);
-                }
-            });
+            dialog.show();
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "שגיאה בהצגת חלון עדכון סיסמה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
-            togglePasswordVisibility.setOnClickListener(v -> {
-                if (input.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 
-                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
-                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
-                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
-                    }).start();
-                } else {
-                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
-                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
-                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
-                    }).start();
-                }
+    // Method to re-authenticate user with new credentials
+    private void signInWithNewCredentials(String email, String password) {
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("מתחבר מחדש...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-                input.setSelection(input.getText().length());
-            });
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    progressDialog.dismiss();
+                    Log.d("UserProfileFragment", "Re-authentication successful");
 
-        });
+                    // Refresh user data
+                    if (presenter != null) {
+                        presenter.loadUserData();
+                    }
 
-        dialog.show();
+                    // Update navigation header
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).updateNavigationHeader();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    Log.e("UserProfileFragment", "Re-authentication failed: " + e.getMessage());
+
+                    // Even if Firebase Auth fails, we still want to show the user data
+                    // since we updated the password in Firestore and SharedPreferences
+                    if (presenter != null) {
+                        presenter.loadUserData();
+                    }
+                });
+    }
+
+    private void updateUserSessionData(String email, String password) {
+        try {
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("userEmail", email);
+            editor.putString("userPassword", password);
+            editor.putBoolean("isLoggedIn", true);
+            editor.apply();
+
+            // Also update any current user data
+            if (currentUser != null) {
+                currentUser.setUserPass(password);
+            }
+        } catch (Exception e) {
+            Log.e("UserProfileFragment", "Error updating session data: " + e.getMessage());
+        }
     }
 
     private void updatePasswordStrengthView(String password, TextView passwordStrength) {
@@ -795,6 +912,8 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         return strength;
     }
 
+
+
     @Override
     public void onResume() {
         super.onResume();
@@ -802,5 +921,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             presenter.loadUserData();
         }
     }
+
 
 }

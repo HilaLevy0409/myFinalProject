@@ -175,7 +175,6 @@ public class ReportFragment extends Fragment {
 
 
         if (summaryId != null) {
-
             Map<String, Object> reportData = new HashMap<>();
             reportData.put("userId", report.getUserId());
             reportData.put("userName", report.getUserName());
@@ -186,7 +185,6 @@ public class ReportFragment extends Fragment {
             reportData.put("timestamp", Timestamp.now());
             reportData.put("isSummaryReport", true);
             reportData.put("summaryId", summaryId);
-
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("notifications")
@@ -201,7 +199,6 @@ public class ReportFragment extends Fragment {
                         btnSendReport.setEnabled(true);
                     });
         } else {
-
             notificationRepository.addNotification(report)
                     .addOnSuccessListener(aVoid -> {
                         tvSubmitStatus.setVisibility(View.VISIBLE);

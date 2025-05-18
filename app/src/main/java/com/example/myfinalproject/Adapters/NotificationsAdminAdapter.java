@@ -27,7 +27,6 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
     private final OnNotificationClickListenerCallback callback;
 
 
-
     public NotificationsAdminAdapter(List<NotificationAdmin> notificationsList, OnNotificationClickListenerCallback callback) {
         this.notificationsList = notificationsList != null ? notificationsList : new ArrayList<>();
         this.callback = callback;

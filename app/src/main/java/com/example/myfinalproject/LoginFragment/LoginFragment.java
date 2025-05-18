@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,6 +73,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
         btnRegisterNow.setOnClickListener(this);
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            Log.d("USER_CHECK", "User is logged in: " + currentUser.getUid());
+            // כאן תוכל להחליט איך להמשיך - למשל להחליף פרגמנט או להציג מידע
+        } else {
+            Log.d("USER_CHECK", "No user is logged in.");
+        }
     }
 
     @Override
@@ -318,7 +327,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                                             .addOnFailureListener(e -> {
                                                 Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                             });
-                                    
+
                                 } else {
                                     Exception exception = task.getException();
                                     Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה ב-Firebase: " + (exception != null ? exception.getMessage() : ""), Toast.LENGTH_SHORT).show();
@@ -430,9 +439,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         editor.putBoolean("isLoggedIn", true);
         editor.putString("imageProfile", user.getImageProfile());
 
-
         editor.apply();
     }
+
+
+
 
     @Override
     public void showLoginFailure(String error) {

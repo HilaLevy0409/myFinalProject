@@ -17,6 +17,7 @@ public class Summary {
     private @ServerTimestamp Date createdDate;
     private String userName;
     private String userId;
+    private float rating;
 
 
 
@@ -35,6 +36,14 @@ public class Summary {
 
     public Summary() {
 
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
     }
 
     public Date getCreatedDate() {

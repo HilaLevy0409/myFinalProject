@@ -46,8 +46,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         if (reviewList == null || position < 0 || position >= reviewList.size()) {
             return;
         }
-
-            if (reviewList != null && position >= 0 && position < reviewList.size()) {
+        if (reviewList != null && position >= 0 && position < reviewList.size()) {
                 Review review = reviewList.get(position);
 
                 String userName = review.getUserName();
@@ -109,7 +108,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
                 holder.tvWritingReview.setClickable(false);
                 holder.rbReviewRating.setIsIndicator(true);
             });
-
         }
     }
 

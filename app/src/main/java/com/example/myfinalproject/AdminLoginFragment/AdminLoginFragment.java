@@ -47,8 +47,9 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
 
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.flFragment, new AdminFragment())
-                        .commit();
+                        .replace(R.id.flFragment, new AdminFragment()).
+                addToBackStack(null)
+                .commit();
             } else {
                 Toast.makeText(getContext(), "שם או סיסמה לא נכונים", Toast.LENGTH_SHORT).show();
             }
