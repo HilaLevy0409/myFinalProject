@@ -14,48 +14,44 @@ import java.util.List;
 
 public class SumByUserPresenter {
     private final SumByUserFragment view;
-    private final String userName;
+    private final String userId;
     private final CollectionReference summariesCollection;
 
-    public SumByUserPresenter(SumByUserFragment view, String userName) {
+    public SumByUserPresenter(SumByUserFragment view, String userId){
         this.view = view;
-        this.userName = userName;
+        this.userId = userId;
         this.summariesCollection = FirebaseFirestore.getInstance().collection("summaries");
     }
 
     public void loadUserSummaries(SummariesCallback callback) {
 
-        summariesCollection.get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    summariesCollection.whereEqualTo("userName", userName)
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    List<Summary> summaries = new ArrayList<>();
+        summariesCollection.whereEqualTo("userId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<Summary> summaries = new ArrayList<>();
 
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                Summary summary = document.toObject(Summary.class);
+                                summary.setSummaryId(document.getId());
+                                summaries.add(summary);
+                            } catch (Exception e) {
+                                Log.e("loadUserSummaries", "שגיאה בהמרת מסמך ל-Summary: " + e.getMessage(), e);
+                            }
+                        }
 
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        try {
-                                            Summary summary = document.toObject(Summary.class);
-                                            summary.setSummaryId(document.getId());
-                                            summaries.add(summary);
-                                        } catch (Exception e) {
-                                            Log.e("loadUserSummaries", "שגיאה בהמרת מסמך ל-Summary: " + e.getMessage(), e);
-
-                                        }
-                                    }
-
-                                    callback.onSuccess(summaries);
-                                } else {
-                                    callback.onError(task.getException() != null ?
-                                            task.getException().getMessage() :
-                                            "שגיאה בטעינת סיכומים");
-                                }
-                            });
+                        callback.onSuccess(summaries);
+                    } else {
+                        callback.onError(task.getException() != null ?
+                                task.getException().getMessage() :
+                                "שגיאה בטעינת סיכומים");
+                    }
                 })
                 .addOnFailureListener(e -> {
                     callback.onError("שגיאה בגישה למסד נתונים: " + e.getMessage());
                 });
+
     }
 
     public void filterSummaries(String query, List<Summary> originalList, SummaryAdapter adapter) {

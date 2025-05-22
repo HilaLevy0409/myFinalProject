@@ -46,63 +46,45 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     private TextView tvNoSummaries;
 
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         summaryList = new ArrayList<>();
         chooseSumPresenter = new ChooseSumPresenter();
 
-
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
             selectedProfession = getArguments().getString("selected_profession", "");
-
-
         }
-
     }
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-
         return inflater.inflate(R.layout.fragment_choose_sum, container, false);
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         btnAdd = view.findViewById(R.id.btnAdd);
         listViewSummaries = view.findViewById(R.id.listViewSummaries);
         searchView = view.findViewById(R.id.searchView);
-
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
-
-//        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-//        if (currentUser == null) {
-//            btnAdd.setVisibility(View.GONE);
-//        } else {
-//            btnAdd.setVisibility(View.VISIBLE);
-//            btnAdd.setEnabled(true);
-//        }
-
         tvNoSummaries = view.findViewById(R.id.tvNoSummaries);
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            btnAdd.setVisibility(View.GONE);
+        } else {
+            btnAdd.setVisibility(View.VISIBLE);
+        }
 
         btnAdd.setOnClickListener(this);
-
 
         listViewSummaries.setOnItemClickListener((parent, view1, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
             showSum(selectedSummary);
         });
-
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -128,12 +110,8 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 return true;
             }
         });
-
         loadSummaries();
-
     }
-
-
 
 
     @Override
@@ -153,8 +131,6 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                     .commit();
         }
     }
-
-
 
 
     private void loadSummaries() {

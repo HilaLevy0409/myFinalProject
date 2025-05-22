@@ -17,6 +17,9 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import com.google.firebase.firestore.ListenerRegistration;
+
+
 public class UserRepository {
 
     private FirebaseAuth mAuth;
@@ -131,6 +134,19 @@ public class UserRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    public ListenerRegistration listenToUserById(String userId, UserCallback callback) {
+        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(userId);
+        return userRef.addSnapshotListener((documentSnapshot, error) -> {
+            if (error != null) {
+                callback.onError("שגיאה בקבלת נתונים בזמן אמת: " + error.getMessage());
+                return;
+            }
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                User user = documentSnapshot.toObject(User.class);
+                callback.onUserReceived(user);
+            }
+        });
+    }
 
 
 

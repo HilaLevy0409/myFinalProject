@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -95,7 +96,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         presenter = new UserProfilePresenter(this);
-        presenter.loadUserData();
+        presenter.startUserRealtimeUpdates();
         tvEmail = view.findViewById(R.id.tvEmail);
         tvPhoneNumber = view.findViewById(R.id.tvPhoneNumber);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -130,6 +131,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         final Dialog dialog = new Dialog(getContext());
         dialog.setTitle("עריכת פרטים");
         dialog.setContentView(R.layout.edit_user_profile);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
         EditText etEditEmail = dialog.findViewById(R.id.etEmail);
         EditText etEditPhone = dialog.findViewById(R.id.etPhoneNumber);
@@ -175,6 +179,69 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             openDialog();
         });
 
+
+        etEditEmail.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String error = Validator.isValidEmail(s.toString().trim());
+                etEditEmail.setError(error.isEmpty() ? null : error);
+            }
+            public void afterTextChanged(Editable s) {}
+        });
+
+        etEditEmail.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String email = etEditEmail.getText().toString().trim();
+                if (!Validator.isValidEmail(email).isEmpty()) return;
+                db.collection("users")
+                        .whereEqualTo("userEmail", email)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                boolean exists = !task.getResult().isEmpty() &&
+                                        (currentUser == null || !email.equals(currentUser.getUserEmail()));
+                                if (exists) etEditEmail.setError("האימייל הזה כבר קיים במערכת");
+                            }
+                        });
+            }
+        });
+
+        etEditUsername.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String error = Validator.isValidUsername(s.toString().trim());
+                etEditUsername.setError(error.isEmpty() ? null : error);
+            }
+            public void afterTextChanged(Editable s) {}
+        });
+
+        etEditUsername.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String username = etEditUsername.getText().toString().trim();
+                if (!Validator.isValidUsername(username).isEmpty()) return;
+                db.collection("users")
+                        .whereEqualTo("userName", username)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                boolean exists = !task.getResult().isEmpty() &&
+                                        (currentUser == null || !username.equals(currentUser.getUserName()));
+                                if (exists) etEditUsername.setError("השם הזה כבר קיים במערכת");
+                            }
+                        });
+            }
+        });
+
+        etEditPhone.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String error = Validator.isValidPhone(s.toString().trim());
+                etEditPhone.setError(error.isEmpty() ? null : error);
+            }
+            public void afterTextChanged(Editable s) {}
+        });
+
+
         btnFinishDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,6 +252,11 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
                 if (newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty() || newBirthDate.isEmpty()) {
                     showError("יש למלא את כל השדות!");
+                    return;
+                }
+
+                if (etEditEmail.getError() != null || etEditPhone.getError() != null || etEditUsername.getError() != null) {
+                    showError("יש לתקן את השגיאות לפני העדכון");
                     return;
                 }
 
@@ -242,19 +314,32 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                     updatedUser.setBadPoints(currentUser.getBadPoints());
                                                     updatedUser.setSumCount(currentUser.getSumCount());
                                                 }
-                                                if (currentDialogImageView != null && currentDialogImageView.getDrawable() != null) {
-                                                    String base64Image = imageViewToBase64(currentDialogImageView);
-                                                    if (base64Image != null) {
-                                                        updatedUser.setImageProfile(base64Image);
-                                                    }
-                                                } else if (currentUser != null) {
+                                                String base64Image = null;
+                                                if (dialogImageView != null && dialogImageView.getDrawable() != null) {
+                                                    base64Image = imageViewToBase64(dialogImageView);
+                                                }
+
+                                                if (base64Image != null && !base64Image.isEmpty()) {
+                                                    updatedUser.setImageProfile(base64Image);
+                                                } else if (currentUser != null && currentUser.getImageProfile() != null) {
                                                     updatedUser.setImageProfile(currentUser.getImageProfile());
                                                 }
-                                                if (currentUser != null) {
-                                                    updatedUser.setBadPoints(currentUser.getBadPoints());
-                                                    updatedUser.setSumCount(currentUser.getSumCount());
-                                                }
+
                                                 presenter.submitClicked(updatedUser);
+
+                                                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                editor.putString("username", updatedUser.getUserName());
+
+                                                if (base64Image != null && !base64Image.isEmpty()) {
+                                                    editor.putString("imageProfile", base64Image);
+                                                }
+                                                editor.apply();
+
+                                                if (getActivity() instanceof MainActivity) {
+                                                    ((MainActivity) getActivity()).updateNavigationHeader();
+                                                }
+
                                                 dialog.dismiss();
 
                                             }
@@ -268,20 +353,29 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         dialog.show();
     }
 
-
-
-
     private String imageViewToBase64(ImageView imageView) {
-        Drawable drawable = imageView.getDrawable();
-        if (drawable == null || !(drawable instanceof BitmapDrawable)) {
+        try {
+            Drawable drawable = imageView.getDrawable();
+            if (drawable == null) return null;
+
+            Bitmap bitmap;
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+            } else {
+                bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                drawable.draw(canvas);
+            }
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
+        } catch (Exception e) {
+            Log.e("USER_PROFILE_TAG", "Error in imageViewToBase64: " + e.getMessage(), e);
             return null;
         }
-
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-        return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
     }
 
     public void displayUserData(User user) {
@@ -292,6 +386,8 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         tvUsername.setText("שם משתמש: " + user.getUserName());
         tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
         tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
+
+
 
         String imageProfileData = user.getImageProfile();
         if (imageProfileData != null && !imageProfileData.isEmpty()) {
@@ -425,6 +521,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         startActivityForResult(intent, CAMERA);
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -439,11 +536,18 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 Uri contentURI = data.getData();
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), contentURI);
-                    saveImage(bitmap);
                     if (targetImageView != null) {
                         targetImageView.setImageBitmap(bitmap);
                     }
-                    Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "התמונה נבחרה!", Toast.LENGTH_SHORT).show();
+
+                    if (currentDialogImageView == null && currentUser != null) {
+                        String base64Image = imageViewToBase64(imageView);
+                        if (base64Image != null) {
+                            currentUser.setImageProfile(base64Image);
+                            updateProfileImageInDatabase(base64Image);
+                        }
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(getContext(), "נכשל!", Toast.LENGTH_SHORT).show();
@@ -454,14 +558,40 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             if (targetImageView != null) {
                 targetImageView.setImageBitmap(thumbnail);
             }
-            saveImage(thumbnail);
-            Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "התמונה נבחרה!", Toast.LENGTH_SHORT).show();
+
+            if (currentDialogImageView == null && currentUser != null) {
+                String base64Image = imageViewToBase64(targetImageView);
+                if (base64Image != null) {
+                    currentUser.setImageProfile(base64Image);
+                    updateProfileImageInDatabase(base64Image);
+                }
+            }
         }
+    }
 
-        currentDialogImageView = null;
+    private void updateProfileImageInDatabase(String base64Image) {
+        if (currentUser == null || base64Image == null) return;
 
-        imageView = null;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(currentUser.getId())
+                .update("imageProfile", base64Image)
+                .addOnSuccessListener(aVoid -> {
+                    SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("imageProfile", base64Image);
+                    editor.apply();
 
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).updateNavigationHeader();
+                    }
+
+                    Log.d("USER_PROFILE_TAG", "Profile image updated successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("USER_PROFILE_TAG", "Error updating profile image: " + e.getMessage(), e);
+                    Toast.makeText(getContext(), "שגיאה בעדכון תמונת הפרופיל", Toast.LENGTH_SHORT).show();
+                });
     }
 
     public String saveImage(Bitmap myBitmap) {
@@ -637,14 +767,12 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             messageText.setPadding(0, 0, 0, padding);
             layout.addView(messageText);
 
-            // Current password field
             final EditText currentPasswordInput = new EditText(getContext());
             currentPasswordInput.setHint("הקלד/י סיסמה נוכחית");
             currentPasswordInput.setGravity(Gravity.RIGHT);
             currentPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             layout.addView(currentPasswordInput);
 
-            // New password field
             final EditText newPasswordInput = new EditText(getContext());
             newPasswordInput.setHint("הקלד/י סיסמה חדשה");
             newPasswordInput.setGravity(Gravity.RIGHT);
@@ -712,16 +840,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                         return;
                     }
 
-                    // Get auth credentials from the user for re-authentication
                     AuthCredential credential = EmailAuthProvider
-                            .getCredential(userEmail, currentPassword); // Use current password from input
+                            .getCredential(userEmail, currentPassword);
 
                     currentUser.reauthenticate(credential)
                             .addOnSuccessListener(aVoid -> {
-                                // Re-authentication successful, now update password
                                 currentUser.updatePassword(newPassword)
                                         .addOnSuccessListener(aVoid2 -> {
-                                            // Firebase Auth password updated, now update Firestore
                                             FirebaseFirestore.getInstance()
                                                     .collection("users")
                                                     .whereEqualTo("userEmail", userEmail)
@@ -731,16 +856,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                             DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
                                                             document.getReference().update("userPass", newPassword)
                                                                     .addOnSuccessListener(aVoid3 -> {
-                                                                        // Firestore updated, now update SharedPreferences
                                                                         updateUserSessionData(userEmail, newPassword);
                                                                         progressDialog.dismiss();
                                                                         Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
                                                                         dialog.dismiss();
-                                                                        // Refresh user data
                                                                         if (presenter != null) {
                                                                             presenter.loadUserData();
                                                                         }
-                                                                        // Update navigation header
                                                                         if (getActivity() instanceof MainActivity) {
                                                                             ((MainActivity) getActivity()).updateNavigationHeader();
                                                                         }
@@ -816,40 +938,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
 
 
-    // Method to re-authenticate user with new credentials
-    private void signInWithNewCredentials(String email, String password) {
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("מתחבר מחדש...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
-                    progressDialog.dismiss();
-                    Log.d("UserProfileFragment", "Re-authentication successful");
-
-                    // Refresh user data
-                    if (presenter != null) {
-                        presenter.loadUserData();
-                    }
-
-                    // Update navigation header
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).updateNavigationHeader();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    progressDialog.dismiss();
-                    Log.e("UserProfileFragment", "Re-authentication failed: " + e.getMessage());
-
-                    // Even if Firebase Auth fails, we still want to show the user data
-                    // since we updated the password in Firestore and SharedPreferences
-                    if (presenter != null) {
-                        presenter.loadUserData();
-                    }
-                });
-    }
-
     private void updateUserSessionData(String email, String password) {
         try {
             SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
@@ -859,7 +947,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             editor.putBoolean("isLoggedIn", true);
             editor.apply();
 
-            // Also update any current user data
             if (currentUser != null) {
                 currentUser.setUserPass(password);
             }
@@ -917,9 +1004,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
-        if (presenter != null) {
-            presenter.loadUserData();
-        }
+        presenter.loadUserData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.stopUserRealtimeUpdates();
     }
 
 

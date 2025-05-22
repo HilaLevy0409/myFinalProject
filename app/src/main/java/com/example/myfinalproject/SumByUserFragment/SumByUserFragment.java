@@ -38,15 +38,17 @@ public class SumByUserFragment extends Fragment {
     private SearchView searchView;
     private TextView tvNoSummaries, tvTitle;
 
+    private String userId;
     private String userName;
 
 
     public SumByUserFragment() {
     }
 
-    public static SumByUserFragment newInstance(String userName) {
+    public static SumByUserFragment newInstance(String userId, String userName) {
         SumByUserFragment fragment = new SumByUserFragment();
         Bundle args = new Bundle();
+        args.putString("userId", userId);
         args.putString("userName", userName);
         fragment.setArguments(args);
         return fragment;
@@ -56,10 +58,10 @@ public class SumByUserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            userId = getArguments().getString("userId");
             userName = getArguments().getString("userName");
         }
         summaryList = new ArrayList<>();
-
 
     }
 
@@ -78,9 +80,13 @@ public class SumByUserFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView);
         tvNoSummaries = view.findViewById(R.id.tvNoSummaries);
 
+        if (userId == null || userId.isEmpty()) {
+            SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
+            userId = prefs.getString("userId", "");
+        }
         if (userName == null || userName.isEmpty()) {
             SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
-            userName = prefs.getString("username", "המשתמש הנוכחי");
+            userName = prefs.getString("username", "המשתמש");
         }
 
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
@@ -89,7 +95,7 @@ public class SumByUserFragment extends Fragment {
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
 
-        presenter = new SumByUserPresenter(this, userName);
+        presenter = new SumByUserPresenter(this, userId);
 
         listViewSummaries.setOnItemClickListener((parent, viewItem, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
@@ -111,8 +117,6 @@ public class SumByUserFragment extends Fragment {
                 return true;
             }
         });
-
-
         loadSummaries();
     }
 
@@ -132,19 +136,14 @@ public class SumByUserFragment extends Fragment {
                         listViewSummaries.setVisibility(View.VISIBLE);
                         tvNoSummaries.setVisibility(View.GONE);
                         summaryList.addAll(summaries);
-
-
                     }
                     summaryAdapter.notifyDataSetChanged();
-
-
                 });
             }
 
             @Override
             public void onError(String message) {
                 if (getActivity() == null) return;
-
 
                 getActivity().runOnUiThread(() -> {
                     listViewSummaries.setVisibility(View.GONE);
@@ -154,11 +153,6 @@ public class SumByUserFragment extends Fragment {
             }
         });
     }
-
-
-
-
-
 
     private void navigateToSummaryView(Summary summary) {
         if (getActivity() != null) {

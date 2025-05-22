@@ -6,10 +6,15 @@ import android.content.SharedPreferences;
 import com.example.myfinalproject.CallBacks.UserCallback;
 import com.example.myfinalproject.Repositories.UserRepository;
 import com.example.myfinalproject.DataModels.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.ListenerRegistration;
+
 
 public class UserProfilePresenter {
     private UserProfileFragment view;
     private UserRepository database;
+    private ListenerRegistration userListener;
+
 
     public UserProfilePresenter(UserProfileFragment view) {
         this.view = view;
@@ -40,6 +45,7 @@ public class UserProfilePresenter {
     }
 
     public void logOut() {
+        FirebaseAuth.getInstance().signOut();
         view.onLogOutSuccess();
     }
 
@@ -76,4 +82,36 @@ public class UserProfilePresenter {
             }
         });
     }
+
+
+    public void startUserRealtimeUpdates() {
+        SharedPreferences sp = view.getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String userId = sp.getString("userId", "");
+        if (userId.isEmpty()) {
+            view.showError("משתמש לא מזוהה, אנא התחבר מחדש.");
+            return;
+        }
+
+        userListener = database.listenToUserById(userId, new UserCallback() {
+            @Override
+            public void onUserReceived(User user) {
+                if (user != null) {
+                    view.displayUserData(user);
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                view.showError(message);
+            }
+        });
+    }
+
+    public void stopUserRealtimeUpdates() {
+        if (userListener != null) {
+            userListener.remove();
+            userListener = null;
+        }
+    }
+
 }

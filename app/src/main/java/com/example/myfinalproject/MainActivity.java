@@ -27,10 +27,8 @@ import com.example.myfinalproject.Timer.TimerFragment;
 import com.example.myfinalproject.UserProfileFragment.UserProfileFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
-
+import com.google.firebase.auth.FirebaseAuth;
 import androidx.appcompat.widget.Toolbar;
-
-
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -76,10 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             tvUserName.setText("");
             imageViewProfile.setImageResource(R.drawable.newlogo);
-
         }
-
-
 
         tvUserName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,10 +175,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setTitle("התנתקות")
                     .setMessage("האם ברצונך להתנתק?")
                     .setPositiveButton("כן", (dialog, which) -> {
+                        FirebaseAuth.getInstance().signOut();
+
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.clear();
                         editor.apply();
-
 
                         updateNavigationHeader();
 

@@ -14,8 +14,6 @@ public class ChooseSumPresenter {
         this.summaryDb = new SummaryRepository();
     }
 
-
-
     public void loadSummaries(SummariesCallback callback, String selectedClass, String selectedProfession) {
         summaryDb.getAllSummaries(new SummariesCallback() {
             @Override
@@ -48,8 +46,6 @@ public class ChooseSumPresenter {
             }
         });
     }
-
-
 
     public List<Summary> filterSummariesByTitle(List<Summary> fullList, String query) {
         if (query == null || query.isEmpty()) {

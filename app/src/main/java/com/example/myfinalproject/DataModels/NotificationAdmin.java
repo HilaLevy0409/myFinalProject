@@ -18,8 +18,6 @@ public class NotificationAdmin {
     public NotificationAdmin() {
     }
 
-
-
     public NotificationAdmin(String userId, String userName, String content, String reason, String type) {
         this.userId = userId;
         this.userName = userName;
@@ -27,15 +25,12 @@ public class NotificationAdmin {
         this.type = type;
         this.timestamp = Timestamp.now();
 
-
         if (type.equals("REPORT")) {
             this.reportReason = reason;
-
         } else if (type.equals("CONTACT")) {
             this.contactReason = reason;
         }
     }
-
 
     public String getReportedUserName() {
         return reportedUserName;

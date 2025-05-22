@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,9 @@ import android.widget.Toast;
 import com.example.myfinalproject.DataModels.Summary;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -215,6 +219,8 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         }
 
         summaryPresenter.submitSummaryClicked(summary);
+
+
     }
 
 

@@ -4,13 +4,16 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import com.example.myfinalproject.AdminFragment.AdminFragment;
+import com.example.myfinalproject.Admin;
 import com.example.myfinalproject.R;
 
 public class AdminLoginFragment extends Fragment implements View.OnClickListener {
@@ -33,6 +36,18 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
 
         etAdmin = view.findViewById(R.id.etAdmin);
         etPasswordA = view.findViewById(R.id.etPasswordA);
+
+
+        ImageButton btnLogout = view.findViewById(R.id.btnLogout);
+        if (Admin.isAdminLoggedIn()) {
+            btnLogout.setVisibility(View.VISIBLE);
+            btnLogout.setOnClickListener(v -> {
+                Admin.logout();
+                Toast.makeText(getContext(), "התנתקת מההנהלה", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            btnLogout.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -43,16 +58,19 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
 
 
             if (name.equals("admin") && password.equals("Admin")) {
+                Admin.login();
+
                 Toast.makeText(getContext(), "התחברת בהצלחה!", Toast.LENGTH_SHORT).show();
 
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, new AdminFragment()).
-                addToBackStack(null)
-                .commit();
+                        addToBackStack(null)
+                        .commit();
             } else {
                 Toast.makeText(getContext(), "שם או סיסמה לא נכונים", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 }

@@ -1,6 +1,5 @@
 package com.example.myfinalproject.LoginFragment;
 
-import android.util.Log;
 
 import com.example.myfinalproject.CallBacks.LoginCallback;
 import com.example.myfinalproject.CallBacks.UserCallback;

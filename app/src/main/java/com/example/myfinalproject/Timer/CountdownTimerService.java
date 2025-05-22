@@ -30,7 +30,6 @@ public class CountdownTimerService extends Service {
     private int notificationMinutes = 0;
     private boolean notificationSent = false;
     private boolean notificationsEnabled = true;
-
     private TimeCallback timerUpdateCallback;
 
     public class LocalBinder extends Binder {
@@ -65,7 +64,6 @@ public class CountdownTimerService extends Service {
         }
 
         startForeground(NOTIFICATION_ID, createForegroundNotification("טיימר פעיל"));
-
         return START_STICKY;
     }
 

@@ -69,18 +69,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         database = FirebaseFirestore.getInstance();
         presenter = new LoginUserPresenter(this);
 
-
         btnNext.setOnClickListener(this);
         btnForgotPass.setOnClickListener(this);
         btnRegisterNow.setOnClickListener(this);
-
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            Log.d("USER_CHECK", "User is logged in: " + currentUser.getUid());
-            // כאן תוכל להחליט איך להמשיך - למשל להחליף פרגמנט או להציג מידע
-        } else {
-            Log.d("USER_CHECK", "No user is logged in.");
-        }
     }
 
     @Override

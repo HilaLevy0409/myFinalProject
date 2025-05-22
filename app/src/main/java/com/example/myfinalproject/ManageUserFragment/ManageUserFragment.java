@@ -22,7 +22,7 @@ import com.example.myfinalproject.SumByUserFragment.SumByUserFragment;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
+import com.google.firebase.firestore.ListenerRegistration;
 
 
 public class ManageUserFragment extends Fragment implements View.OnClickListener {
@@ -38,6 +38,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
     private String userId;
 
     private ImageView imgUserProfile;
+
+    private ListenerRegistration summariesListener;
 
 
     public ManageUserFragment() {
@@ -99,6 +101,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
             String userName = bundle.getString("userName");
             String userEmail = bundle.getString("userEmail");
+            loadUserByEmail(userEmail);
+
             String userPhone = bundle.getString("userPhone");
             String userBirthDate = bundle.getString("userBirthDate");
             int badPoints = bundle.getInt("badPoints", 0);
@@ -147,6 +151,30 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         }
     }
 
+
+    private void listenToSummaryCountChanges(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        summariesListener = db.collection("summaries")
+                .whereEqualTo("userId", userId)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Log.w("ManageUser", "listen:error", e);
+                        return;
+                    }
+
+                    if (querySnapshot != null) {
+                        int sumCount = querySnapshot.size();
+                        tvSumNum.setText("מספר סיכומים שנכתבו: " + sumCount);
+
+                        db.collection("users").document(userId)
+                                .update("sumCount", sumCount)
+                                .addOnFailureListener(err ->
+                                        Log.e("ManageUser", "שגיאה בעדכון sumCount", err));
+                    }
+                });
+    }
+
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnAddPoint) {
@@ -163,13 +191,13 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 updateBadPointsInDatabase();
             }
         } else if (view.getId() == R.id.btnShowSums) {
+
             SumByUserFragment sumByUserFragment = new SumByUserFragment();
             Bundle bundle = new Bundle();
             bundle.putString("userId", userId);
 
-            if (currentUser != null) {
-                bundle.putString("userName", currentUser.getUserName());
-            }
+            String extractedUserName = tvUsername.getText().toString().replace("שם משתמש: ", "").trim();
+            bundle.putString("userName", extractedUserName);
 
             sumByUserFragment.setArguments(bundle);
 
@@ -179,7 +207,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .addToBackStack(null)
                     .commit();
 
-        } else if (view.getId() == R.id.btnSendMessage) {
+    } else if (view.getId() == R.id.btnSendMessage) {
 
 
             MessageFragment messageFragment = new MessageFragment();
@@ -187,6 +215,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
             if (currentUser != null) {
                 bundle.putString("userName", currentUser.getUserName());
+
             }
 
             messageFragment.setArguments(bundle);
@@ -222,8 +251,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
         tvBadPoints.setText("נקודות לרעה: " + badPoints);
     }
-
-
 
     private void loadProfilePicture(String profilePicData) {
         if (imgUserProfile != null) {
@@ -278,6 +305,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
                             badPoints = currentUser.getBadPoints();
                             loadProfilePicture(currentUser.getImageProfile());
+                            listenToSummaryCountChanges(userId);
+
                         }
                     } else {
                         Toast.makeText(getContext(), "משתמש לא נמצא", Toast.LENGTH_SHORT).show();
@@ -288,7 +317,39 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 });
     }
 
+    private void loadUserByEmail(String email) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .whereEqualTo("userEmail", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                        currentUser = document.toObject(User.class);
+                        userId = document.getId();
 
+                        if (currentUser != null) {
+                            badPoints = currentUser.getBadPoints();
+
+                            updateBadPointsText();
+
+                            listenToSummaryCountChanges(userId);
+
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בטעינת מזהה המשתמש", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (summariesListener != null) {
+            summariesListener.remove();
+        }
+    }
 
 
 }

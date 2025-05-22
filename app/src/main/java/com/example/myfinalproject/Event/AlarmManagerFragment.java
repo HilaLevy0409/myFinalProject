@@ -233,7 +233,6 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
-
             Calendar startTime = Calendar.getInstance();
             startTime.set(year, month, day, hour, minute, 0);
             startTime.set(Calendar.MILLISECOND, 0);
@@ -244,14 +243,12 @@ public class AlarmManagerFragment extends Fragment {
 
             String timeZone = TimeZone.getDefault().getID();
 
-
             long calendarId = getDefaultCalendarId();
             if (calendarId == -1) {
 
                 Toast.makeText(getContext(), "לא נמצא יומן תקף במכשיר", Toast.LENGTH_SHORT).show();
                 return;
             }
-
 
             ContentResolver cr = requireContext().getContentResolver();
             ContentValues values = new ContentValues();
@@ -315,10 +312,8 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
-
             long reminderMillis = startTime.getTimeInMillis() - reminderTime.getTimeInMillis();
             int reminderMinutes = (int) (reminderMillis / (60 * 1000));
-
 
             try {
                 ContentValues reminderValues = new ContentValues();
@@ -412,7 +407,6 @@ public class AlarmManagerFragment extends Fragment {
                     break;
                 }
             }
-
             if (allGranted) {
                 addEventToCalendar();
             } else {

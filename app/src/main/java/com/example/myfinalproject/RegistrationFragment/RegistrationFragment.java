@@ -197,12 +197,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             @Override
             public void afterTextChanged(Editable s) {}
         });
-
-
     }
-
-
-
 
     private void checkIfEmailExists(String email) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -249,11 +244,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
             String birthDate = etDialogBirthday.getText().toString();
             String base64Image = imageViewToBase64(imageViewProfile);
 
-
             if (!validateInputs(username, password, password2, email, phone, birthDate, base64Image)) {
                 return;
             }
-
 
             createAndRegisterUser(username, password, email, phone, birthDate, base64Image);
         } else if (v == etDialogBirthday) {
@@ -318,7 +311,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         presenter.submitClicked(user, new AddUserCallback() {
             @Override
             public void onUserAdd(User addedUser) {
-                Log.d(TAG, "User added successfully with ID: " + addedUser.getId());
 
                 saveUserDataToPreferences(addedUser);
 
@@ -332,7 +324,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
             @Override
             public void onError(String error) {
-                Log.e(TAG, "Error registering user: " + error);
                 Toast.makeText(getContext(), "אירעה שגיאה בהרשמה: " + error, Toast.LENGTH_SHORT).show();
             }
         });
@@ -346,7 +337,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
         editor.putString("userId", user.getId());
         editor.putBoolean("isLoggedIn", true);
-        editor.putString("userName", user.getUserName());
+        editor.putString("username", user.getUserName());
         editor.putString("userEmail", user.getUserEmail());
         editor.putString("userPassword", user.getUserPass());
         editor.putString("phone", user.getPhone());
@@ -356,7 +347,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         editor.putInt("sumCount", user.getSumCount());
         editor.apply();
 
-        Log.d(TAG, "Saved user to preferences with ID: " + user.getId());
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateNavigationHeader();

@@ -47,7 +47,6 @@ public class ChooseUserPresenter {
                 }
             }
         }
-
         view.onUsersFiltered(filteredList);
     }
 }

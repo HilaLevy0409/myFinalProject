@@ -53,23 +53,18 @@ public class ReportFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_report, container, false);
-
         notificationRepository = new NotificationAdminRepository();
-
         checkUserLoginStatus();
-
         return view;
     }
 
     private void checkUserLoginStatus() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
-
         if (isUserLoggedIn) {
             loggedInUsername = sharedPreferences.getString("username", "");
         }
     }
-
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         etUserNameOrTopic = view.findViewById(R.id.etUserNameOrTopic);
@@ -98,8 +93,6 @@ public class ReportFragment extends Fragment {
         etUserName.setFocusable(false);
         etUserName.setFocusableInTouchMode(false);
         etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-
         reportReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
         });
@@ -141,8 +134,13 @@ public class ReportFragment extends Fragment {
                 : "anonymous";
 
         String reporterName = etUserName.getText().toString().trim();
+        String reportedUserName = etUserNameOrTopic.getText().toString().trim();
 
 
+        if (reportedUserName.equals(reporterName)) {
+            Toast.makeText(getContext(), "לא ניתן לדווח על עצמך", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         NotificationAdmin report = new NotificationAdmin(
                 userId,
@@ -152,8 +150,8 @@ public class ReportFragment extends Fragment {
                 "REPORT"
         );
 
-        String reportedUserName = etUserNameOrTopic.getText().toString().trim();
         report.setReportedUserName(reportedUserName);
+
 
 
         Bundle bundle = getArguments();

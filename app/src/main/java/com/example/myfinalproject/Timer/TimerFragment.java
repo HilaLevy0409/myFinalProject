@@ -58,7 +58,6 @@ public class TimerFragment extends Fragment {
         btnStart.setOnClickListener(v -> presenter.startTimer());
         btnReset.setOnClickListener(v -> presenter.resetTimer());
 
-
         return view;
     }
 

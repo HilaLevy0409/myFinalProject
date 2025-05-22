@@ -39,7 +39,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         this.context = context;
         this.summaries = summaries;
         this.db = FirebaseFirestore.getInstance();
-
     }
 
 
@@ -47,7 +46,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
-
 
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.onerow_summary, parent, false);
@@ -85,7 +83,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             holder.tvCreatedDate.setText("נוצר בתאריך: " + sdf.format(createdDate));
         } else {
             holder.tvCreatedDate.setText("תאריך לא זמין");
-            Log.d("SummaryAdapter", "Date is null for summary: " + summary.getSummaryId());
         }
 
 

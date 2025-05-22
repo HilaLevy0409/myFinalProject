@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 
+import com.example.myfinalproject.Admin;
 import com.example.myfinalproject.R;
 
 import com.example.myfinalproject.ReportFragment.ReportFragment;
@@ -63,6 +64,8 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
     private ImageButton ImgBtnDeleteSum;
     private boolean isAuthor = false;
+
+    private boolean isAdmin = false;
 
 
     public SumFragment() {}
@@ -124,6 +127,9 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             updateFavoriteButton();
         }
 
+        isAdmin = Admin.isAdminLoggedIn();
+        checkIfUserIsAdmin();
+
         loadSummaryData();
         checkIfFavorite();
 
@@ -144,6 +150,41 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         });
 
     }
+
+    private void checkIfUserIsAdmin() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) return;
+
+        if (Admin.isAdminLoggedIn()) {
+            isAdmin = true;
+            return;
+        }
+
+        String currentUserId = currentUser.getUid();
+        db.collection("users").document(currentUserId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean adminValue = documentSnapshot.getBoolean("isAdmin");
+                        isAdmin = adminValue != null && adminValue;
+
+                        updateDeleteButtonVisibility();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    isAdmin = false;
+                });
+    }
+
+
+    private void updateDeleteButtonVisibility() {
+        if (isAuthor || isAdmin) {
+            ImgBtnDeleteSum.setVisibility(View.VISIBLE);
+        } else {
+            ImgBtnDeleteSum.setVisibility(View.GONE);
+        }
+    }
+
 
     private void initTextToSpeech() {
         textToSpeech = new TextToSpeech(getContext(), status -> {
@@ -252,6 +293,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
     private void loadSummaryData() {
         if (summaryId == null || summaryId.isEmpty()) {
             return;
@@ -266,11 +308,11 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         if (currentUser != null && authorId != null &&
                                 authorId.equals(currentUser.getUid())) {
                             isAuthor = true;
-                            ImgBtnDeleteSum.setVisibility(View.VISIBLE);
                         } else {
                             isAuthor = false;
-                            ImgBtnDeleteSum.setVisibility(View.GONE);
                         }
+
+                        updateDeleteButtonVisibility();
 
                         displaySummaryData(documentSnapshot);
                     } else {
@@ -281,7 +323,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(getContext(), "שגיאה בטעינת הסיכום", Toast.LENGTH_SHORT).show();
                 });
     }
-
 
     private void displaySummaryData(DocumentSnapshot document) {
         String topic = document.getString("summaryTitle");
@@ -352,40 +393,89 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             sumImage.setVisibility(View.GONE);
             tvText.setText("אין תוכן זמין");
         }
-
         updateButtons();
     }
 
+
+
     private void deleteSummary() {
-        if (!isAuthor) {
-            Toast.makeText(getContext(), "רק יוצר הסיכום יכול למחוק אותו", Toast.LENGTH_SHORT).show();
+        if (!isAuthor && !isAdmin) {
+            Toast.makeText(getContext(), "רק יוצר הסיכום או ההנהלה יכולים למחוק את הסיכום", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        String dialogTitle = isAdmin && !isAuthor ?
+                "מחיקת סיכום (הנהלה)" : "מחיקת סיכום";
+
+        String deleteMessage = isAdmin && !isAuthor ?
+                "האם ברצונך למחוק סיכום זה? פעולה זו תתבצע כהנהלה." :
+                "האם ברצונך למחוק את הסיכום?";
+
         new androidx.appcompat.app.AlertDialog.Builder(getContext())
-                .setTitle("מחיקת סיכום")
-                .setMessage("האם ברצונך למחוק את הסיכום?")
+                .setTitle(dialogTitle)
+                .setMessage(deleteMessage)
                 .setPositiveButton("כן", (dialog, which) -> {
                     db.collection("summaries").document(summaryId)
-                            .delete()
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "הסיכום נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-                                if (getActivity() != null) {
-                                    getActivity().getSupportFragmentManager().popBackStack();
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    String userId = documentSnapshot.getString("userId");
+
+                                    db.collection("summaries").document(summaryId)
+                                            .delete()
+                                            .addOnSuccessListener(aVoid -> {
+                                                String successMessage = isAdmin && !isAuthor ?
+                                                        "הסיכום נמחק על ידי ההנהלה" :
+                                                        "הסיכום נמחק בהצלחה";
+
+                                                Toast.makeText(getContext(), successMessage, Toast.LENGTH_SHORT).show();
+
+                                                updateUserSummaryCount(userId);
+
+                                                if (getActivity() != null) {
+                                                    getActivity().getSupportFragmentManager().popBackStack();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(getContext(), "שגיאה במחיקת הסיכום", Toast.LENGTH_SHORT).show();
+                                            });
+
+                                } else {
+                                    Toast.makeText(getContext(), "הסיכום לא נמצא", Toast.LENGTH_SHORT).show();
                                 }
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "שגיאה במחיקת הסיכום", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "שגיאה בטעינת הסיכום", Toast.LENGTH_SHORT).show();
                             });
                 })
                 .setNegativeButton("לא", null)
                 .show();
     }
 
+    private void updateUserSummaryCount(String userId) {
+
+        if (userId == null) {
+            Log.e("SumFragment", "userId is null. Cannot update summary count.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("summaries")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int count = queryDocumentSnapshots.size();
+                    db.collection("users").document(userId)
+                            .update("sumCount", count)
+                            .addOnFailureListener(e ->
+                                    Log.e("SumByUserFragment", "שגיאה בעדכון sumCount", e));
+                });
+    }
+
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView imageView;
 
         public DownloadImageTask(ImageView imageView) {
-
             this.imageView = imageView;
         }
 
@@ -446,8 +536,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private void toggleFavorite() {
         if (mAuth.getCurrentUser() == null || summaryId == null) {
             Toast.makeText(getContext(), "יש להתחבר כדי לשמור למועדפים", Toast.LENGTH_SHORT).show();
-            Log.d("SUM_FRAGMENT_USER", String.valueOf(mAuth.getCurrentUser() != null));
-            Log.d("SUM_FRAGMENT_SUMID", summaryId);
             return;
         }
 
@@ -461,9 +549,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         isFavorite = false;
                         updateFavoriteButton();
                         Toast.makeText(getContext(), "הוסר מהמועדפים", Toast.LENGTH_SHORT).show();
-
-                        db.collection("summaries").document(summaryId)
-                                .update("favoritesCount", FieldValue.increment(-1));
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(getContext(), "שגיאה בהסרה מהמועדפים", Toast.LENGTH_SHORT).show();
@@ -521,6 +606,16 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             textToSpeech.shutdown();
         }
         super.onDestroy();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        isAdmin = Admin.isAdminLoggedIn();
+        checkIfUserIsAdmin();
+
+        updateDeleteButtonVisibility();
     }
 
     private void shareSummary(String summaryTitle) {

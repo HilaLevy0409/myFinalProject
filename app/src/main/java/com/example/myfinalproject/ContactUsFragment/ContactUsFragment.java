@@ -47,18 +47,14 @@ public class ContactUsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_us, container, false);
-
         notificationRepository = new NotificationAdminRepository();
-
         checkUserLoginStatus();
-
         return view;
     }
 
     private void checkUserLoginStatus() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
-
         if (isUserLoggedIn) {
             loggedInUsername = sharedPreferences.getString("username", "");
         }
@@ -93,13 +89,9 @@ public class ContactUsFragment extends Fragment {
         btnSendContact.setOnClickListener(v -> sendMessage());
     }
 
-
-
     private void sendMessage() {
         String userName = etUserName.getText().toString().trim();
         String contactDetails = etContactDetails.getText().toString().trim();
-
-
 
         if (contactDetails.isEmpty()) {
             Toast.makeText(getContext(), "נא להזין את פרטי הפנייה", Toast.LENGTH_SHORT).show();
@@ -126,11 +118,8 @@ public class ContactUsFragment extends Fragment {
                 return;
             }
         }
-
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser != null ? currentUser.getUid() : "anonymous";
-
-
 
         NotificationAdmin message = new NotificationAdmin(
                 userId,
@@ -139,7 +128,6 @@ public class ContactUsFragment extends Fragment {
                 reason,
                 "CONTACT"
         );
-
         btnSendContact.setEnabled(false);
         notificationRepository.addNotification(message)
                 .addOnSuccessListener(aVoid -> {

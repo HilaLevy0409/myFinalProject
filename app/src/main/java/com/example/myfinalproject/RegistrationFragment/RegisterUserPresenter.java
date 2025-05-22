@@ -21,17 +21,16 @@ public class RegisterUserPresenter {
         userDb.addUser(user, callback);
     }
 
-    // For backward compatibility
     public void submitClicked(User user) {
         submitClicked(user, new AddUserCallback() {
             @Override
             public void onUserAdd(User user) {
-                Log.d(TAG, "User added (old method): " + user.getId());
+                Log.d(TAG, "User added: " + user.getId());
             }
 
             @Override
             public void onError(String error) {
-                Log.e(TAG, "Error adding user (old method): " + error);
+                Log.e(TAG, "Error adding user: " + error);
             }
         });
     }

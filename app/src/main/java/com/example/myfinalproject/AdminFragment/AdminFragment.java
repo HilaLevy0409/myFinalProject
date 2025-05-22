@@ -1,11 +1,13 @@
 package com.example.myfinalproject.AdminFragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
+import com.example.myfinalproject.Admin;
 import com.example.myfinalproject.ManageUserFragment.ManageUserFragment;
 import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.NoticesAdminFragment.NoticesAdminFragment;
@@ -56,6 +60,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_admin, container, false);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Spinner spinner = view.findViewById(R.id.spinner);
@@ -144,4 +149,41 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                         .commit();
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (Admin.isSessionExpired()) {
+            showSessionExpiredDialog();
+        } else {
+            new Handler().postDelayed(() -> {
+                if (Admin.isSessionExpired()) {
+                    showSessionExpiredDialog();
+                }
+            }, 5 * 60 * 1000);
+        }
+    }
+
+    private void showSessionExpiredDialog() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("התחברות הנהלה הסתיימה")
+                .setMessage("האם ברצונך להתחבר שוב או להתנתק?")
+                .setPositiveButton("התחברות מחדש", (dialog, which) -> {
+                    Admin.login();
+                    Toast.makeText(getContext(), "התחברת מחדש!", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("התנתקות", (dialog, which) -> {
+                    Admin.logout();
+                    Toast.makeText(getContext(), "נותקת מההנהלה", Toast.LENGTH_SHORT).show();
+
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.flFragment, new AdminLoginFragment())
+                            .commit();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
 }

@@ -12,7 +12,6 @@ public class NotificationAdminRepository {
 
     public NotificationAdminRepository() {
         notifications = FirebaseFirestore.getInstance().collection("notifications");
-
     }
 
     public static NotificationAdminRepository getInstance() {
@@ -35,9 +34,6 @@ public class NotificationAdminRepository {
     public Query getAllNotifications() {
         return notifications.orderBy("timestamp", Query.Direction.DESCENDING);
     }
-
-
-
 
     public Task<Void> deleteNotification(String notificationId) {
         return notifications.document(notificationId).delete();

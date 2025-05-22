@@ -40,8 +40,6 @@ public class ChooseUserFragment extends Fragment {
     private SearchView searchView;
     private ArrayList<User> fullUserList = new ArrayList<>();
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +116,7 @@ public class ChooseUserFragment extends Fragment {
     private void navigateToSummaryByUserFragment(User user) {
         if (getActivity() == null) return;
 
-        SumByUserFragment sumByUserFragment = SumByUserFragment.newInstance(user.getUserName());
+        SumByUserFragment sumByUserFragment = SumByUserFragment.newInstance(user.getId(), user.getUserName());
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
@@ -144,8 +142,6 @@ public class ChooseUserFragment extends Fragment {
                 .commit();
     }
 
-
-
     public void onUsersLoaded(List<User> users) {
         userList.clear();
         fullUserList.clear();
@@ -164,10 +160,8 @@ public class ChooseUserFragment extends Fragment {
         userAdapter.notifyDataSetChanged();
     }
 
-
     public ChooseUserFragment() {
     }
-
 
     public static ChooseUserFragment newInstance() {
         ChooseUserFragment fragment = new ChooseUserFragment();
