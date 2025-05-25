@@ -3,17 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/holderView"
     xmlns:tools="http://schemas.android.com/tools"
     android:layoutDirection="rtl"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewImage"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:cardCornerRadius="70dp"
+        app:cardCornerRadius="25dp"
         app:cardElevation="2dp"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/imageView"
@@ -25,15 +31,19 @@
 
     <TextView
         android:id="@+id/tvUsername"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="שם משתמש"
         android:textStyle="bold"
         android:textSize="16sp"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintStart_toEndOf="@id/cardViewImage"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/tvMessageTimeDate"/>
+        app:layout_constraintTop_toTopOf="@id/cardViewImage"
+        app:layout_constraintEnd_toStartOf="@id/tvMessageTimeDate"/>
 
     <TextView
         android:id="@+id/tvLastMessage"
@@ -43,10 +53,13 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"
         android:layout_marginStart="16dp"
-        app:layout_constraintStart_toStartOf="@id/tvUsername"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toEndOf="@id/cardViewImage"
         app:layout_constraintTop_toBottomOf="@id/tvUsername"
-        app:layout_constraintEnd_toStartOf="@id/tvMessageTimeDate"/>
+        app:layout_constraintEnd_toStartOf="@id/tvMessageTimeDate"
+        app:layout_constraintBottom_toBottomOf="@id/cardViewImage"/>
 
     <TextView
         android:id="@+id/tvMessageTimeDate"
@@ -57,6 +70,5 @@
         android:textColor="@android:color/darker_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tvUsername"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

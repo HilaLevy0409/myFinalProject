@@ -372,6 +372,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 year, month, day
         );
 
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
         datePickerDialog.show();
     }
 

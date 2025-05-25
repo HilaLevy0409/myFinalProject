@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 drawerLayout.closeDrawer(GravityCompat.START);
             }
         });
-
     }
 
     @Override
@@ -144,8 +143,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return false;
             }
         }
-
-
         if (id == R.id.login) {
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new LoginFragment()).commit();
         } else if (id == R.id.about) {
@@ -194,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.chooseClass) {
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ChooseClassFragment()).commit();
         }
-
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -207,5 +203,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
 }

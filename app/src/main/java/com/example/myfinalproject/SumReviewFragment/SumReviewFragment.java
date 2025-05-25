@@ -39,20 +39,16 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
     private ReviewAdapter reviewAdapter;
     private List<Review> reviewList;
     private TextView tvReviewsCount, tvName;
-
     private EditText etReviewText;
     private RatingBar ratingBar;
     private Button btnSubmitReview;
     private String summaryId, currentUserId, currentUserName, existingReviewId = null;
     private float initialRating;
-
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private boolean hasReviewed = false;
     private ListenerRegistration reviewsListener;
-
     private String summaryCreatorId;
-
     private boolean isAdmin = false;
 
     public static SumReviewFragment newInstance(String summaryId) {
@@ -67,18 +63,19 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            // קבלת מזהה הסיכום ודרוג התחלתית אם נשלחו
             summaryId = getArguments().getString("summaryId");
             initialRating = getArguments().getFloat("rating", 0f);
         }
-
+        // אתחול Firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        // קבלת מזהה המשתמש הנוכחי
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
         }
-
         reviewList = new ArrayList<>();
     }
 
@@ -94,10 +91,11 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         ratingBar = view.findViewById(R.id.ratingBar);
         btnSubmitReview = view.findViewById(R.id.btnSubmitReview);
 
+        // אם נשלח דירוג כעבר - הגדר אותו ב-RatingBar
         if (initialRating > 0 && ratingBar != null) {
             ratingBar.setRating(initialRating);
         }
-
+        // אתחול RecyclerView והמתאם
         reviewAdapter = new ReviewAdapter(reviewList, this);
         rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
         rvReviews.setAdapter(reviewAdapter);
@@ -105,7 +103,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         if (btnSubmitReview != null) {
             btnSubmitReview.setOnClickListener(v -> submitReview());
         }
-
         return view;
     }
 
@@ -113,25 +110,25 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
     public void onResume() {
         super.onResume();
 
+        // בדיקה אם מחובר משתמש מנהל
         isAdmin = Admin.isAdminLoggedIn();
         if (reviewAdapter != null) {
             reviewAdapter.setIsAdmin(isAdmin);
         }
-
+        // אם אין משתמש מחובר – חסום אפשרות כתיבה
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             tvName.setText("משתמש אנונימי");
             disableReviewForm();
             Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
-            loadReviews();
+            loadReviews(); // טען ביקורות לצפייה בלבד
             return;
         } else {
             currentUserId = currentUser.getUid();
-            fetchCurrentUserName();
-
-            checkIfUserIsAdmin();
+            fetchCurrentUserName(); // טען שם משתמש
+            checkIfUserIsAdmin(); // בדוק אם המשתמש הוא מנהל
         }
-
+        // טען ביקורות ובדוק אם המשתמש הוא כותב הסיכום
         loadReviews();
         checkIfUserIsSummaryCreator();
     }
@@ -140,24 +137,26 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         if (summaryId == null || summaryId.isEmpty()) {
             return;
         }
-
         if (reviewsListener != null) {
             reviewsListener.remove();
         }
-
+        // טען את כל הביקורות לסיכום הנוכחי
         Query query = db.collection("reviews")
                 .whereEqualTo("summaryId", summaryId)
                 .orderBy("createdAt", Query.Direction.DESCENDING);
 
+        // מאזין דינמי לשינויים
         reviewsListener = query.addSnapshotListener((value, error) -> {
             if (error != null) return;
             if (value != null) processReviewsSnapshot(value);
         });
     }
 
+    // בדיקה אם המשתמש הנוכחי הוא מנהל
     private void checkIfUserIsAdmin() {
         if (currentUserId == null) return;
 
+        // אם המנהל מחובר דרך מחלקת Admin
         if (Admin.isAdminLoggedIn()) {
             isAdmin = true;
             if (reviewAdapter != null) {
@@ -165,7 +164,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
             }
             return;
         }
-
+        // בדיקה מול בסיס הנתונים אם המשתמש הוא מנהל
         db.collection("users").document(currentUserId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -186,16 +185,17 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 });
     }
 
+    // הסרת ה־listener של הביקורות כאשר ה־Fragment נעצר
     @Override
     public void onPause() {
         super.onPause();
-
         if (reviewsListener != null) {
             reviewsListener.remove();
             reviewsListener = null;
         }
     }
 
+    // הבאת שם המשתמש הנוכחי מה־Firebase
     private void fetchCurrentUserName() {
         if (currentUserId == null) return;
 
@@ -218,6 +218,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 });
     }
 
+    // בדיקה אם המשתמש הנוכחי הוא יוצר הסיכום
     private void checkIfUserIsSummaryCreator() {
         if (summaryId == null || currentUserId == null) return;
 
@@ -242,18 +243,20 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 });
     }
 
+    // עיבוד התוצאות של הביקורות מתוך המסמך
     private void processReviewsSnapshot(QuerySnapshot snapshot) {
         reviewList.clear();
 
         boolean userAlreadyReviewed = false;
         Review userReview = null;
-
+        // מעבר על כל הביקורות
         for (DocumentSnapshot document : snapshot.getDocuments()) {
             Review review = document.toObject(Review.class);
             if (review != null) {
                 review.setReviewId(document.getId());
                 reviewList.add(review);
 
+                // בדיקה אם המשתמש כבר כתב ביקורת
                 if (currentUserId != null && currentUserId.equals(review.getUserId())) {
                     userAlreadyReviewed = true;
                     userReview = review;
@@ -261,16 +264,16 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
             }
         }
 
+        // עדכון מספר הביקורות והצגתן
         if (tvReviewsCount != null) {
             tvReviewsCount.setText("(" + reviewList.size() + ")");
         }
-
         if (reviewAdapter != null) {
             reviewAdapter.notifyDataSetChanged();
         }
-
         updateAverageRating();
 
+        // אם המשתמש כבר כתב ביקורת - נטען אותה לטופס
         if (userAlreadyReviewed) {
             hasReviewed = true;
             existingReviewId = userReview.getReviewId();
@@ -288,6 +291,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         }
     }
 
+    // בדיקה אם המשתמש כבר כתב ביקורת על הסיכום
     private void checkIfUserReviewed() {
         if (currentUserId == null || summaryId == null) {
             hasReviewed = false;
@@ -304,7 +308,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
 
                     if (hasReviewed) {
                         disableReviewForm();
-
                         if (!queryDocumentSnapshots.isEmpty()) {
                             Review userReview = queryDocumentSnapshots.getDocuments().get(0).toObject(Review.class);
                             existingReviewId = queryDocumentSnapshots.getDocuments().get(0).getId();
@@ -324,6 +327,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 });
     }
 
+    // הפעלת הטופס להזנת ביקורת
     private void enableReviewForm() {
         if (currentUserId == null) {
             disableReviewForm();
@@ -335,12 +339,14 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         if (btnSubmitReview != null) btnSubmitReview.setEnabled(true);
     }
 
+    // השבתת טופס הביקורת
     private void disableReviewForm() {
         if (etReviewText != null) etReviewText.setEnabled(false);
         if (ratingBar != null) ratingBar.setEnabled(false);
         if (btnSubmitReview != null) btnSubmitReview.setEnabled(false);
     }
 
+    // שליחת ביקורת חדשה
     private void submitReview() {
         if (currentUserId == null) {
             disableReviewForm();
@@ -370,7 +376,6 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
             Toast.makeText(getContext(), "נא להזין טקסט לביקורת", Toast.LENGTH_SHORT).show();
             return;
         }
-
         com.google.firebase.Timestamp timestamp = com.google.firebase.Timestamp.now();
 
         Review newReview = new Review(currentUserId, currentUserName, summaryId, reviewText, rating);
@@ -383,11 +388,13 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         reviewData.put("rating", rating);
         reviewData.put("createdAt", timestamp);
 
+        // שמירת הביקורת ל־Firebase
         db.collection("reviews")
                 .add(reviewData)
                 .addOnSuccessListener(documentReference -> {
                     String reviewId = documentReference.getId();
 
+                    // שליפת הביקורת המלאה מחדש
                     db.collection("reviews").document(reviewId).get()
                             .addOnSuccessListener(documentSnapshot -> {
                                 if (documentSnapshot.exists()) {
@@ -414,7 +421,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                                 Toast.makeText(getContext(), "תודה על הביקורת שלך!", Toast.LENGTH_SHORT).show();
                             })
                             .addOnFailureListener(e -> {
-
+                                // גם אם נכשל, עדיין ננקה את הטופס
                                 etReviewText.setText("");
                                 ratingBar.setRating(0);
                                 hasReviewed = true;
@@ -429,6 +436,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 });
     }
 
+    // עדכון הדירוג הממוצע של הסיכום
     private void updateAverageRating() {
         float averageRating = calculateAverageRating();
 
@@ -438,31 +446,30 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         }
     }
 
-
+    // מחיקת ביקורת
     @Override
     public void onDeleteReview(Review review, int position) {
         if (getContext() == null) return;
 
         boolean canDelete = false;
 
+        // בדיקת הרשאה למחיקה
         if (currentUserId != null && currentUserId.equals(review.getUserId())) {
             canDelete = true;
         }
-
         if (Admin.isAdminLoggedIn()) {
             isAdmin = true;
             canDelete = true;
         }
-
         if (isAdmin) {
             canDelete = true;
         }
-
         if (!canDelete) {
             Toast.makeText(getContext(), "אין לך הרשאה למחוק ביקורת זו", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // תיבת דו-שיח לאישור מחיקה
         String dialogTitle = (isAdmin && (currentUserId == null || !currentUserId.equals(review.getUserId()))) ?
                 "מחיקת ביקורת (הנהלה)" : "מחיקת ביקורת";
 
@@ -481,6 +488,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                                         tvReviewsCount.setText("(" + reviewList.size() + ")");
                                     }
 
+                                    // עדכון הדירוג הממוצע מחדש
                                     db.collection("reviews")
                                             .whereEqualTo("summaryId", review.getSummaryId())
                                             .get()
@@ -500,6 +508,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                                                 }
                                             });
 
+                                    // אם המשתמש מחק את הביקורת של עצמו
                                     if (currentUserId != null && currentUserId.equals(review.getUserId())) {
                                         hasReviewed = false;
                                         existingReviewId = null;
@@ -521,18 +530,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
                 .show();
     }
 
-
-//    private void fetchReviewsManually() {
-//        db.collection("reviews")
-//                .whereEqualTo("summaryId", summaryId)
-//                .orderBy("createdAt", Query.Direction.DESCENDING)
-//                .get()
-//                .addOnSuccessListener(this::processReviewsSnapshot)
-//                .addOnFailureListener(e -> {
-//                    Toast.makeText(getContext(), "שגיאה בטעינת הביקורות", Toast.LENGTH_SHORT).show();
-//                });
-//    }
-
+    // פעולה כאשר נלחץ כפתור עריכת ביקורת
     @Override
     public void onEditReview(Review review, int position) {
         if (getContext() != null) {
@@ -540,6 +538,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         }
     }
 
+    // שמירת שינויים בביקורת קיימת
     @Override
     public void onSaveChanges(Review review, int position, String newText, float newRating) {
         if (review.getReviewId() == null) {
@@ -575,14 +574,13 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         });
     }
 
+    // חישוב ממוצע דירוגים
     public float calculateAverageRating() {
         if (reviewList == null || reviewList.isEmpty()) return 0;
-
         float sum = 0;
         for (Review review : reviewList) {
             sum += review.getRating();
         }
-
         return reviewList.size() > 0 ? sum / reviewList.size() : 0;
     }
 }

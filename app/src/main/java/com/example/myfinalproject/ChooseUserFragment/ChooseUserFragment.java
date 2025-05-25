@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,15 +70,18 @@ public class ChooseUserFragment extends Fragment {
             navigateToMessagesFragment(userList.get(position));
         };
 
+// יצירת מופע של UserAdapter - אחראי על חיבור הנתונים של המשתמשים לתצוגה ברשימה
         userAdapter = new UserAdapter(
-                getContext(),
-                userList,
-                reportClickListener,
-                summaryClickListener,
-                messageClickListener
+                getContext(),              // הקונטקסט הנוכחי
+                userList,                 // רשימת המשתמשים שתוצג
+                reportClickListener,      // מאזין ללחיצה על כפתור דיווח עבור כל משתמש
+                summaryClickListener,     // מאזין ללחיצה על צפייה בסיכומים של משתמש
+                messageClickListener      // מאזין ללחיצה על שליחת הודעה למשתמש
         );
 
+// הצמדת ה־Adapter לרכיב התצוגה ListView - כך שהרשימה תוצג למשתמש בפועל
         listViewUsers.setAdapter(userAdapter);
+
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -135,29 +139,33 @@ public class ChooseUserFragment extends Fragment {
         MessageFragment messagesFragment = new MessageFragment();
      messagesFragment.setArguments(bundle);
 
+
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, messagesFragment)
                 .addToBackStack(null)
                 .commit();
-    }
 
+
+    }
+// מופעלת כאשר המשתמשים נטענו בהצלחה מהמסד נתונים
     public void onUsersLoaded(List<User> users) {
-        userList.clear();
-        fullUserList.clear();
-        fullUserList.addAll(users);
-        userList.addAll(users);
-        userAdapter.notifyDataSetChanged();
+        userList.clear();             // ניקוי הרשימה שמוצגת כרגע למשתמש
+        fullUserList.clear();        // ניקוי הרשימה המלאה של המשתמשים
+        fullUserList.addAll(users);  // שמירה של כל המשתמשים ברשימה מלאה (שימושית לחיפוש וסינון)
+        userList.addAll(users);      // העתקה גם לרשימה שמוצגת בפועל
+        userAdapter.notifyDataSetChanged(); // עדכון ה־Adapter כדי שירענן את התצוגה
     }
 
     public void onUsersLoadError(String message) {
         Toast.makeText(getContext(), "שגיאה בטעינת משתמשים: " + message, Toast.LENGTH_SHORT).show();
     }
 
+    // מופעלת לאחר סינון המשתמשים
     public void onUsersFiltered(List<User> filteredUsers) {
-        userList.clear();
-        userList.addAll(filteredUsers);
-        userAdapter.notifyDataSetChanged();
+        userList.clear();                  // ניקוי הרשימה הקיימת מהתוצאות הישנות
+        userList.addAll(filteredUsers);   // הוספת התוצאות המסוננות לרשימה שמוצגת
+        userAdapter.notifyDataSetChanged(); // עדכון ה־Adapter כדי שירענן את התצוגה
     }
 
     public ChooseUserFragment() {

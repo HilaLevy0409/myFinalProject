@@ -8,7 +8,8 @@ public class NotificationAdmin {
     private String id;
     private String userId;
     private String userName;
-    private String reportedUserName; //סיכום/משתמש שעליו מדווחים
+    private String reportedUserName;//סיכום/משתמש שעליו מדווחים
+
     private String content;
     private String type; //הודעה או דיווח
     private String reportReason;

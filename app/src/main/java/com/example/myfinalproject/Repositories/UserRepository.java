@@ -22,37 +22,45 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 public class UserRepository {
 
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore database;
+    private FirebaseAuth mAuth;     // משתנה לאימות משתמשים עם Firebase
+    private FirebaseFirestore database;   // משתנה לגישה למסד הנתונים של Firestore
 
-
+    // בנאי אתחול המחלקה - מקבל מופעים של FirebaseAuth ו-FirebaseFirestore
     public UserRepository() {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
     }
 
+    // פונקציה ליצירת משתמש חדש באימות וב-DB
     public void addUser(User user, AddUserCallback callback) {
+        // יצירת משתמש עם אימייל וסיסמה באימות של Firebase
         mAuth.createUserWithEmailAndPassword(user.getUserEmail(), user.getUserPass())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        // אם נוצר משתמש בהצלחה, שומרים את המזהה שלו
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         String userId = firebaseUser.getUid();
                         user.setId(userId);
 
+                        // הפניה למסמך של המשתמש במסד הנתונים
                         DocumentReference userRef = database.collection("users").document(userId);
 
+                        // שמירת פרטי המשתמש במסד הנתונים
                         userRef.set(user)
                                 .addOnSuccessListener(aVoid -> {
                                     callback.onUserAdd(user);
                                 })
                                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
                     } else {
+                        // טיפול במקרה של שגיאה ביצירת המשתמש
                         System.err.println("Error creating user: " + Objects.requireNonNull(task.getException()).getMessage());
                         callback.onError(task.getException().getMessage());
                     }
                 });
     }
 
+
+    // שליפת משתמש לפי מזהה (id)
     public void getUserById(String userId, UserCallback callback) {
         database.collection("users")
                 .document(userId)
@@ -74,13 +82,15 @@ public class UserRepository {
     }
 
 
-
+    // שליפת משתמש לפי שם משתמש (userName)
     public void getUser(final String username, final UserCallback callback) {
+        // ביצוע שאילתה על אוסף המשתמשים לפי שם משתמש
         Query userQuery = database.collection("users").whereEqualTo("userName", username);
 
         userQuery.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
+                        // קבלת המסמך הראשון מהתוצאה
                         DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null) {
@@ -101,7 +111,7 @@ public class UserRepository {
     }
 
 
-
+    // עדכון פרטי משתמש במסד הנתונים
     public void updateUser(User user, UserCallback callback) {
         database.collection("users").document(user.getId())
                 .set(user)
@@ -109,7 +119,7 @@ public class UserRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
-
+    // מחיקת משתמש לפי מזהה
     public void deleteUser(String UserId, UserCallback callback) {
         database.collection("users").document(UserId)
                 .delete()
@@ -117,11 +127,13 @@ public class UserRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    // שליפת כל המשתמשים
     public void getAllUsers(UsersCallback callback) {
         database.collection("users")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     ArrayList<User> users = new ArrayList<>();
+                    // המרת כל מסמך לאובייקט User
                     for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                         User user = document.toObject(User.class);
                         if (user != null) {
@@ -129,13 +141,16 @@ public class UserRepository {
                             users.add(user);
                         }
                     }
+                    // החזרת הרשימה המלאה ב-callback
                     callback.onSuccess(users);
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    // האזנה לשינויים בזמן אמת בפרטי משתמש לפי מזהה
     public ListenerRegistration listenToUserById(String userId, UserCallback callback) {
         DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(userId);
+        // הפעלת listener שמאזין לשינויים במסמך
         return userRef.addSnapshotListener((documentSnapshot, error) -> {
             if (error != null) {
                 callback.onError("שגיאה בקבלת נתונים בזמן אמת: " + error.getMessage());
@@ -147,10 +162,6 @@ public class UserRepository {
             }
         });
     }
-
-
-
-
 }
 
 

@@ -10,15 +10,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myfinalproject.Adapters.MessageAdapter;
-import com.example.myfinalproject.DataModels.Message;
+import com.example.myfinalproject.Admin;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -60,6 +62,8 @@ public class MessageFragment extends Fragment {
 
         if (auth.getCurrentUser() != null) {
             currentUserId = auth.getCurrentUser().getUid();
+        } else if (Admin.isAdminLoggedIn()) {
+            currentUserId = "admin";
         } else {
             Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             if (getActivity() != null) {
@@ -74,6 +78,7 @@ public class MessageFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         etMessageInput = view.findViewById(R.id.etMessageInput);
+
         tvUserName = view.findViewById(R.id.tvUserName);
         ImageButton btnSend = view.findViewById(R.id.btnSend);
         imgBtnBack = view.findViewById(R.id.imgBtnBack);
@@ -85,6 +90,8 @@ public class MessageFragment extends Fragment {
 
             chatId = generateChatId(currentUserId, receiverId);
             Log.d(TAG, "Chat ID: " + chatId);
+
+            checkIfAdminStartedChat();
         }
 
         messages = new ArrayList<>();
@@ -120,7 +127,6 @@ public class MessageFragment extends Fragment {
         }
     }
 
-
     private Date getIsraelTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jerusalem"));
         return calendar.getTime();
@@ -144,21 +150,24 @@ public class MessageFragment extends Fragment {
                     }
 
                     if (value != null) {
-                        for (DocumentChange dc : value.getDocumentChanges()) {
-                            if (dc.getType() == DocumentChange.Type.ADDED) {
-                                QueryDocumentSnapshot document = dc.getDocument();
-                                String messageText = document.getString("text");
-                                String senderId = document.getString("senderId");
-                                String receiverId = document.getString("receiverId");
-                                Date timestamp = document.getDate("timestamp");
+                        messages.clear();
+                        Date lastDateHeader = null;
 
-                                Log.d("MessagFragment", "sender: " + senderId);
-                                Log.d("MessagFragment", "receiver: " + receiverId);
-                                boolean isSent = senderId.equals(currentUserId);
-                                Message message = new Message(messageText, isSent, timestamp);
-                                messages.add(message);
+                        for (DocumentSnapshot document : value.getDocuments()) {
+                            String messageText = document.getString("text");
+                            String senderId = document.getString("senderId");
+                            Date timestamp = document.getDate("timestamp");
+
+                            boolean isSent = senderId.equals(currentUserId);
+
+                            if (lastDateHeader == null || !isSameDay(lastDateHeader, timestamp)) {
+                                messages.add(new Message(timestamp));
+                                lastDateHeader = timestamp;
                             }
+
+                            messages.add(new Message(messageText, isSent, timestamp));
                         }
+
                         messageAdapter.notifyDataSetChanged();
 
                         if (messages.size() > 0) {
@@ -169,18 +178,42 @@ public class MessageFragment extends Fragment {
     }
 
 
+    private boolean isSameDay(Date date1, Date date2) {
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(date1);
+        cal2.setTime(date2);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+
     private void sendMessage(String messageText) {
         if (chatId == null) {
             Log.e(TAG, "Chat ID is null. Cannot send message.");
             return;
         }
 
+        String senderId;
+        String senderName;
+
+        if (Admin.isAdminLoggedIn()) {
+            senderId = "admin";
+            senderName = "הנהלה";
+        } else {
+            senderId = currentUserId;
+            senderName = auth.getCurrentUser() != null && auth.getCurrentUser().getDisplayName() != null
+                    ? auth.getCurrentUser().getDisplayName()
+                    : "משתמש";
+        }
+
+
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("text", messageText);
-        messageData.put("senderId", currentUserId);
+        messageData.put("senderId", senderId);
+        messageData.put("senderName", senderName);
         messageData.put("receiverId", receiverId);
         messageData.put("timestamp", getIsraelTime());
-        messageData.put("read", false);
 
         db.collection("chats")
                 .document(chatId)
@@ -215,4 +248,28 @@ public class MessageFragment extends Fragment {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Chat metadata updated"))
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating chat metadata", e));
     }
+
+
+    private void checkIfAdminStartedChat() {
+        db.collection("chats")
+                .document(chatId)
+                .collection("messages")
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot firstMessage = queryDocumentSnapshots.getDocuments().get(0);
+                        String senderId = firstMessage.getString("senderId");
+
+                        if (!Admin.isAdminLoggedIn() && "admin".equals(senderId)) {
+                            etMessageInput.setVisibility(View.GONE);
+                            getView().findViewById(R.id.btnSend).setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "לא ניתן להשיב להודעת הנהלה", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to check who started chat", e));
+    }
+
 }

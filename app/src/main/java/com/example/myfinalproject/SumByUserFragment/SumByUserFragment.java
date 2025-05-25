@@ -61,8 +61,7 @@ public class SumByUserFragment extends Fragment {
             userId = getArguments().getString("userId");
             userName = getArguments().getString("userName");
         }
-        summaryList = new ArrayList<>();
-
+        summaryList = new ArrayList<>();  // אתחול רשימת סיכומים ריקה
     }
 
     @Override
@@ -80,29 +79,36 @@ public class SumByUserFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView);
         tvNoSummaries = view.findViewById(R.id.tvNoSummaries);
 
+        // אם המשתמש או שם המשתמש לא הועברו בפרמטרים, מנסים לקרוא מה-SharedPreferences (נתוני משתמש שמורים)
         if (userId == null || userId.isEmpty()) {
             SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
             userId = prefs.getString("userId", "");
         }
         if (userName == null || userName.isEmpty()) {
             SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", requireActivity().MODE_PRIVATE);
-            userName = prefs.getString("username", "המשתמש");
+            userName = prefs.getString("username", "המשתמש"); // ברירת מחדל "המשתמש"
         }
 
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
 
+
+        // אתחול הרשימה והמתאם להצגת סיכומים
         summaryList = new ArrayList<>();
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
 
+
+        // יצירת הפרזנטר עם הפרגמנט ומזהה המשתמש
         presenter = new SumByUserPresenter(this, userId);
 
+        // מאזין ללחיצה על סיכום ברשימה
         listViewSummaries.setOnItemClickListener((parent, viewItem, position, id) -> {
             Summary selectedSummary = summaryList.get(position);
 
             navigateToSummaryView(selectedSummary);
         });
 
+        // מאזין לשינויים בטקסט בשדה החיפוש - מבצע סינון בזמן אמת
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -117,27 +123,30 @@ public class SumByUserFragment extends Fragment {
                 return true;
             }
         });
+        // טוען את הסיכומים בפועל מהפרזנטר
         loadSummaries();
     }
 
+    // קורא לפרזנטר לטעינת הסיכומים ומציג אותם
     private void loadSummaries() {
         presenter.loadUserSummaries(new SummariesCallback() {
             @Override
             public void onSuccess(List<Summary> summaries) {
                 if (getActivity() == null) return;
 
-
+                // מבצע עדכון ממשק משתמש על Thread של ממשק המשתמש
                 getActivity().runOnUiThread(() -> {
                     summaryList.clear();
                     if (summaries.isEmpty()) {
                         listViewSummaries.setVisibility(View.GONE);
                         tvNoSummaries.setVisibility(View.VISIBLE);
                     } else {
+                        // אם יש סיכומים - מציגים אותם, מסתירים את טקסט "אין סיכומים"
                         listViewSummaries.setVisibility(View.VISIBLE);
                         tvNoSummaries.setVisibility(View.GONE);
                         summaryList.addAll(summaries);
                     }
-                    summaryAdapter.notifyDataSetChanged();
+                    summaryAdapter.notifyDataSetChanged();  // מרעננים את התצוגה
                 });
             }
 

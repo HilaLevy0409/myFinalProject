@@ -39,6 +39,8 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
     private ImageView imgUserProfile;
 
+
+    // מאזין לשינויים במספר הסיכומים של המשתמש
     private ListenerRegistration summariesListener;
 
 
@@ -90,15 +92,17 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         btnSendMessage.setOnClickListener(this);
         btnDeleteUser.setOnClickListener(this);
 
-
+        // קבלת מידע שהועבר ל־Fragment (דרך Bundle)
         Bundle bundle = getArguments();
         if (bundle != null) {
-            if (bundle.containsKey("username")) {
-                String username = bundle.getString("username");
-                loadUserByUsername(username);
+            if (bundle.containsKey("userId")) {
+                // טעינה לפי מזהה משתמש
+                userId = bundle.getString("userId");
+                loadUserById(userId);
                 return;
             }
 
+            // טעינה לפי פרטים שהועברו בבאנדל (אם לא הועבר userId)
             String userName = bundle.getString("userName");
             String userEmail = bundle.getString("userEmail");
             loadUserByEmail(userEmail);
@@ -108,6 +112,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             int badPoints = bundle.getInt("badPoints", 0);
             int sumCount = bundle.getInt("sumCount", 0);
 
+            // הצגת פרטי המשתמש במסך
             tvUsername.setText("שם משתמש: " + userName);
             tvEmail.setText("אימייל: " + userEmail);
             tvPhone.setText("מספר טלפון: " + userPhone);
@@ -118,7 +123,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
             String profilePicData = bundle.getString("profilePicData");
             loadProfilePicture(profilePicData);
 
-
+            // לחיצה על מחיקת משתמש
             btnDeleteUser.setOnClickListener(v -> {
                 new AlertDialog.Builder(getContext())
                         .setTitle("מחיקת משתמש")
@@ -151,7 +156,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         }
     }
 
-
+    // מאזין לשינויים בכמות הסיכומים של המשתמש
     private void listenToSummaryCountChanges(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -207,28 +212,31 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     .addToBackStack(null)
                     .commit();
 
-    } else if (view.getId() == R.id.btnSendMessage) {
+        } else if (view.getId() == R.id.btnSendMessage) {
 
+            if (getActivity() == null) return;
 
-            MessageFragment messageFragment = new MessageFragment();
-            Bundle bundle = new Bundle();
-
-            if (currentUser != null) {
-                bundle.putString("userName", currentUser.getUserName());
-
+            if (currentUser == null) {
+                Toast.makeText(getContext(), "לא ניתן לשלוח הודעה: אין מידע על המשתמש", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            messageFragment.setArguments(bundle);
+            Bundle bundle = new Bundle();
+
+            bundle.putString("receiverId", userId);
+            bundle.putString("receiverName", currentUser.getUserName());
+
+            MessageFragment messagesFragment = new MessageFragment();
+            messagesFragment.setArguments(bundle);
 
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, messageFragment)
+                    .replace(R.id.flFragment, messagesFragment)
                     .addToBackStack(null)
                     .commit();
-
         }
     }
-
+        // עדכון נקודות לרעה במסד
     private void updateBadPointsInDatabase() {
         if (currentUser != null && userId != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -284,17 +292,15 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    private void loadUserByUsername(String username) {
+    private void loadUserById(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .whereEqualTo("userName", username)
+        db.collection("users").document(userId)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-                        currentUser = document.toObject(User.class);
-                        userId = document.getId();
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        currentUser = documentSnapshot.toObject(User.class);
                         if (currentUser != null) {
+                            this.userId = documentSnapshot.getId();
                             tvUsername.setText("שם משתמש: " + currentUser.getUserName());
                             tvEmail.setText("אימייל: " + currentUser.getUserEmail());
                             tvPhone.setText("מספר טלפון: " + currentUser.getPhone());
@@ -302,20 +308,19 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                             tvBadPoints.setText("נקודות לרעה: " + currentUser.getBadPoints());
                             tvSumNum.setText("מספר סיכומים שנכתבו: " + currentUser.getSumCount());
 
-
                             badPoints = currentUser.getBadPoints();
                             loadProfilePicture(currentUser.getImageProfile());
                             listenToSummaryCountChanges(userId);
-
                         }
                     } else {
                         Toast.makeText(getContext(), "משתמש לא נמצא", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בטעינת המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e ->
+                        Toast.makeText(getContext(), "שגיאה בטעינת המשתמש: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
+
 
     private void loadUserByEmail(String email) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -343,6 +348,7 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                 });
     }
 
+    // ביטול המאזין כשעוזבים את המסך
     @Override
     public void onDestroyView() {
         super.onDestroyView();

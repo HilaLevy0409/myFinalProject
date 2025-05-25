@@ -81,6 +81,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     private static final String IMAGE_DIRECTORY = "/demonuts";
     private int GALLERY = 1, CAMERA = 2;
     private User currentUser;
+    // רכיבים בדיאלוג (כדי לשמור גישה לצילום ולתאריך)
     private ImageView currentDialogImageView;
     private EditText currentDialogBirthDateEditText;
 
@@ -143,6 +144,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         ImageView dialogImageView = dialog.findViewById(R.id.imageViewProfileEdit);
         Button btnUploadPhoto = dialog.findViewById(R.id.btnUploadPhoto);
 
+        // אם המשתמש קיים - הצגת פרטיו בדיאלוג
         if (currentUser != null) {
             etEditEmail.setText(currentUser.getUserEmail());
             etEditPhone.setText(currentUser.getPhone());
@@ -277,6 +279,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     return;
                 }
 
+                // בדיקה האם האימייל או השם כבר קיימים במערכת (כולל למניעת כפילויות)
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 db.collection("users")
@@ -302,6 +305,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                     return;
                                                 }
 
+                                                // יצירת אובייקט משתמש חדש עם הפרטים המעודכנים
                                                 User updatedUser = new User();
                                                 updatedUser.setId(currentUser != null ? currentUser.getId() : "");
                                                 updatedUser.setUserEmail(newEmail);
@@ -319,14 +323,17 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                     base64Image = imageViewToBase64(dialogImageView);
                                                 }
 
+                                                // שמירת התמונה בעדכון המשתמש
                                                 if (base64Image != null && !base64Image.isEmpty()) {
                                                     updatedUser.setImageProfile(base64Image);
                                                 } else if (currentUser != null && currentUser.getImageProfile() != null) {
                                                     updatedUser.setImageProfile(currentUser.getImageProfile());
                                                 }
 
+                                                // שליחת הנתונים לעדכון דרך ה-Presenter
                                                 presenter.submitClicked(updatedUser);
 
+                                                // שמירה מקומית ב-SharedPreferences
                                                 SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
                                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                                 editor.putString("username", updatedUser.getUserName());
@@ -336,6 +343,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                                                 }
                                                 editor.apply();
 
+                                                // עדכון התפריט הצדדי עם הפרטים החדשים
                                                 if (getActivity() instanceof MainActivity) {
                                                     ((MainActivity) getActivity()).updateNavigationHeader();
                                                 }
@@ -378,6 +386,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         }
     }
 
+    // הצגת פרטי המשתמש במסך
     public void displayUserData(User user) {
         this.currentUser = user;
         tvEmail.setText("אימייל: " + user.getUserEmail());
@@ -386,8 +395,6 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         tvUsername.setText("שם משתמש: " + user.getUserName());
         tvBadPoints.setText("נקודות לרעה: " + user.getBadPoints());
         tvSumNum.setText("מספר סיכומים שנכתבו: " + user.getSumCount());
-
-
 
         String imageProfileData = user.getImageProfile();
         if (imageProfileData != null && !imageProfileData.isEmpty()) {
@@ -413,6 +420,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             }
         }
     }
+    // טיפול בלחיצות על כפתורים שונים
     @Override
     public void onClick(View view) {
         if (view == btnShowSummaries) {
@@ -428,11 +436,13 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     .setPositiveButton("כן", (dialog, which) -> {
                         presenter.deleteUser();
 
+                        // ניקוי נתוני המשתמש מהזיכרון המקומי
                         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.clear();
                         editor.apply();
 
+                        // עדכון תפריט הניווט
                         if (getActivity() instanceof MainActivity) {
                             ((MainActivity) getActivity()).updateNavigationHeader();
                         }
@@ -480,8 +490,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         }  if (view == btnChangePassword) {
             createCustomDialogPass();
         }
-
     }
+
+    // קריאה ל- presenter לשליחת שינויים בפרטי המשתמש
     public void submitClicked(User userChange) {
         presenter.submitClicked(userChange);
     }
@@ -570,6 +581,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         }
     }
 
+    // עדכון תמונת פרופיל במסד הנתונים (Firestore)
     private void updateProfileImageInDatabase(String base64Image) {
         if (currentUser == null || base64Image == null) return;
 
@@ -577,56 +589,34 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         db.collection("users").document(currentUser.getId())
                 .update("imageProfile", base64Image)
                 .addOnSuccessListener(aVoid -> {
+                    // שמירת התמונה בזיכרון המקומי
                     SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("imageProfile", base64Image);
                     editor.apply();
 
+                    // עדכון תמונת המשתמש בתפריט הצד
                     if (getActivity() instanceof MainActivity) {
                         ((MainActivity) getActivity()).updateNavigationHeader();
                     }
 
-                    Log.d("USER_PROFILE_TAG", "Profile image updated successfully");
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("USER_PROFILE_TAG", "Error updating profile image: " + e.getMessage(), e);
                     Toast.makeText(getContext(), "שגיאה בעדכון תמונת הפרופיל", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    public String saveImage(Bitmap myBitmap) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-        File wallpaperDirectory = new File(Environment.getExternalStorageDirectory() + IMAGE_DIRECTORY);
-        if (!wallpaperDirectory.exists()) {
-            wallpaperDirectory.mkdirs();
-        }
-        try {
-            File f = new File(wallpaperDirectory, Calendar.getInstance()
-                    .getTimeInMillis() + ".jpg");
-            f.createNewFile();
-            FileOutputStream fo = new FileOutputStream(f);
-            fo.write(bytes.toByteArray());
-            MediaScannerConnection.scanFile(getContext(),
-                    new String[]{f.getPath()},
-                    new String[]{"image/jpeg"}, null);
-            fo.close();
-
-            return f.getAbsolutePath();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        return "";
-    }
 
     public void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     public void onLogOutSuccess() {
+        // ניקוי כל המידע מה-SharedPreferences
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", getContext().MODE_PRIVATE);
         sharedPreferences.edit().clear().apply();
 
+        // עדכון תפריט הניווט
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateNavigationHeader();
         }
@@ -664,6 +654,9 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                 },
                 year, month, day
         );
+
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
 
         datePickerDialog.show();
     }
@@ -936,17 +929,19 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         }
     }
 
-
-
+// מעדכן את פרטי ההתחברות של המשתמש בשמירת מידע מקומית (SharedPreferences)
     private void updateUserSessionData(String email, String password) {
         try {
+            // מקבל את SharedPreferences בשם "UserPrefs" במצב פרטי
             SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
+            // שמירת כתובת אימייל, סיסמה ומצב התחברות (true = מחובר)
             editor.putString("userEmail", email);
             editor.putString("userPassword", password);
             editor.putBoolean("isLoggedIn", true);
             editor.apply();
 
+            // עדכון אובייקט המשתמש הנוכחי עם הסיסמה החדשה (אם קיים)
             if (currentUser != null) {
                 currentUser.setUserPass(password);
             }
@@ -954,6 +949,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             Log.e("UserProfileFragment", "Error updating session data: " + e.getMessage());
         }
     }
+
 
     private void updatePasswordStrengthView(String password, TextView passwordStrength) {
         int strength = calculatePasswordStrength(password);
@@ -999,19 +995,17 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         return strength;
     }
 
-
-
+// כאשר הפרגמנט חוזר לפעולה, נטען מחדש את נתוני המשתמש
     @Override
     public void onResume() {
         super.onResume();
         presenter.loadUserData();
     }
 
+    // כאשר הפרגמנט נהרס, מפסיקים עדכונים חיים של נתוני המשתמש
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         presenter.stopUserRealtimeUpdates();
     }
-
-
 }

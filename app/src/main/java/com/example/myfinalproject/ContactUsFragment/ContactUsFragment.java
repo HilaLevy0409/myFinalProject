@@ -32,7 +32,9 @@ public class ContactUsFragment extends Fragment {
     private TextInputLayout tilCustomReason;
     private Button btnSendContact;
     private TextView tvSubmitStatus;
-    private NotificationAdminRepository notificationRepository;
+    private NotificationAdminRepository notificationRepository;  // גישה למסד הנתונים של ההודעות
+
+    // משתנים לזיהוי האם המשתמש מחובר ומה שמו
     private boolean isUserLoggedIn = false;
     private String loggedInUsername = "";
 
@@ -47,11 +49,16 @@ public class ContactUsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_us, container, false);
+
+        // יצירת מופע של המחלקה שאחראית לשמירת ההודעות למסד הנתונים
         notificationRepository = new NotificationAdminRepository();
+
+        // בדיקה האם המשתמש מחובר כדי להציג את שמו
         checkUserLoginStatus();
         return view;
     }
 
+    // בודקת אם המשתמש מחובר ושומרת את שמו
     private void checkUserLoginStatus() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
@@ -70,18 +77,22 @@ public class ContactUsFragment extends Fragment {
         btnSendContact = view.findViewById(R.id.btnSendContact);
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
 
+
+        // אם המשתמש מחובר – מציגים את שמו, אחרת "אורח"
         if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
             etUserName.setText(loggedInUsername);
         } else {
             etUserName.setText("אורח");
         }
 
+        // שדה שם המשתמש לא ניתן לעריכה
         etUserName.setEnabled(false);
         etUserName.setFocusable(false);
         etUserName.setFocusableInTouchMode(false);
         etUserName.setBackgroundResource(android.R.drawable.edit_text);
         etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
 
+        // מאזין לשינוי בבחירת סיבת הפנייה – מציג שדה טקסט מותאם אם נבחר "אחר"
         contactReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
         });
@@ -89,6 +100,7 @@ public class ContactUsFragment extends Fragment {
         btnSendContact.setOnClickListener(v -> sendMessage());
     }
 
+    // פעולה ששולחת את ההודעה לאחר בדיקות תקינות
     private void sendMessage() {
         String userName = etUserName.getText().toString().trim();
         String contactDetails = etContactDetails.getText().toString().trim();
@@ -118,9 +130,13 @@ public class ContactUsFragment extends Fragment {
                 return;
             }
         }
+
+        // קבלת מזהה המשתמש (אם מחובר), אחרת מציין "anonymous"
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser != null ? currentUser.getUid() : "anonymous";
 
+
+        // יצירת אובייקט ההודעה ושליחתה למסד הנתונים
         NotificationAdmin message = new NotificationAdmin(
                 userId,
                 userName,
@@ -128,16 +144,21 @@ public class ContactUsFragment extends Fragment {
                 reason,
                 "CONTACT"
         );
+
+// חסימת כפתור השליחה למניעת שליחה כפולה
         btnSendContact.setEnabled(false);
+
+        // ניסיון להוספת ההודעה למסד
         notificationRepository.addNotification(message)
                 .addOnSuccessListener(aVoid -> {
-                    tvSubmitStatus.setVisibility(View.VISIBLE);
-                    clearForm();
+                    tvSubmitStatus.setVisibility(View.VISIBLE); // הצגת אישור
+                    clearForm(); // ניקוי הטופס
+                    // איפשור מחדש של הכפתור אחרי 2 שניות
                     btnSendContact.postDelayed(() -> btnSendContact.setEnabled(true), 2000);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    btnSendContact.setEnabled(true);
+                    btnSendContact.setEnabled(true); // איפשור כפתור מחדש במקרה של שגיאה
                 });
     }
 

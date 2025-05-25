@@ -1,10 +1,8 @@
 package com.example.myfinalproject.Message;
 
-import com.example.myfinalproject.DataModels.Message;
-
 import java.util.List;
 
-public interface MessageContract {
+public interface MessageCallback {
     interface View {
         void displayMessages(List<Message> messages);
     }

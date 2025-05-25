@@ -1,4 +1,4 @@
-package com.example.myfinalproject.DataModels;
+package com.example.myfinalproject.Message;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,12 +10,14 @@ public class Message {
     private boolean isSent;
     private String timestamp;
     private Date timestampDate;
+    private boolean isDateHeader;
 
     private String messageId;
 
     public Message(String text, boolean isSent) {
         this.text = text;
         this.isSent = isSent;
+        this.isDateHeader = false;
         this.timestampDate = new Date();
         formatTimestamp();
     }
@@ -24,8 +26,18 @@ public class Message {
         this.text = text;
         this.isSent = isSent;
         this.timestampDate = timestampDate;
+        this.isDateHeader = false;
         formatTimestamp();
     }
+
+    public Message(Date timestampDate) {
+        this.text = formatDateHeader(timestampDate);
+        this.isSent = false;
+        this.timestampDate = timestampDate;
+        this.isDateHeader = true;
+        this.timestamp = "";
+    }
+
 
     private void formatTimestamp() {
         if (timestampDate != null) {
@@ -35,6 +47,15 @@ public class Message {
         } else {
             this.timestamp = "";
         }
+    }
+
+    private String formatDateHeader(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        return sdf.format(date);
+    }
+
+    public boolean isDateHeader() {
+        return isDateHeader;
     }
 
     public String getText() {

@@ -51,6 +51,8 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // קבלת הכיתה שנבחרה מהפרגמנט הקודם
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
 
@@ -77,11 +79,12 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
         tvSubtitle = view.findViewById(R.id.tvSubtitle);
         tvSubtitle.setText("כיתה " + selectedClass);
 
+        // הגדרת אייקון ברירת מחדל למסך ריק
         ImageView emptyStateImage = emptyState.findViewById(R.id.emptyStateImage);
         if (emptyStateImage != null) {
             emptyStateImage.setImageResource(android.R.drawable.ic_menu_search);
         }
-
+        // איפוס חיפוש וטאב כאשר לוחצים על "ניקוי סינון "
         view.findViewById(R.id.btnClearFilters).setOnClickListener(v -> {
             searchView.setQuery("", false);
             searchView.clearFocus();
@@ -92,12 +95,16 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
             }
         });
 
+        // יצירת רשימת מקצועות
         List<Profession> professions = createProfessionsList();
+
+        // הגדרת המתאם לרשימת מקצועות
         adapter = new ProfessionAdapter(requireContext(), professions, this);
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         recyclerProfessions.setLayoutManager(layoutManager);
         recyclerProfessions.setAdapter(adapter);
 
+        // טיפול בלחיצה על טאבים (קטגוריות)
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -109,8 +116,8 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
                     category = "מגמות";
                 }
 
-                adapter.filterByCategory(category);
-                checkForEmptyState();
+                adapter.filterByCategory(category); // סינון לפי קטגוריה
+                checkForEmptyState(); // הצגת מסך ריק אם אין תוצאות
             }
 
             @Override
@@ -120,6 +127,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
+        // סינון הרשימה תוך כדי הקלדה בשדה החיפוש
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -135,7 +143,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
         });
     }
 
-
+    // יצירת רשימת מקצועות עם חלוקה לקטגוריות
     private List<Profession> createProfessionsList() {
         List<Profession> professions = new ArrayList<>();
 
@@ -166,6 +174,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
         return professions;
     }
 
+    // בדיקה האם יש מקצועות להציג, אחרת הצגת מסך ריק
     private void checkForEmptyState() {
         if (adapter.getItemCount() == 0) {
             recyclerProfessions.setVisibility(View.GONE);
@@ -192,7 +201,4 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
                 .addToBackStack(null)
                 .commit();
     }
-
-
-
 }

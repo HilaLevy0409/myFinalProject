@@ -2,6 +2,7 @@ package com.example.myfinalproject.NoticesAdminFragment;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,8 +79,9 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
         adapter = new NotificationsAdminAdapter(new ArrayList<>(), this);
         recyclerNotifications.setAdapter(adapter);
 
-        loadNotifications(TAB_ALL);
+        loadNotifications(TAB_ALL);  // טען את כל ההודעות כברירת מחדל
 
+        // מאזין לשינוי טאבים
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -95,6 +97,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
         });
     }
 
+    // טוען את ההודעות לפי הטאב שנבחר (הכול, הודעות, דיווחים)
     private void loadNotifications(int tabPosition) {
         notificationRepository.getAllNotifications()
                 .get()
@@ -102,6 +105,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                     List<NotificationAdmin> allNotifications = queryDocumentSnapshots.toObjects(NotificationAdmin.class);
                     List<NotificationAdmin> filteredList = new ArrayList<>();
 
+                    // סינון לפי סוג הודעה
                     if (tabPosition == TAB_ALL) {
                         filteredList = allNotifications;
                     } else if (tabPosition == TAB_MESSAGES) {
@@ -119,7 +123,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                         }
                     }
 
-                    adapter.updateData(filteredList);
+                    adapter.updateData(filteredList); // עדכן את הרשימה בתצוגה
 
 
                 })
@@ -131,20 +135,20 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
     }
 
 
-
+    //  לוחץ על הודעה, מוצג דיאלוג עם פרטי ההודעה
     @Override
     public void onNotificationClick(NotificationAdmin notification) {
         showNotificationDetailsDialog(notification);
     }
 
-    private void showNotificationDetailsDialog(NotificationAdmin notification) {
-        String title = "REPORT".equals(notification.getType()) ? "פרטי דיווח" : "פרטי הודעה";
 
+    // מציג דיאלוג עם פרטי ההודעה + קישורים לניווט למשתמש/סיכום במידת הצורך
+    private void showNotificationDetailsDialog(NotificationAdmin notification) {
+
+        String title = "REPORT".equals(notification.getType()) ? "פרטי דיווח" : "פרטי הודעה";
         SpannableStringBuilder messageBuilder = new SpannableStringBuilder();
 
-
         if ("REPORT".equals(notification.getType())) {
-
             String reporterName = notification.getUserName();
             if (reporterName == null || reporterName.isEmpty()) {
                 reporterName = "משתמש אנונימי";
@@ -157,11 +161,19 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                 messageBuilder.append(reporterName);
                 int end = messageBuilder.length();
 
-                final String finalReporterName = reporterName;
-                ClickableSpan reporterClickableSpan = new ClickableSpan() {
+                final String finalUserId = notification.getUserId();
+                final String finalUserName = notification.getUserName();
+
+                ClickableSpan displayClickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        navigateToManageUserFragment(finalReporterName);
+                        if (finalUserId != null && !finalUserId.isEmpty()) {
+                            navigateToManageUserFragmentById(finalUserId);
+                        } else if (finalUserName != null && !finalUserName.isEmpty() && !finalUserName.equals("אורח")) {
+                            findUserByUsernameAndNavigate(finalUserName);
+                        } else {
+                            Toast.makeText(getContext(), "לא ניתן לאתר את המשתמש", Toast.LENGTH_SHORT).show();
+                        }
 
                         if (currentDialog != null && currentDialog.isShowing()) {
                             currentDialog.dismiss();
@@ -176,7 +188,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                     }
                 };
 
-                messageBuilder.setSpan(reporterClickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageBuilder.setSpan(displayClickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             } else {
                 messageBuilder.append(reporterName);
             }
@@ -185,28 +197,6 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
 
             if (notification.getReportedUserName() != null && !notification.getReportedUserName().isEmpty()) {
                 String reportedName = notification.getReportedUserName();
-
-
-                boolean isSummary = false;
-                if (notification.getId() != null) {
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("summaries").document(notification.getId()).get()
-                            .addOnSuccessListener(document -> {
-                                if (document.exists()) {
-                                    SumFragment sumFragment = SumFragment.newInstance(notification.getId());
-                                    getActivity().getSupportFragmentManager()
-                                            .beginTransaction()
-                                            .replace(R.id.flFragment, sumFragment)
-                                            .addToBackStack(null)
-                                            .commit();
-
-                                    if (currentDialog != null && currentDialog.isShowing()) {
-                                        currentDialog.dismiss();
-                                    }
-                                }
-                            });
-                }
-
                 messageBuilder.append("דיווח על: ");
 
                 int start = messageBuilder.length();
@@ -216,37 +206,13 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                 ClickableSpan reportedItemClickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        db.collection("summaries")
-                                .whereEqualTo("summaryTitle", reportedName)
-                                .limit(1)
-                                .get()
-                                .addOnSuccessListener(queryDocumentSnapshots -> {
-                                    if (!queryDocumentSnapshots.isEmpty()) {
-                                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-                                        String summaryId = document.getId();
+                        findUserByUsernameAndNavigate(reportedName, () -> {
+                            findSummaryByTitleAndNavigate(reportedName);
+                        });
 
-                                        SumFragment sumFragment = SumFragment.newInstance(summaryId);
-                                        getActivity().getSupportFragmentManager()
-                                                .beginTransaction()
-                                                .replace(R.id.flFragment, sumFragment)
-                                                .addToBackStack(null)
-                                                .commit();
-                                    } else {
-                                        Toast.makeText(getContext(), "לא נמצא ", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                    if (currentDialog != null && currentDialog.isShowing()) {
-                                        currentDialog.dismiss();
-                                    }
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(getContext(), "שגיאה בעת חיפוש סיכום", Toast.LENGTH_SHORT).show();
-
-                                    if (currentDialog != null && currentDialog.isShowing()) {
-                                        currentDialog.dismiss();
-                                    }
-                                });
+                        if (currentDialog != null && currentDialog.isShowing()) {
+                            currentDialog.dismiss();
+                        }
                     }
 
                     @Override
@@ -280,11 +246,19 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                 messageBuilder.append(senderName);
                 int end = messageBuilder.length();
 
-                final String finalSenderName = senderName;
+                final String finalUserId = notification.getUserId();
+                final String finalUserName = notification.getUserName();
+
                 ClickableSpan senderClickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        navigateToManageUserFragment(finalSenderName);
+                        if (finalUserId != null && !finalUserId.isEmpty()) {
+                            navigateToManageUserFragmentById(finalUserId);
+                        } else if (finalUserName != null && !finalUserName.isEmpty()) {
+                            findUserByUsernameAndNavigate(finalUserName);
+                        } else {
+                            Toast.makeText(getContext(), "לא ניתן לאתר את המשתמש", Toast.LENGTH_SHORT).show();
+                        }
 
                         if (currentDialog != null && currentDialog.isShowing()) {
                             currentDialog.dismiss();
@@ -324,11 +298,19 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                 messageBuilder.append(displayName);
                 int end = messageBuilder.length();
 
-                final String finalDisplayName = displayName;
+                final String finalUserId = notification.getUserId();
+                final String finalUserName = notification.getUserName();
+
                 ClickableSpan displayClickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        navigateToManageUserFragment(finalDisplayName);
+                        if (finalUserId != null && !finalUserId.isEmpty()) {
+                            navigateToManageUserFragmentById(finalUserId);
+                        } else if (finalUserName != null && !finalUserName.isEmpty()) {
+                            findUserByUsernameAndNavigate(finalUserName);
+                        } else {
+                            Toast.makeText(getContext(), "לא ניתן לאתר את המשתמש", Toast.LENGTH_SHORT).show();
+                        }
 
                         if (currentDialog != null && currentDialog.isShowing()) {
                             currentDialog.dismiss();
@@ -374,11 +356,87 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
         currentDialog.show();
     }
 
-    private void navigateToManageUserFragment(String username) {
+
+    // מחפש משתמש לפי שם משתמש וניגש אליו, אם לא נמצא – יכול להריץ קוד חלופי (onNotFound)
+    private void findUserByUsernameAndNavigate(String username) {
+        findUserByUsernameAndNavigate(username, null);
+    }
+
+    private void findUserByUsernameAndNavigate(String username, Runnable onNotFound) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String[] possibleUsernameFields = {"username", "userName", "displayName", "name", "fullName"};
+
+        findUserByField(db, possibleUsernameFields, 0, username, onNotFound);
+    }
+
+
+    // חיפוש רקורסיבי בשדות שונים כדי למצוא משתמש לפי שם
+    private void findUserByField(FirebaseFirestore db, String[] fields, int fieldIndex, String username, Runnable onNotFound) {
+        if (fieldIndex >= fields.length) {
+            if (onNotFound != null) {
+                onNotFound.run();
+            } else {
+                Toast.makeText(getContext(), "לא נמצא משתמש בשם: " + username, Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
+        String currentField = fields[fieldIndex];
+        db.collection("users")
+                .whereEqualTo(currentField, username)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                        String userId = document.getId();
+                        navigateToManageUserFragmentById(userId);
+                    } else {
+                        findUserByField(db, fields, fieldIndex + 1, username, onNotFound);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("NoticesAdmin", "Error searching for user by " + currentField + ": " + e.getMessage());
+                    findUserByField(db, fields, fieldIndex + 1, username, onNotFound);
+                });
+    }
+
+    // מחפש סיכום לפי כותרת וניגש לפרגמנט שמציג אותו
+    private void findSummaryByTitleAndNavigate(String summaryTitle) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("summaries")
+                .whereEqualTo("summaryTitle", summaryTitle)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                        String summaryId = document.getId();
+
+                        SumFragment sumFragment = SumFragment.newInstance(summaryId);
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flFragment, sumFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    } else {
+                        Toast.makeText(getContext(), "לא נמצא תוכן בשם: " + summaryTitle, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בחיפוש תוכן", Toast.LENGTH_SHORT).show();
+                    Log.e("NoticesAdmin", "Error searching for summary: " + e.getMessage());
+                });
+    }
+
+
+    // ניווט לניהול משתמש לפי מזהה (userId)
+    private void navigateToManageUserFragmentById(String userId) {
         Fragment manageUserFragment = new ManageUserFragment();
 
         Bundle args = new Bundle();
-        args.putString("username", username);
+        args.putString("userId", userId);
         manageUserFragment.setArguments(args);
 
         getActivity().getSupportFragmentManager()
@@ -388,9 +446,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                 .commit();
     }
 
-
-
-
+    // בכל פעם שהפרגמנט חוזר לפוקוס – טען מחדש את ההודעות לפי הטאב הנבחר
     @Override
     public void onStart() {
         super.onStart();

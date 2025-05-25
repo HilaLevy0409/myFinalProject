@@ -85,11 +85,14 @@ public class AlarmManagerFragment extends Fragment {
         btnSelectReminderDate.setOnClickListener(v -> showReminderDatePickerDialog());
         btnSelectReminderTime.setOnClickListener(v -> showReminderTimePickerDialog());
 
+
+        // לחצן להוספת האירוע – בדיקת הרשאות לפני הפעולה
         btnAddEvent.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR)
                     != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALENDAR)
                             != PackageManager.PERMISSION_GRANTED) {
+                // בקשת הרשאות
                 ActivityCompat.requestPermissions(getActivity(),
                         new String[]{
                                 Manifest.permission.WRITE_CALENDAR,
@@ -97,6 +100,7 @@ public class AlarmManagerFragment extends Fragment {
                         },
                         PERMISSION_REQUEST_CODE);
             } else {
+                // אם יש הרשאה – מוסיפים את האירוע
                 addEventToCalendar();
             }
         });
@@ -172,6 +176,7 @@ public class AlarmManagerFragment extends Fragment {
         reminderTimeDialog.show();
     }
 
+    // מקבל את מזהה היומן הראשי של המשתמש
     private long getDefaultCalendarId() {
         long calendarId = -1;
         ContentResolver contentResolver = requireContext().getContentResolver();
@@ -181,6 +186,7 @@ public class AlarmManagerFragment extends Fragment {
                 CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
         };
 
+        // ניסיון ראשוני לקבל יומן ראשי
         String selection = CalendarContract.Calendars.VISIBLE + " = 1 AND " +
                 CalendarContract.Calendars.IS_PRIMARY + " = 1";
 
@@ -193,7 +199,7 @@ public class AlarmManagerFragment extends Fragment {
             Log.e("", "שגיאה בקבלת מזהה לוח השנה");
 
         }
-
+        // אם לא נמצא – ניסיון למצוא יומן גלוי כלשהו
         selection = CalendarContract.Calendars.VISIBLE + " = 1";
         try (Cursor cursor = contentResolver.query(uri, projection, selection, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
@@ -202,12 +208,11 @@ public class AlarmManagerFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e("", "שגיאה בקבלת מזהה לוח השנה");
-
         }
-
-        return 1;
+        return 1; // אם לא נמצא יומן
     }
 
+    // פעולה שמוסיפה את האירוע ליומן ומגדירה תזכורת
     @SuppressLint("ScheduleExactAlarm")
     private void addEventToCalendar() {
         if (getContext() == null) {
@@ -215,6 +220,7 @@ public class AlarmManagerFragment extends Fragment {
         }
 
         try {
+            // שליפת כותרת ותיאור מהשדות
             String title = etEventTitle.getText().toString();
             String description = etEventDescription.getText().toString();
 
@@ -233,16 +239,20 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
+            // בניית אובייקט זמן התחלה לפי הקלט
             Calendar startTime = Calendar.getInstance();
             startTime.set(year, month, day, hour, minute, 0);
             startTime.set(Calendar.MILLISECOND, 0);
 
+            // חישוב זמן סיום לפי משך זמן שנבחר
             Calendar endTime = (Calendar) startTime.clone();
             endTime.add(Calendar.HOUR_OF_DAY, durationHour);
             endTime.add(Calendar.MINUTE, durationMinute);
 
+            // קבלת אזור הזמן של המכשיר
             String timeZone = TimeZone.getDefault().getID();
 
+            // קבלת מזהה יומן ברירת מחדל
             long calendarId = getDefaultCalendarId();
             if (calendarId == -1) {
 
@@ -250,6 +260,7 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
+            // הגדרת פרטי האירוע להכנסה ליומן
             ContentResolver cr = requireContext().getContentResolver();
             ContentValues values = new ContentValues();
 
@@ -265,14 +276,15 @@ public class AlarmManagerFragment extends Fragment {
 
             Uri eventUri = null;
 
+            // ניסיון להוסיף את האירוע ליומן
             try {
-
                 eventUri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
             } catch (Exception e) {
                 Toast.makeText(getContext(), "שגיאה בהוספת אירוע ליומן: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 return;
             }
 
+            // בדיקה שהאירוע נוצר בהצלחה
             if (eventUri == null) {
                 Toast.makeText(getContext(), "שגיאה ביצירת האירוע", Toast.LENGTH_SHORT).show();
                 return;
@@ -280,6 +292,7 @@ public class AlarmManagerFragment extends Fragment {
 
             long eventID;
             try {
+                // שליפת מזהה האירוע מהמזהה של המשאב שנוצר
                 String lastPathSegment = eventUri.getLastPathSegment();
                 if (lastPathSegment == null) {
                     Toast.makeText(getContext(), "שגיאה בזיהוי האירוע", Toast.LENGTH_SHORT).show();
@@ -293,6 +306,7 @@ public class AlarmManagerFragment extends Fragment {
 
             Calendar reminderTime;
 
+            // אם המשתמש בחר זמן תזכורת – נשתמש בו, אחרת יום לפני
             if (reminderDateSelected && reminderTimeSelected) {
                 reminderTime = Calendar.getInstance();
                 reminderTime.set(reminderYear, reminderMonth, reminderDay, reminderHour, reminderMinute, 0);
@@ -302,19 +316,22 @@ public class AlarmManagerFragment extends Fragment {
                 reminderTime.add(Calendar.DAY_OF_MONTH, -1);
             }
 
+            // בדיקה שהתזכורת לפני האירוע
             if (reminderTime.getTimeInMillis() >= startTime.getTimeInMillis()) {
                 Toast.makeText(getContext(), "תזכורת חייבת להיות לפני האירוע", Toast.LENGTH_SHORT).show();
                 try {
-                    cr.delete(eventUri, null, null);
+                    cr.delete(eventUri, null, null); // מחיקת האירוע במידת הצורך
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return;
             }
 
+            // חישוב כמה דקות לפני האירוע התזכורת אמורה להתקיים
             long reminderMillis = startTime.getTimeInMillis() - reminderTime.getTimeInMillis();
             int reminderMinutes = (int) (reminderMillis / (60 * 1000));
 
+            // ניסיון להוסיף את התזכורת
             try {
                 ContentValues reminderValues = new ContentValues();
                 reminderValues.put(CalendarContract.Reminders.EVENT_ID, eventID);
@@ -336,6 +353,7 @@ public class AlarmManagerFragment extends Fragment {
             }
 
             try {
+                // יצירת intent שישוגר בעת הפעלת התזכורת
                 Intent alarmIntent = new Intent(context, EventReminderReceiver.class);
                 alarmIntent.putExtra("eventTitle", title);
 
@@ -351,17 +369,20 @@ public class AlarmManagerFragment extends Fragment {
                 if (alarmManager != null) {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
                         if (alarmManager.canScheduleExactAlarms()) {
+                            // תזכורת מדויקת אם מותר
                             alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
                         } else {
+                            // תזכורת רגילה אם אין הרשאה
                             alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
                             Toast.makeText(context, "אירוע נוסף ליומן, אך ייתכן שהתזכורת לא תהיה מדויקת", Toast.LENGTH_LONG).show();
                             clearInputFields();
                             return;
                         }
                     } else {
+                        // תמיכה במכשירים ישנים
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
                     }
-
+                    // הודעה על הצלחה
                     Toast.makeText(context, "אירוע נוסף ליומן עם תזכורת", Toast.LENGTH_SHORT).show();
                     clearInputFields();
                 } else {
@@ -380,6 +401,7 @@ public class AlarmManagerFragment extends Fragment {
         }
     }
 
+    // איפוס כל שדות הטופס לאחר הוספת האירוע
     private void clearInputFields() {
         etEventTitle.setText("");
         etEventDescription.setText("");
@@ -396,6 +418,7 @@ public class AlarmManagerFragment extends Fragment {
         reminderTimeSelected = false;
     }
 
+    // טיפול בתוצאות בקשת הרשאות (Calendar ו-Alarm)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -408,7 +431,7 @@ public class AlarmManagerFragment extends Fragment {
                 }
             }
             if (allGranted) {
-                addEventToCalendar();
+                addEventToCalendar();  // אם כל ההרשאות אושרו – הוספת האירוע
             } else {
                 Toast.makeText(getContext(), "הרשאה נדחתה", Toast.LENGTH_SHORT).show();
             }

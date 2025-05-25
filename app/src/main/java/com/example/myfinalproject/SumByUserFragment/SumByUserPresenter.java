@@ -23,25 +23,30 @@ public class SumByUserPresenter {
         this.summariesCollection = FirebaseFirestore.getInstance().collection("summaries");
     }
 
+
+    // טוען את הסיכומים של המשתמש מהמסד נתונים
     public void loadUserSummaries(SummariesCallback callback) {
 
+        // שליפת מסמכים מתוך אוסף "summaries" שבהם שדה "userId" שווה ל-userId הנתון
         summariesCollection.whereEqualTo("userId", userId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         List<Summary> summaries = new ArrayList<>();
 
+                        // עבור כל מסמך שנשלף מהשאילתה
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
+                                // ממיר את המסמך לאובייקט Summary
                                 Summary summary = document.toObject(Summary.class);
+                                // שומר את מזהה המסמך ב-Summary (חשוב לשימוש עתידי)
                                 summary.setSummaryId(document.getId());
-                                summaries.add(summary);
+                                summaries.add(summary); // מוסיף לרשימת התוצאות
                             } catch (Exception e) {
                                 Log.e("loadUserSummaries", "שגיאה בהמרת מסמך ל-Summary: " + e.getMessage(), e);
                             }
                         }
-
-                        callback.onSuccess(summaries);
+                        callback.onSuccess(summaries);  // מחזירים את התוצאה לקריאה דרך callback
                     } else {
                         callback.onError(task.getException() != null ?
                                 task.getException().getMessage() :
@@ -54,10 +59,13 @@ public class SumByUserPresenter {
 
     }
 
+    // סינון סיכומים לפי טקסט חיפוש (query)
+    // מקבל את הטקסט לחיפוש, רשימת הסיכומים המקורית, ואת המתאם של הרשימה
     public void filterSummaries(String query, List<Summary> originalList, SummaryAdapter adapter) {
         ArrayList<Summary> filteredList = new ArrayList<>();
 
         if (query.isEmpty()) {
+            // אם השדה ריק - נטען מחדש את הסיכומים מהמסד (שומר על סינכרון עם המקור)
             loadUserSummaries(new SummariesCallback() {
                 @Override
                 public void onSuccess(List<Summary> summaries) {
@@ -72,12 +80,13 @@ public class SumByUserPresenter {
                 }
             });
         } else {
+            // סינון הרשימה המקומית לפי טקסט חיפוש
             for (Summary summary : originalList) {
                 if (summary.getSummaryTitle().toLowerCase().contains(query.toLowerCase())) {
                     filteredList.add(summary);
                 }
             }
-
+            // מעדכנים את המתאם עם הרשימה המסוננת
             adapter.clear();
             adapter.addAll(filteredList);
             adapter.notifyDataSetChanged();

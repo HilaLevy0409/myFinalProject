@@ -132,7 +132,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
         }
     }
 
-
+    // טעינת הסיכומים בעזרת ה־Presenter
     private void loadSummaries() {
         chooseSumPresenter.loadSummaries(new SummariesCallback() {
             @Override
@@ -147,6 +147,7 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                         tvNoSummaries.setVisibility(View.VISIBLE);
                         listViewSummaries.setVisibility(View.GONE);
                     } else {
+                        // סיכומים נטענו בהצלחה
                         tvNoSummaries.setVisibility(View.GONE);
                         listViewSummaries.setVisibility(View.VISIBLE);
                         fullSummaryList.addAll(summaries);

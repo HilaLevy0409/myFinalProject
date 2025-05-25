@@ -18,22 +18,23 @@ public class SummaryPresenter {
     public SummaryPresenter(WritingSumFragment view) {
         this.view = view;
         this.summaryDb = new SummaryRepository();
-
     }
 
-
+    // פעולה שמתבצעת כאשר המשתמש לוחץ על "שלח סיכום"
         public void submitSummaryClicked(Summary summary) {
-        if (view.getContext() == null) return;
+        if (view.getContext() == null) return; // אם אין קונטקסט – יוצא
 
+            // קריאה למחלקת המאגר להוספת הסיכום למסד הנתונים
         summaryDb.addSummary(summary, new AddSummaryCallback() {
             @Override
             public void onSummaryAdd(Summary summary) {
                 Toast.makeText(view.getContext(), "הסיכום הוזן בהצלחה", Toast.LENGTH_SHORT).show();
 
+                // עדכון מונה הסיכומים של המשתמש במסד הנתונים
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 DocumentReference userRef = db.collection("users").document(summary.getUserId());
 
-                userRef.update("sumCount", FieldValue.increment(1))
+                userRef.update("sumCount", FieldValue.increment(1)) // הגדלת מונה הסיכומים באחד
                         .addOnSuccessListener(aVoid -> {
                             Log.d("Summary", "מונה סיכומים עודכן");
                         })

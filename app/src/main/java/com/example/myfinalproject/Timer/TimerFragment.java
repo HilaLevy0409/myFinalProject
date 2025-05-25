@@ -46,12 +46,13 @@ public class TimerFragment extends Fragment {
         inputValidation(etMinutes);
         inputValidation(etSeconds);
 
+        // מאזין לשינוי מצב ה־Switch של ההתראות
         switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            etNotificationTime.setEnabled(isChecked);
+            etNotificationTime.setEnabled(isChecked); // מאפשר או מחליף את שדה זמן ההתראה
             if (isChecked && etNotificationTime.getText().toString().isEmpty()) {
                 etNotificationTime.requestFocus();
             }
-            presenter.onNotificationSwitchChanged(isChecked);
+            presenter.onNotificationSwitchChanged(isChecked); // מעדכן את הפרזנטר
         });
 
         btnStopContinue.setOnClickListener(v -> presenter.toggleStopContinue());
@@ -61,7 +62,7 @@ public class TimerFragment extends Fragment {
         return view;
     }
 
-
+    // מגביל את הערכים לשניות ודקות ל־59 מקסימום
     private void inputValidation(final EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -79,26 +80,29 @@ public class TimerFragment extends Fragment {
                 if (!s.toString().isEmpty()) {
                     int value = Integer.parseInt(s.toString());
                     if (value > 59) {
-                        editText.setText("59");
-                        editText.setSelection(2);
+                        editText.setText("59"); // קובע ערך מרבי 59
+                        editText.setSelection(2); // ממקם את הסמן בסוף
                     }
                 }
             }
         });
     }
 
+    // בעת תחילת חיי הפרגמנט – קישור לשירות הטיימר
     @Override
     public void onStart() {
         super.onStart();
         presenter.bindService();
     }
 
+    // עם עצירת הפרגמנט – ניתוק מהשירות
     @Override
     public void onStop() {
         super.onStop();
         presenter.unbindService();
     }
 
+    // עדכון התצוגה של הזמן שנותר על גבי המסך
     public void updateTimerDisplay(long millisRemaining) {
         int hours = (int) (millisRemaining / (1000 * 60 * 60));
         int minutes = (int) (millisRemaining % (1000 * 60 * 60)) / (1000 * 60);
@@ -108,41 +112,48 @@ public class TimerFragment extends Fragment {
         tvTimerDisplay.setText(timeString);
     }
 
+    // עדכון מצב כפתורי ההפעלה/עצירה/איפוס בהתאם למצב
     public void updateButtonStates(boolean isRunning) {
         btnStart.setEnabled(!isRunning);
         btnStopContinue.setEnabled(isRunning);
         btnReset.setEnabled(true);
 
+        // שינוי הטקסט בהתאם למצב (עצירה/המשך)
         if (isRunning) {
-            btnStopContinue.setText("עצור");
+            btnStopContinue.setText("עצירה");
         } else {
             btnStopContinue.setText("המשך");
         }
     }
-
+    // איפוס מצב הכפתורים (אחרי סיום או איפוס טיימר)
     public void resetButtonStates() {
         btnStart.setEnabled(true);
         btnStopContinue.setEnabled(false);
         btnReset.setEnabled(false);
-        btnStopContinue.setText("עצור");
+        btnStopContinue.setText("עצירה");
     }
 
+    // שינוי טקסט כפתור עצור/המשך
     public void setStopContinueButtonText(String text) {
         btnStopContinue.setText(text);
     }
 
+    // שינוי זמינות כפתור עצור/המשך
     public void setStopContinueButtonEnabled(boolean enabled) {
         btnStopContinue.setEnabled(enabled);
     }
 
+    // שינוי זמינות כפתור התחלה
     public void setStartButtonEnabled(boolean enabled) {
         btnStart.setEnabled(enabled);
     }
 
+    // הצגת הודעת טוסט למשתמש
     public void showMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    // ניקוי שדות הקלט
     public void clearInputFields() {
         etHours.setText("");
         etMinutes.setText("");
@@ -150,26 +161,32 @@ public class TimerFragment extends Fragment {
         etNotificationTime.setText("");
     }
 
+    // החזרת ערך השעות מהשדה
     public int getHours() {
         return parseInputField(etHours, 0);
     }
 
+    // החזרת ערך הדקות מהשדה
     public int getMinutes() {
         return parseInputField(etMinutes, 0);
     }
 
+    // החזרת ערך השניות מהשדה
     public int getSeconds() {
         return parseInputField(etSeconds, 0);
     }
 
+    // החזרת ערך זמן ההתראה מהשדה (כמחרוזת)
     public String getNotificationTime() {
         return etNotificationTime.getText().toString();
     }
 
+    // בדיקה האם האפשרות לשלוח התראה מסומנת
     public boolean isNotificationEnabled() {
         return switchNotification.isChecked();
     }
 
+    // המרה של ערך מהשדה למספר
     private int parseInputField(EditText editText, int defaultValue) {
         String text = editText.getText().toString();
         if (text.isEmpty()) {

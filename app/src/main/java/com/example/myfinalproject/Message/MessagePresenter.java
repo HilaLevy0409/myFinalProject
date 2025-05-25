@@ -1,16 +1,14 @@
 package com.example.myfinalproject.Message;
 
-import com.example.myfinalproject.DataModels.Message;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagePresenter implements MessageContract.Presenter {
+public class MessagePresenter implements MessageCallback.Presenter {
 
-    private MessageContract.View view;
+    private MessageCallback.View view;
     private List<Message> messages;
 
-    public MessagePresenter(MessageContract.View view) {
+    public MessagePresenter(MessageCallback.View view) {
         this.view = view;
         this.messages = new ArrayList<>();
     }

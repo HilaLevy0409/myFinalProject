@@ -21,7 +21,7 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
 
     private List<Profession> professions;
     private List<Profession> filteredProfessions;
-    private Context context;
+    private Context context; // קונטקסט נדרש ליצירת תצוגות
     private ProfessionClickListenerCallback callback;
 
     public ProfessionAdapter(Context context, List<Profession> professions, ProfessionClickListenerCallback callback) {
@@ -38,14 +38,16 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
         return new ProfessionViewHolder(view);
     }
 
+    // קישור נתוני מקצוע אחד לתצוגה (ViewHolder)
     @Override
     public void onBindViewHolder(@NonNull ProfessionViewHolder holder, int position) {
-        Profession profession = filteredProfessions.get(position);
-        holder.tvProfessionName.setText(profession.getName());
+        Profession profession = filteredProfessions.get(position); // מקצוע נוכחי
+        holder.tvProfessionName.setText(profession.getName()); // הצגת שם מקצוע
 
+        // טיפול בלחיצה על כרטיס מקצוע
         holder.cardProfession.setOnClickListener(v -> {
             if (callback != null) {
-                callback.onProfessionClick(profession);
+                callback.onProfessionClick(profession); // קריאה לקולבק
             }
         });
     }
@@ -55,37 +57,41 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
         return filteredProfessions.size();
     }
 
+
+    // סינון מקצועות לפי קטגוריה
     public void filterByCategory(String category) {
-        filteredProfessions.clear();
+        filteredProfessions.clear(); // ניקוי קודם
 
         if (category.equals("הכל")) {
-            filteredProfessions.addAll(professions);
+            filteredProfessions.addAll(professions); // אם "הכל", להחזיר את כל הרשימה
         } else {
             for (Profession profession : professions) {
                 if (profession.getCategory().equals(category)) {
-                    filteredProfessions.add(profession);
+                    filteredProfessions.add(profession);  // הוספת מקצוע שתואם קטגוריה
                 }
             }
         }
         notifyDataSetChanged();
     }
 
+    // סינון מקצועות לפי טקסט חיפוש
     public void filterByQuery(String query) {
         filteredProfessions.clear();
 
         if (query.isEmpty()) {
-            filteredProfessions.addAll(professions);
+            filteredProfessions.addAll(professions); // אם שדה ריק – להחזיר הכל
         } else {
-            String lowerCaseQuery = query.toLowerCase();
+            String lowerCaseQuery = query.toLowerCase(); // הפיכת מחרוזת לאותיות קטנות
             for (Profession profession : professions) {
                 if (profession.getName().toLowerCase().contains(lowerCaseQuery)) {
-                    filteredProfessions.add(profession);
+                    filteredProfessions.add(profession); // הוספת מקצוע שתואם לחיפוש
                 }
             }
         }
         notifyDataSetChanged();
     }
 
+    // מחלקת ViewHolder פנימית – מייצגת פריט מקצוע בודד ברשימה
     public static class ProfessionViewHolder extends RecyclerView.ViewHolder {
         TextView tvProfessionName;
         MaterialCardView cardProfession;

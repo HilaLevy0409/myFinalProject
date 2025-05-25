@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -40,6 +41,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WritingSumFragment extends Fragment implements View.OnClickListener {
 
@@ -56,6 +59,11 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private Summary summary;
     private boolean isWriteMode = true;
 
+    // Edit mode variables
+    private boolean isEditMode = false;
+    private String summaryId;
+    private String existingImageData;
+
     public WritingSumFragment() {
     }
 
@@ -66,6 +74,14 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
             selectedProfession = getArguments().getString("selected_profession", "");
+
+            // Check if this is edit mode
+            isEditMode = getArguments().getBoolean("isEditMode", false);
+
+            if (isEditMode) {
+                summaryId = getArguments().getString("summaryId");
+                existingImageData = getArguments().getString("image");
+            }
         }
     }
 
@@ -92,14 +108,13 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         EditText etClass = view.findViewById(R.id.etClass);
         EditText etProfession = view.findViewById(R.id.etProfession);
 
+        // קביעת כיתה ומקצוע אם נבחרו
         if (selectedClass != null && !selectedClass.isEmpty()) {
             etClass.setText(selectedClass);
         }
-
         if (selectedProfession != null && !selectedProfession.isEmpty()) {
             etProfession.setText(selectedProfession);
         }
-
 
         summaryPresenter = new SummaryPresenter(this);
         imageViewSummary = view.findViewById(R.id.imageViewSummary);
@@ -112,13 +127,55 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnWriteSummary.setOnClickListener(this);
         btnUploadSummary.setOnClickListener(this);
 
-
-
-
-        showWriteMode();
+        // If in edit mode, populate existing data
+        if (isEditMode) {
+            populateExistingData();
+            // Change button text for edit mode
+            btnSubmit.setText("עדכון סיכום");
+        } else {
+            showWriteMode(); // ברירת מחדל – מצב כתיבה
+        }
     }
 
+    // Populate fields with existing summary data for editing
+    private void populateExistingData() {
+        if (getArguments() != null) {
+            String title = getArguments().getString("summaryTitle", "");
+            String content = getArguments().getString("summaryContent", "");
+            String imageData = getArguments().getString("image", "");
 
+            etSummaryTitle.setText(title);
+
+            if (imageData != null && !imageData.isEmpty()) {
+                // Show image mode
+                showUploadMode();
+                displayExistingImage(imageData);
+            } else if (content != null && !content.isEmpty()) {
+                // Show text mode
+                showWriteMode();
+                etSummaryContent.setText(content);
+            } else {
+                showWriteMode();
+            }
+        }
+    }
+
+    // Display existing image from Base64 data
+    private void displayExistingImage(String imageData) {
+        try {
+            byte[] decodedString = Base64.decode(imageData, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+            if (bitmap != null) {
+                imageViewSummary.setImageBitmap(bitmap);
+                existingImageData = imageData; // Store for later use
+            }
+        } catch (Exception e) {
+            Log.e("WritingSumFragment", "Error decoding existing image", e);
+        }
+    }
+
+    // הצגת מצב כתיבה
     private void showWriteMode() {
         isWriteMode = true;
         writeSummaryCard.setVisibility(View.VISIBLE);
@@ -126,12 +183,14 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnWriteSummary.setAlpha(1.0f);
         btnUploadSummary.setAlpha(0.6f);
 
+        // מיקום כפתור השליחה מתחת ל־CardView
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) btnSubmit.getLayoutParams();
         layoutParams.topToBottom = R.id.writeSummaryCard;
         btnSubmit.setLayoutParams(layoutParams);
         btnSubmit.setVisibility(View.VISIBLE);
     }
 
+    // הצגת מצב העלאת תמונה
     private void showUploadMode() {
         isWriteMode = false;
         writeSummaryCard.setVisibility(View.GONE);
@@ -145,15 +204,15 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnSubmit.setVisibility(View.VISIBLE);
     }
 
-
-
-
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.btnSubmit) {
             if (validateInputs()) {
-                saveSummaryData();
+                if (isEditMode) {
+                    updateSummaryData();
+                } else {
+                    saveSummaryData();
+                }
             }
         } else if (v.getId() == R.id.btnUploadPhoto) {
             showPictureDialog();
@@ -167,8 +226,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     }
 
     private boolean validateInputs() {
-
-
         if (etSummaryTitle.getText().toString().trim().isEmpty()) {
             showToast("נא להזין נושא לסיכום");
             return false;
@@ -188,10 +245,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         return true;
     }
 
-
-
-
-
+    // שמירת נתוני הסיכום ושליחתם ל־Firebase דרך הפרזנטר
     private void saveSummaryData() {
         String summaryTitle = etSummaryTitle.getText().toString().trim();
 
@@ -219,11 +273,56 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         }
 
         summaryPresenter.submitSummaryClicked(summary);
-
-
     }
 
+    // Update existing summary data
+    private void updateSummaryData() {
+        if (summaryId == null || summaryId.isEmpty()) {
+            showToast("שגיאה: מזהה סיכום לא תקין");
+            return;
+        }
 
+        String summaryTitle = etSummaryTitle.getText().toString().trim();
+
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("summaryTitle", summaryTitle);
+        updateData.put("classOption", selectedClass);
+        updateData.put("profession", selectedProfession);
+        updateData.put("isEdited", true);
+        updateData.put("lastEditTime", FieldValue.serverTimestamp());
+
+        if (isWriteMode) {
+            String summaryContent = etSummaryContent.getText().toString().trim();
+            updateData.put("summaryContent", summaryContent);
+            updateData.put("image", null); // Remove image if switching to text mode
+        } else {
+            if (imageViewSummary.getDrawable() != null) {
+                String base64Image = bitmapToBase64(((BitmapDrawable) imageViewSummary.getDrawable()).getBitmap());
+                updateData.put("image", base64Image);
+            } else if (existingImageData != null) {
+                // Keep existing image if no new image was selected
+                updateData.put("image", existingImageData);
+            }
+            updateData.put("summaryContent", ""); // Remove content if switching to image mode
+        }
+
+        // Update the summary in Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("summaries").document(summaryId)
+                .update(updateData)
+                .addOnSuccessListener(aVoid -> {
+                    showToast("הסיכום עודכן בהצלחה!");
+
+                    // Navigate back to the updated summary
+                    if (getActivity() != null) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("WritingSumFragment", "Error updating summary", e);
+                    showToast("שגיאה בעדכון הסיכום");
+                });
+    }
 
     private String bitmapToBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -235,8 +334,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
-
-
 
     private void showPictureDialog(){
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(getContext());
@@ -287,6 +384,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
                     String path = saveImage(bitmap);
                     Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
                     imageViewSummary.setImageBitmap(bitmap);
+                    existingImageData = null; // Clear existing image data when new image is selected
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(getContext(), "נכשל!", Toast.LENGTH_SHORT).show();
@@ -297,6 +395,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
             Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
             imageViewSummary.setImageBitmap(thumbnail);
             saveImage(thumbnail);
+            existingImageData = null; // Clear existing image data when new image is captured
             Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
         }
 
@@ -305,6 +404,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         }
     }
 
+    // שמירת תמונה בזיכרון המכשיר
     public String saveImage(Bitmap myBitmap) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
@@ -312,7 +412,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         if (!wallpaperDirectory.exists()) {
             wallpaperDirectory.mkdirs();
         }
-
         try {
             File f = new File(wallpaperDirectory, Calendar.getInstance()
                     .getTimeInMillis() + ".jpg");

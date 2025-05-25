@@ -20,10 +20,11 @@ import com.example.myfinalproject.R;
 
 public class CountdownTimerService extends Service {
 
+    // מזהה ההתראה והשדה של ערוץ ההתראה
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "TimerServiceChannel";
 
-    private final IBinder binder = new LocalBinder();
+    private final IBinder binder = new LocalBinder();     // Binder פנימי – מאפשר קישור לשירות דרך אקטיביטי
     private CountDownTimer countDownTimer;
     private long timeRemaining = 0;
     private boolean isTimerRunning = false;
@@ -32,6 +33,7 @@ public class CountdownTimerService extends Service {
     private boolean notificationsEnabled = true;
     private TimeCallback timerUpdateCallback;
 
+    // מחלקת Binder פנימית – מאפשרת גישה לשירות
     public class LocalBinder extends Binder {
         public CountdownTimerService getService() {
 
@@ -42,7 +44,7 @@ public class CountdownTimerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        createNotificationChannel();
+        createNotificationChannel(); // יצירת ערוץ התראות
     }
 
     @Nullable
@@ -51,25 +53,30 @@ public class CountdownTimerService extends Service {
         return binder;
     }
 
+    // מופעל כאשר השירות מתחיל (startService)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
+            // מקבל את ערכי הזמן מה-Intent
             long timeMillis = intent.getLongExtra("TIME_MILLIS", 0);
             notificationMinutes = intent.getIntExtra("NOTIFICATION_MINUTES", 0);
             notificationsEnabled = intent.getBooleanExtra("NOTIFICATIONS_ENABLED", true);
 
+            // אם התקבל זמן תקין, מפעיל את הטיימר
             if (timeMillis > 0) {
                 startTimer(timeMillis, notificationMinutes);
             }
         }
-
+        // מפעיל את השירות כ-foreground service
         startForeground(NOTIFICATION_ID, createForegroundNotification("טיימר פעיל"));
         return START_STICKY;
     }
 
+    // התחלת הטיימר
     public void startTimer(long millisInFuture, int notificationMinutes) {
         if (millisInFuture <= 0) return;
 
+        // ביטול טיימר קודם אם קיים
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
@@ -79,19 +86,23 @@ public class CountdownTimerService extends Service {
         isTimerRunning = true;
         this.notificationMinutes = notificationMinutes;
 
+        // שליחת התראה על התחלת הטיימר
         if (notificationsEnabled) {
             sendStartNotification(millisInFuture);
         }
 
+        // יצירת טיימר חדש
         countDownTimer = new CountDownTimer(millisInFuture, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeRemaining = millisUntilFinished;
 
+                // עדכון ה־callback של הפרגמנט
                 if (timerUpdateCallback != null) {
                     timerUpdateCallback.onTimerUpdate(millisUntilFinished);
                 }
 
+                // שליחת התראה כשהזמן מתקרב לסיום
                 if (notificationsEnabled && !notificationSent && notificationMinutes > 0) {
                     if (millisUntilFinished <= notificationMinutes * 60 * 1000 &&
                             millisUntilFinished > (notificationMinutes * 60 * 1000 - 1000)) {
@@ -106,32 +117,38 @@ public class CountdownTimerService extends Service {
                 timeRemaining = 0;
                 isTimerRunning = false;
 
+                // עדכון callback על סיום הטיימר
                 if (timerUpdateCallback != null) {
                     timerUpdateCallback.onTimerFinish();
                 }
 
+                // שליחת התראה על סיום
                 if (notificationsEnabled) {
                     sendFinishNotification();
                 }
 
+                // סיום השירות
                 stopForeground(true);
                 stopSelf();
             }
         };
-
+        // הפעלת הטיימר
         countDownTimer.start();
     }
 
+    // השהיית הטיימר
     public void pauseTimer() {
         if (countDownTimer != null) {
             countDownTimer.cancel();
             isTimerRunning = false;
 
+            // עדכון ההתראה ל"טיימר מושהה"
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.notify(NOTIFICATION_ID, createForegroundNotification("טיימר מושהה"));
         }
     }
 
+    // איפוס הטיימר
     public void resetTimer() {
         if (countDownTimer != null) {
             countDownTimer.cancel();
@@ -142,23 +159,27 @@ public class CountdownTimerService extends Service {
         }
     }
 
+    // בדיקה אם הטיימר רץ
     public boolean isTimerRunning() {
         return isTimerRunning;
     }
 
+    // קבלת הזמן שנותר
     public long getTimeRemaining() {
         return timeRemaining;
     }
 
+    // הפעלת/כיבוי שליחת התראות
     public void setNotificationsEnabled(boolean enabled) {
         this.notificationsEnabled = enabled;
     }
 
-
+    // הצבת callback לעדכונים שוטפים
     public void setTimerUpdateCallback(TimeCallback callback) {
         this.timerUpdateCallback = callback;
     }
 
+    // הסרת callback
     public void removeTimerUpdateCallback() {
         this.timerUpdateCallback = null;
     }
@@ -171,6 +192,7 @@ public class CountdownTimerService extends Service {
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
+    // יצירת ערוץ ההתראות
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
@@ -187,6 +209,7 @@ public class CountdownTimerService extends Service {
         }
     }
 
+    // יצירת התראה לתצוגה קבועה (Foreground Notification)
     private Notification createForegroundNotification(String title) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -206,6 +229,7 @@ public class CountdownTimerService extends Service {
                 .build();
     }
 
+    // שליחת התראה כשהטיימר מתחיל
     private void sendStartNotification(long totalMillis) {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
 
@@ -230,6 +254,7 @@ public class CountdownTimerService extends Service {
         notificationManager.notify(2, notification);
     }
 
+    // שליחת התראה כאשר נותרו X דקות
     private void sendWarningNotification(int minutesRemaining) {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
 
@@ -254,6 +279,7 @@ public class CountdownTimerService extends Service {
         notificationManager.notify(3, notification);
     }
 
+    // שליחת התראה על סיום הטיימר
     private void sendFinishNotification() {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
 
@@ -278,6 +304,7 @@ public class CountdownTimerService extends Service {
         notificationManager.notify(4, notification);
     }
 
+    // מנקה את הטיימר במקרה שהשירות נהרס
     @Override
     public void onDestroy() {
         super.onDestroy();

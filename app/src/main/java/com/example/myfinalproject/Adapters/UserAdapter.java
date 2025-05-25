@@ -39,14 +39,18 @@ public class UserAdapter extends ArrayAdapter<User> {
         this.onClickedSendMessage = onClickedSendMessage;
     }
 
+    // פונקציה שמציירת כל שורה ברשימה
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
 
+        // מימוש ViewHolder לשיפור ביצועים
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.onerow_user, parent, false);
             holder = new ViewHolder();
+
+            // קישור רכיבי התצוגה
             holder.imgUserProfile = convertView.findViewById(R.id.imgUserProfile);
             holder.tvUserName = convertView.findViewById(R.id.tvUserName);
             holder.tvSumNumTitle = convertView.findViewById(R.id.tvSumNumTitle);
@@ -58,7 +62,7 @@ public class UserAdapter extends ArrayAdapter<User> {
             holder.btnSummaryByUser.setOnClickListener(v -> onClickedSummaryByUser.onUserClick(position));
             holder.btnSendMessage.setOnClickListener(v -> onClickedSendMessage.onUserClick(position));
 
-            convertView.setTag(holder);
+            convertView.setTag(holder); // שמירה לשימוש חוזר
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
@@ -68,6 +72,8 @@ public class UserAdapter extends ArrayAdapter<User> {
         holder.tvUserName.setText(user.getUserName());
         holder.tvSumNumTitle.setText("מספר סיכומים שנכתבו: " + (user.getSumCount() > 0 ? user.getSumCount() : "0"));
 
+
+        // טעינת תמונת פרופיל אם קיימת, אחרת הצגת לוגו ברירת מחדל
         if (user.getImageProfile() != null && !user.getImageProfile().isEmpty()) {
             try {
                 byte[] decodedString = Base64.decode(user.getImageProfile(), Base64.DEFAULT);
@@ -83,6 +89,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         return convertView;
     }
 
+    // מחלקה פנימית – שומרת הפניות לרכיבי התצוגה (ViewHolder Pattern)
     private static class ViewHolder {
         ImageView imgUserProfile;
         TextView tvUserName, tvSumNumTitle;

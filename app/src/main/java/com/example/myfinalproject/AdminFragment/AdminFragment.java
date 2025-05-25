@@ -72,11 +72,14 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
 
 
         List<String> usersList = new ArrayList<>();
-        usersList.add("בחירת משתמש");
+        usersList.add("בחירת משתמש"); // אפשרות ברירת מחדל
+
+        // יצירת מתאם לרשימת המשתמשים
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item, usersList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+        // טעינת המשתמשים מ-Firebase
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .get()
@@ -84,23 +87,26 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String username = document.getString("userName");
                         if (username != null) {
-                            usersList.add(username);
+                            usersList.add(username); // הוספת שם לרשימה
                         }
                     }
+
+                    // עדכון הטקסט עם מספר המשתמשים
                     tvNumUsers.setText(tvNumUsers.getText().toString() + usersList.size());
-                    adapter.notifyDataSetChanged();
-                    spinner.setSelection(0);
+                    adapter.notifyDataSetChanged(); // עדכון התצוגה
+                    spinner.setSelection(0); // ברירת מחדל
 
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "שגיאה בטעינת משתמשים", Toast.LENGTH_SHORT).show());
-        spinner.setAdapter(adapter);
+        spinner.setAdapter(adapter); // חיבור המתאם לספינר
 
+        // טיפול בבחירת משתמש
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (position > 0) {
+                if (position > 0) { // מתעלם מהאפשרות הראשונה
                     String selectedUser = (String) parentView.getItemAtPosition(position);
-                    navigateToUserProfile(selectedUser);
+                    navigateToUserProfile(selectedUser);  // מעבר למסך ניהול המשתמש
                 }
             }
 
@@ -109,7 +115,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
             }
         });
     }
-
+    // מעבר למסך ניהול משתמש מסוים
     private void navigateToUserProfile(String username) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
@@ -118,6 +124,8 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         User user = document.toObject(User.class);
+
+                        // העברת פרטי המשתמש כ-Bundle
                         Bundle bundle = new Bundle();
                         bundle.putString("userName", user.getUserName());
                         bundle.putString("userEmail", user.getUserEmail());
@@ -126,6 +134,8 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                         bundle.putInt("badPoints", user.getBadPoints());
                         bundle.putInt("sumCount", user.getSumCount());
                         bundle.putString("profilePicData", user.getImageProfile());
+
+                        // מעבר למסך ניהול המשתמש
                         ManageUserFragment manageUserFragment = new ManageUserFragment();
                         manageUserFragment.setArguments(bundle);
                         getActivity().getSupportFragmentManager()
@@ -150,13 +160,15 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    // מתבצע כשחוזרים לפרגמנט – בודק אם התחברות ההנהלה פגה
     @Override
     public void onResume() {
         super.onResume();
 
         if (Admin.isSessionExpired()) {
-            showSessionExpiredDialog();
+            showSessionExpiredDialog(); // הצגת דיאלוג אם פג תוקף
         } else {
+            // בדיקה נוספת לאחר 5 דקות
             new Handler().postDelayed(() -> {
                 if (Admin.isSessionExpired()) {
                     showSessionExpiredDialog();

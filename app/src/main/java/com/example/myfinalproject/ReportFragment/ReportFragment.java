@@ -36,6 +36,7 @@ public class ReportFragment extends Fragment {
     private TextView tvSubmitStatus;
     private NotificationAdminRepository notificationRepository;
 
+    // משתנים לזיהוי אם המשתמש מחובר ומה שמו
     private boolean isUserLoggedIn = false;
     private String loggedInUsername = "";
 
@@ -54,10 +55,11 @@ public class ReportFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_report, container, false);
         notificationRepository = new NotificationAdminRepository();
-        checkUserLoginStatus();
+        checkUserLoginStatus(); // בדיקה אם המשתמש מחובר
         return view;
     }
 
+    // בדיקה אם המשתמש מחובר ושליפת שם המשתמש מה-SharedPreferences
     private void checkUserLoginStatus() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         isUserLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
@@ -76,6 +78,7 @@ public class ReportFragment extends Fragment {
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
         etUserName = view.findViewById(R.id.etUserName);
 
+        // אם הגיע שם משתמש דרך bundle, מציגים אותו
         Bundle bundle = getArguments();
         if (bundle != null) {
             String userName = bundle.getString("userName");
@@ -83,16 +86,20 @@ public class ReportFragment extends Fragment {
             etUserNameOrTopic.setEnabled(false);
         }
 
+        // אם המשתמש מחובר – מציגים את שמו; אחרת – אורח
         if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
             etUserName.setText(loggedInUsername);
         } else {
             etUserName.setText("אורח");
         }
 
+        // מניעת עריכה של שדה שם המשתמש
         etUserName.setEnabled(false);
         etUserName.setFocusable(false);
         etUserName.setFocusableInTouchMode(false);
         etUserName.setTextColor(getResources().getColor(android.R.color.darker_gray));
+
+        // הצגת שדה סיבה אחרת רק אם נבחר "אחר"
         reportReasonGroup.setOnCheckedChangeListener((group, checkedId) -> {
             tilCustomReason.setVisibility(checkedId == R.id.rbOther ? View.VISIBLE : View.GONE);
         });
@@ -100,6 +107,7 @@ public class ReportFragment extends Fragment {
         btnSendReport.setOnClickListener(v -> submitReport());
     }
 
+    // שליחת דיווח
     private void submitReport() {
         String reportDetails = etReportDetails.getText().toString().trim();
 
@@ -122,13 +130,14 @@ public class ReportFragment extends Fragment {
         } else if (selectedRadioButtonId == R.id.rbIncorrectInfo) {
             reason = "מידע שגוי/לא מדויק";
         } else {
+            // אם נבחר "אחר" – בודקים שיש סיבה מותאמת אישית
             reason = etCustomReason.getText().toString().trim();
             if (reason.isEmpty()) {
                 Toast.makeText(getContext(), "נא לפרט את הסיבה", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
-
+        // זיהוי מזהה המשתמש המדווח
         String userId = FirebaseAuth.getInstance().getCurrentUser() != null
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid()
                 : "anonymous";
@@ -136,12 +145,12 @@ public class ReportFragment extends Fragment {
         String reporterName = etUserName.getText().toString().trim();
         String reportedUserName = etUserNameOrTopic.getText().toString().trim();
 
-
+        // מניעת דיווח עצמי
         if (reportedUserName.equals(reporterName)) {
             Toast.makeText(getContext(), "לא ניתן לדווח על עצמך", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        // יצירת אובייקט דיווח
         NotificationAdmin report = new NotificationAdmin(
                 userId,
                 reporterName,
@@ -152,8 +161,7 @@ public class ReportFragment extends Fragment {
 
         report.setReportedUserName(reportedUserName);
 
-
-
+        // בדיקה אם מדובר בדיווח על סיכום (ולא על משתמש)
         Bundle bundle = getArguments();
         String summaryId = null;
         if (bundle != null && bundle.containsKey("summaryId")) {
@@ -167,11 +175,9 @@ public class ReportFragment extends Fragment {
             }
         }
 
-        btnSendReport.setEnabled(false);
+        btnSendReport.setEnabled(false); // מניעת לחיצה חוזרת
 
-
-
-
+        // אם מדובר בדיווח על סיכום – שמירה ישירות ל-Firestore עם מזהה הסיכום
         if (summaryId != null) {
             Map<String, Object> reportData = new HashMap<>();
             reportData.put("userId", report.getUserId());
@@ -189,7 +195,7 @@ public class ReportFragment extends Fragment {
                     .add(reportData)
                     .addOnSuccessListener(documentReference -> {
                         tvSubmitStatus.setVisibility(View.VISIBLE);
-                        clearForm();
+                        clearForm(); // איפוס הטופס
                         btnSendReport.postDelayed(() -> btnSendReport.setEnabled(true), 2000);
                     })
                     .addOnFailureListener(e -> {
@@ -197,6 +203,7 @@ public class ReportFragment extends Fragment {
                         btnSendReport.setEnabled(true);
                     });
         } else {
+            // אם מדובר בדיווח רגיל – שמירה דרך הרפוזיטורי
             notificationRepository.addNotification(report)
                     .addOnSuccessListener(aVoid -> {
                         tvSubmitStatus.setVisibility(View.VISIBLE);
@@ -211,7 +218,6 @@ public class ReportFragment extends Fragment {
     }
 
     private void clearForm() {
-
         reportReasonGroup.clearCheck();
         etCustomReason.setText("");
         etReportDetails.setText("");

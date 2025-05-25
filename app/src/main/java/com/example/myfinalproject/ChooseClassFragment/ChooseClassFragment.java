@@ -50,17 +50,22 @@ public class ChooseClassFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         GridView gridView = view.findViewById(R.id.gridView);
 
+
+        // מערך שמכיל את שכבות הכיתה שיוצגו בגריד
         String[] classes = {"ז", "ח", "ט", "י", "יא", "יב"};
+
+        // מחבר את המערך לגריד באמצעות מתאם
         ClassAdapter adapter = new ClassAdapter(getContext(), classes);
         gridView.setAdapter(adapter);
 
+        // מאזין ללחיצה על אחת מהכיתות
         gridView.setOnItemClickListener((parent, view1, position, id) -> {
-            String selectedClass = classes[position];
+            String selectedClass = classes[position]; // מקבל את הכיתה שנבחרה
 
-
+            // שומר את הכיתה שנבחרה ב-Bundle לצורך העברה לפרגמנט הבא
             Bundle args = new Bundle();
             args.putString("selected_class", selectedClass);
-            args.putBoolean("is_visitor", false);
+            args.putBoolean("is_visitor", false); // מציין שהמשתמש אינו אורח
 
             ChooseProfessionFragment chooseProfessionFragment = new ChooseProfessionFragment();
             chooseProfessionFragment.setArguments(args);

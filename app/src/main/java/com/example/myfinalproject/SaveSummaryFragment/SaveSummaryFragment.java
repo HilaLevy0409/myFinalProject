@@ -58,6 +58,7 @@ public class SaveSummaryFragment extends Fragment {
         });
 
 
+        // האזנה להזנת טקסט בשורת החיפוש – שליחת הטקסט לסינון דרך presenter
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -66,19 +67,20 @@ public class SaveSummaryFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                presenter.filterSummaries(newText);
+                presenter.filterSummaries(newText); // סינון בזמן אמת
                 return true;
             }
         });
+        // קריאה לטעינת הסיכומים השמורים
         presenter.loadSavedSummaries();
     }
 
 
-
+    // פונקציה לעדכון רשימת הסיכומים ב-Adapter
     public void updateSummaryList(List<Summary> summaries) {
         summaryAdapter.updateSummaries(summaries);
     }
-
+    // הצגת שגיאה בטעינה כטוסט
     public void showLoadError(String message) {
         if (getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
@@ -90,10 +92,9 @@ public class SaveSummaryFragment extends Fragment {
         if (summary == null) {
             return;
         }
-
-
         SumFragment sumFragment = SumFragment.newInstance(summary.getSummaryId());
 
+        // הכנסת מידע נוסף למעבר – שהגענו ממועדפים
         Bundle args = sumFragment.getArguments();
         if (args == null) {
             args = new Bundle();

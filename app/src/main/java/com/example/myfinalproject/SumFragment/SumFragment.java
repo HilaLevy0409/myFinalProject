@@ -19,6 +19,7 @@ import com.example.myfinalproject.R;
 
 import com.example.myfinalproject.ReportFragment.ReportFragment;
 import com.example.myfinalproject.SumReviewFragment.SumReviewFragment;
+import com.example.myfinalproject.WritingSumFragment.WritingSumFragment;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,19 +55,17 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private FirebaseAuth mAuth;
     private String summaryId;
     private boolean isFavorite = false;
-
     private TextToSpeech textToSpeech;
     private boolean isSpeaking = false;
     private SeekBar seekBarSpeed;
-
     private float speechRate = 1.0f;
     private FloatingActionButton fabExport;
-
-    private ImageButton ImgBtnDeleteSum;
+    private ImageButton ImgBtnDeleteSum, ImgBtnEditSum;
     private boolean isAuthor = false;
-
     private boolean isAdmin = false;
 
+    // Store the current summary data for editing
+    private DocumentSnapshot currentSummaryDocument;
 
     public SumFragment() {}
 
@@ -85,6 +84,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             summaryId = getArguments().getString("summaryId");
             float rating = getArguments().getFloat("rating", 0f);
         }
+        // אתחול הפיירסטור ואימות המשתמש
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
     }
@@ -115,51 +115,58 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         fabExport.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         btnReset.setOnClickListener(this);
-        ImgBtnDeleteSum = view.findViewById(R.id.ImgBtnDeleteSum);
-        ImgBtnDeleteSum.setOnClickListener(this);
-        ImgBtnDeleteSum.setVisibility(View.GONE);
 
+        // Initialize edit and delete buttons
+        ImgBtnDeleteSum = view.findViewById(R.id.ImgBtnDeleteSum);
+        ImgBtnEditSum = view.findViewById(R.id.ImgBtnEditSum);
+        ImgBtnDeleteSum.setOnClickListener(this);
+        ImgBtnEditSum.setOnClickListener(this);
+        ImgBtnDeleteSum.setVisibility(View.GONE);
+        ImgBtnEditSum.setVisibility(View.GONE);
+
+        // אתחול מנוע ההקראה והגדרת בקרת מהירות הקראה
         initTextToSpeech();
         speedControl();
 
+        // בדיקה אם הסיכום הגיע ממועדפים, לעדכן את המצב בהתאם
         if (getArguments() != null && getArguments().getBoolean("fromFavorites", false)) {
             isFavorite = true;
             updateFavoriteButton();
         }
-
+        // בדיקה אם המשתמש מנהל והצגת כפתור המחיקה בהתאם
         isAdmin = Admin.isAdminLoggedIn();
         checkIfUserIsAdmin();
 
         loadSummaryData();
         checkIfFavorite();
 
+        // מאזין לשינוי בדירוג - מעבר לפראגמנט של ביקורות עם הדירוג שנבחר
         ratingBarSum.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
             if (fromUser) {
                 SumReviewFragment reviewFragment = new SumReviewFragment();
-
                 Bundle args = new Bundle();
                 args.putString("summaryId", summaryId);
                 args.putFloat("rating", rating);
                 reviewFragment.setArguments(args);
-
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, reviewFragment)
                         .addToBackStack(null)
                         .commit();
             }
         });
-
     }
 
+    // בודק אם המשתמש הנוכחי הוא מנהל
     private void checkIfUserIsAdmin() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
-
+        // בדיקה אם משתמש הוא מנהל דרך מחלקת Admin (שיטה חיצונית)
         if (Admin.isAdminLoggedIn()) {
             isAdmin = true;
             return;
         }
 
+        // במקרה שלא, בודק במסד הנתונים האם יש לשדה isAdmin ערך true
         String currentUserId = currentUser.getUid();
         db.collection("users").document(currentUserId)
                 .get()
@@ -167,8 +174,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                     if (documentSnapshot.exists()) {
                         Boolean adminValue = documentSnapshot.getBoolean("isAdmin");
                         isAdmin = adminValue != null && adminValue;
-
-                        updateDeleteButtonVisibility();
+                        updateActionButtonsVisibility();
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -176,33 +182,74 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 });
     }
 
-
-    private void updateDeleteButtonVisibility() {
-        if (isAuthor || isAdmin) {
+    // עדכון מצב כפתורי העריכה והמחיקה בהתאם למי שמציג את הסיכום
+    private void updateActionButtonsVisibility() {
+        if (isAuthor) {
+            // Author can both edit and delete
+            ImgBtnEditSum.setVisibility(View.VISIBLE);
+            ImgBtnDeleteSum.setVisibility(View.VISIBLE);
+        } else if (isAdmin) {
+            // Admin can only delete, not edit
+            ImgBtnEditSum.setVisibility(View.GONE);
             ImgBtnDeleteSum.setVisibility(View.VISIBLE);
         } else {
+            // Regular users can't edit or delete
+            ImgBtnEditSum.setVisibility(View.GONE);
             ImgBtnDeleteSum.setVisibility(View.GONE);
         }
     }
 
+    // Navigate to WritingSumFragment with existing summary data for editing
+    private void editSummary() {
+        if (!isAuthor) {
+            Toast.makeText(getContext(), "רק יוצר הסיכום יכול לערוך אותו", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        if (currentSummaryDocument == null) {
+            Toast.makeText(getContext(), "שגיאה בטעינת נתוני הסיכום", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create bundle with existing summary data
+        Bundle args = new Bundle();
+        args.putString("summaryId", summaryId);
+        args.putString("summaryTitle", currentSummaryDocument.getString("summaryTitle"));
+        args.putString("summaryContent", currentSummaryDocument.getString("summaryContent"));
+        args.putString("image", currentSummaryDocument.getString("image"));
+        args.putString("selected_class", currentSummaryDocument.getString("classOption"));
+        args.putString("selected_profession", currentSummaryDocument.getString("profession"));
+        args.putBoolean("isEditMode", true);
+
+        // Navigate to WritingSumFragment
+        WritingSumFragment writingSumFragment = new WritingSumFragment();
+        writingSumFragment.setArguments(args);
+
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.flFragment, writingSumFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    // אתחול מנוע ההקראה בשפה העברית
     private void initTextToSpeech() {
         textToSpeech = new TextToSpeech(getContext(), status -> {
             if (status == TextToSpeech.SUCCESS) {
                 int langResult = textToSpeech.setLanguage(new Locale("he", "IL"));
 
+                // בדיקת תמיכה בשפה העברית
                 if (langResult == TextToSpeech.LANG_MISSING_DATA ||
                         langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Toast.makeText(getContext(), "שפה עברית אינה נתמכת במכשיר זה", Toast.LENGTH_SHORT).show();
-
                 } else {
+                    // מאזין לאירועי הקראה: התחלה, סיום ושגיאה
                     textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                         @Override
                         public void onStart(String utteranceId) {
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
                                     isSpeaking = true;
-                                    updateButtons();
+                                    updateButtons(); // מעדכן את מצב הכפתורים
                                 });
                             }
                         }
@@ -235,12 +282,14 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    // הגדרת מהירות ההקראה לפי SeekBar
     private void speedControl() {
         seekBarSpeed.setMax(20);
-        seekBarSpeed.setProgress(10);
+        seekBarSpeed.setProgress(10); // מהירות ברירת מחדל 1.0f
         seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // המרה לערך בין 0.5 ל-2.0 לערך מהירות הדיבור
                 speechRate = (float) progress / 10.0f;
                 if (speechRate < 0.5f) speechRate = 0.5f;
                 textToSpeech.setSpeechRate(speechRate);
@@ -256,6 +305,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    // הפעלת ההקראה של הטקסט המוצג
     private void speakText() {
         if (textToSpeech == null) return;
 
@@ -268,10 +318,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         btnStart.setEnabled(false);
         btnReset.setEnabled(true);
 
+        // מפעיל הקראה עם מזהה "fullText"
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "fullText");
         isSpeaking = true;
     }
 
+    // עצירת ההקראה וניקוי מצב
     private void resetSpeech() {
         if (textToSpeech == null) return;
         textToSpeech.stop();
@@ -280,6 +332,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         btnReset.setEnabled(false);
     }
 
+    // עדכון מצב הכפתורים Start ו-Reset לפי מצב ההקראה והאם יש טקסט להצגה
     private void updateButtons() {
         String text = tvText.getText().toString();
         boolean hasText = !text.isEmpty();
@@ -293,15 +346,19 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
+    // טעינת נתוני הסיכום מ-Firestore והצגת המידע
     private void loadSummaryData() {
         if (summaryId == null || summaryId.isEmpty()) {
             return;
         }
+        // קריאה למסמך סיכום לפי מזהה
         db.collection("summaries").document(summaryId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
+                        // Store the document for editing purposes
+                        currentSummaryDocument = documentSnapshot;
+
                         String authorId = documentSnapshot.getString("userId");
                         FirebaseUser currentUser = mAuth.getCurrentUser();
 
@@ -312,8 +369,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                             isAuthor = false;
                         }
 
-                        updateDeleteButtonVisibility();
-
+                        updateActionButtonsVisibility();
                         displaySummaryData(documentSnapshot);
                     } else {
                         Toast.makeText(getContext(), "הסיכום לא נמצא", Toast.LENGTH_SHORT).show();
@@ -324,16 +380,27 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 });
     }
 
+    // מציג את נתוני הסיכום במסך בהתאם למסמך שנשלף מ-Firestore
     private void displaySummaryData(DocumentSnapshot document) {
+        // קריאת נושא הסיכום והצגתו
         String topic = document.getString("summaryTitle");
         if (topic != null) {
             tvTopic.setText(topic);
         }
 
+        // Check if summary was edited and display indicator
+        Boolean isEdited = document.getBoolean("isEdited");
+        if (isEdited != null && isEdited) {
+            tvTopic.setText(topic + " (סיכום ערוך)");
+        }
+
+        // ניסיון לקרוא את שם המחבר מתוך המסמך (אם קיים)
         String authorName = document.getString("userName");
         if (authorName != null && !authorName.isEmpty()) {
+            // הצגת שם המחבר אם קיים
             tvAuthor.setText("נכתב על ידי: " + authorName);
         } else {
+            // אם שם המחבר לא קיים במסמך הסיכום, מנסים להביא אותו מהמסמך של המשתמש לפי userId
             String authorId = document.getString("userId");
 
             if (authorId != null) {
@@ -341,13 +408,16 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         .get()
                         .addOnSuccessListener(userDoc -> {
                             if (userDoc.exists()) {
+                                // שליפת שם המשתמש מתוך מסמך המשתמשים
                                 String userName = userDoc.getString("userName");
                                 if (userName != null && !userName.isEmpty()) {
                                     tvAuthor.setText("נכתב על ידי: " + userName);
                                 } else {
+                                    // במקרה שהשם לא קיים, מציג ברירת מחדל
                                     tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
                                 }
                             } else {
+                                // במקרה שהמסמך לא קיים
                                 tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
                             }
                         })
@@ -355,20 +425,24 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                             tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
                         });
             } else {
+                // אין userId זמין - הצגת טקסט ברירת מחדל
                 tvAuthor.setText("נכתב על ידי: משתמש לא ידוע");
             }
         }
 
+        // שליפת דירוג ממוצע והצגתו
         Double averageRating = document.getDouble("averageRating");
         if (averageRating != null) {
             ratingBarSum.setRating(averageRating.floatValue());
             tvAverage.setText("ציון ממוצע לסיכום: " + String.format("%.1f", averageRating));
         }
 
+        // קריאת תוכן הסיכום או תמונה אם קיימת
         String summaryContent = document.getString("summaryContent");
         String imageData = document.getString("image");
 
         if (imageData != null && !imageData.isEmpty()) {
+            // אם יש תמונה, מציגים את התמונה ומסתירים את הטקסט
             tvText.setVisibility(View.GONE);
             sumImage.setVisibility(View.VISIBLE);
 
@@ -385,10 +459,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 sumImage.setImageResource(R.drawable.newlogo);
             }
         } else if (summaryContent != null && !summaryContent.isEmpty()) {
+            // אם אין תמונה, מציגים טקסט הסיכום ומסתירים את התמונה
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText(summaryContent);
         } else {
+            // במקרה שאין גם טקסט וגם תמונה - מציגים הודעה מתאימה
             tvText.setVisibility(View.VISIBLE);
             sumImage.setVisibility(View.GONE);
             tvText.setText("אין תוכן זמין");
@@ -396,14 +472,15 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         updateButtons();
     }
 
-
-
+    // פונקציה למחיקת סיכום, רק אם המשתמש הוא יוצר הסיכום או מנהל
     private void deleteSummary() {
+        // בדיקה אם המשתמש מורשה למחוק (מחבר הסיכום או מנהל)
         if (!isAuthor && !isAdmin) {
             Toast.makeText(getContext(), "רק יוצר הסיכום או ההנהלה יכולים למחוק את הסיכום", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // קביעת כותרת והודעה בדיאלוג בהתאם למי שמבצע את המחיקה
         String dialogTitle = isAdmin && !isAuthor ?
                 "מחיקת סיכום (הנהלה)" : "מחיקת סיכום";
 
@@ -411,16 +488,19 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 "האם ברצונך למחוק סיכום זה? פעולה זו תתבצע כהנהלה." :
                 "האם ברצונך למחוק את הסיכום?";
 
+        // יצירת דיאלוג לאישור המחיקה
         new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle(dialogTitle)
                 .setMessage(deleteMessage)
                 .setPositiveButton("כן", (dialog, which) -> {
+                    // לאחר אישור, טוענים את מסמך הסיכום כדי לקבל userId לצורך עדכון מספר הסיכומים של המשתמש
                     db.collection("summaries").document(summaryId)
                             .get()
                             .addOnSuccessListener(documentSnapshot -> {
                                 if (documentSnapshot.exists()) {
                                     String userId = documentSnapshot.getString("userId");
 
+                                    // מחיקת הסיכום ממסד הנתונים
                                     db.collection("summaries").document(summaryId)
                                             .delete()
                                             .addOnSuccessListener(aVoid -> {
@@ -430,6 +510,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
                                                 Toast.makeText(getContext(), successMessage, Toast.LENGTH_SHORT).show();
 
+                                                // עדכון מספר הסיכומים של המשתמש
                                                 updateUserSummaryCount(userId);
 
                                                 if (getActivity() != null) {
@@ -452,19 +533,20 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 .show();
     }
 
+    // פונקציה לעדכון מספר הסיכומים של משתמש (למשל לשימוש להצגת נתונים בפרופיל)
     private void updateUserSummaryCount(String userId) {
-
         if (userId == null) {
-            Log.e("SumFragment", "userId is null. Cannot update summary count.");
             return;
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // שאילתה למספר הסיכומים של המשתמש
         db.collection("summaries")
                 .whereEqualTo("userId", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int count = queryDocumentSnapshots.size();
+                    // עדכון שדה sumCount במסמך המשתמש עם המספר החדש
                     db.collection("users").document(userId)
                             .update("sumCount", count)
                             .addOnFailureListener(e ->
@@ -472,6 +554,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 });
     }
 
+    // AsyncTask להורדת תמונה מהרשת והצגתה ב-ImageView
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView imageView;
 
@@ -479,6 +562,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             this.imageView = imageView;
         }
 
+        // הורדת התמונה ברקע (ב-thread נפרד)
         @Override
         protected Bitmap doInBackground(String... urls) {
             String urlDisplay = urls[0];
@@ -496,6 +580,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             return bitmap;
         }
 
+        // לאחר סיום ההורדה, מציגים את התמונה או תמונת ברירת מחדל במקרה של כשלון
         @Override
         protected void onPostExecute(Bitmap result) {
             if (result != null && imageView != null) {
@@ -506,17 +591,22 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    // בדיקה האם הסיכום נמצא במועדפים של המשתמש הנוכחי
     private void checkIfFavorite() {
+        // אם המשתמש לא מחובר או שאין מזהה לסיכום, יוצא מהפונקציה
         if (mAuth.getCurrentUser() == null || summaryId == null) {
             return;
         }
 
         String userId = mAuth.getCurrentUser().getUid();
+        // קורא למסמך של הסיכום במאגר המועדפים של המשתמש
         db.collection("users").document(userId)
                 .collection("favorites").document(summaryId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
+                    // אם המסמך קיים – הסיכום נמצא במועדפים
                     isFavorite = documentSnapshot.exists();
+                    // מעדכן את הטקסט של כפתור המועדפים בהתאם למצב
                     updateFavoriteButton();
                 })
                 .addOnFailureListener(e -> {
@@ -533,7 +623,9 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    // משנה את מצב המועדף – מוסיף או מסיר את הסיכום מהמועדפים של המשתמש
     private void toggleFavorite() {
+        // אם המשתמש לא מחובר או אין מזהה לסיכום, מראה הודעת שגיאה ומפסיק
         if (mAuth.getCurrentUser() == null || summaryId == null) {
             Toast.makeText(getContext(), "יש להתחבר כדי לשמור למועדפים", Toast.LENGTH_SHORT).show();
             return;
@@ -544,6 +636,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 .collection("favorites").document(summaryId);
 
         if (isFavorite) {
+            // אם הסיכום כבר במועדפים, מבצע מחיקה שלו מרשימת המועדפים
             favRef.delete()
                     .addOnSuccessListener(aVoid -> {
                         isFavorite = false;
@@ -554,6 +647,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         Toast.makeText(getContext(), "שגיאה בהסרה מהמועדפים", Toast.LENGTH_SHORT).show();
                     });
         } else {
+            // אם הסיכום לא במועדפים, מוסיף אותו לרשימת המועדפים עם תאריך הוספה
             Map<String, Object> favorite = new HashMap<>();
             favorite.put("summaryId", summaryId);
             favorite.put("addedAt", FieldValue.serverTimestamp());
@@ -573,7 +667,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-
         if (view == btnReport) {
             ReportFragment reportFragment = new ReportFragment();
             Bundle args = new Bundle();
@@ -594,11 +687,14 @@ public class SumFragment extends Fragment implements View.OnClickListener {
             shareSummary(tvTopic.getText().toString());
         } else if(view == btnReset) {
             resetSpeech();
-        }else if (view == ImgBtnDeleteSum) {
+        } else if (view == ImgBtnDeleteSum) {
             deleteSummary();
+        } else if (view == ImgBtnEditSum) {
+            editSummary();
         }
     }
 
+    // מחזיר משאבים של TextToSpeech כשמחלקת ה-Fragment נהרסת
     @Override
     public void onDestroy() {
         if (textToSpeech != null) {
@@ -608,14 +704,17 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         super.onDestroy();
     }
 
-
+    // מתבצע כשמסך ה-Fragment חוזר להיות פעיל (על המסך)
     @Override
     public void onResume() {
         super.onResume();
+        // בודק אם המשתמש הנוכחי מנהל
         isAdmin = Admin.isAdminLoggedIn();
         checkIfUserIsAdmin();
+        // מעדכן האם כפתורי הפעולה צריכים להיות גלויים לפי הרשאות
+        updateActionButtonsVisibility();
 
-        updateDeleteButtonVisibility();
+        loadSummaryData();
     }
 
     private void shareSummary(String summaryTitle) {

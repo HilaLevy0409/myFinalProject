@@ -23,20 +23,24 @@ public class SaveSummaryPresenter {
         this.allSummaries = new ArrayList<>();
     }
 
+    // טוען את רשימת הסיכומים השמורים (Favorites) של המשתמש הנוכחי
     public void loadSavedSummaries() {
         if (auth.getCurrentUser() == null) {
-            return;
+            return; // אם אין משתמש מחובר – אין טעם להמשיך
         }
 
         String userId = auth.getCurrentUser().getUid();
+
+        // ניגשים למסמך של המשתמש ואז לתת-אוסף בשם "favorites"
         firestore.collection("users").document(userId)
                 .collection("favorites")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        // בכל מסמך יש שדה summaryId שמכיל את מזהה הסיכום
                         String summaryId = document.getString("summaryId");
                         if (summaryId != null) {
-                            loadSummary(summaryId);
+                            loadSummary(summaryId); // טוען את הסיכום עצמו
                         }
                     }
                 })
@@ -45,6 +49,8 @@ public class SaveSummaryPresenter {
                 });
     }
 
+
+    // טוען את הסיכום לפי מזהה ממסמך Firestore
     private void loadSummary(String summaryId) {
         firestore.collection("summaries").document(summaryId)
                 .get()
@@ -52,11 +58,12 @@ public class SaveSummaryPresenter {
                     if (documentSnapshot.exists()) {
                         Summary summary = documentSnapshot.toObject(Summary.class);
                         if (summary != null) {
+                            // במידה ולסיכום אין ID, משחזרים אותו מהמסמך
                             if (summary.getSummaryId() == null || summary.getSummaryId().isEmpty()) {
                                 summary.setSummaryId(documentSnapshot.getId());
                             }
-                            allSummaries.add(summary);
-                            fragment.updateSummaryList(allSummaries);
+                            allSummaries.add(summary); // מוסיפים לרשימה המקומית
+                            fragment.updateSummaryList(allSummaries); // מעדכנים תצוגה
                         }
                     }
                 })
@@ -65,6 +72,8 @@ public class SaveSummaryPresenter {
                 });
     }
 
+
+    // כאשר המשתמש לוחץ על סיכום – מבצעים ניווט דרך הפרגמנט
     public void handleSummaryClick(Summary summary) {
         if (summary == null) {
             return;
@@ -73,14 +82,15 @@ public class SaveSummaryPresenter {
         fragment.navigateToSummary(summary);
     }
 
+    // סינון סיכומים לפי טקסט שהוזן בחיפוש
     public void filterSummaries(String query) {
         List<Summary> filteredList = new ArrayList<>();
         for (Summary summary : allSummaries) {
             if (summary.getSummaryTitle().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(summary);
+                filteredList.add(summary);  // מוסיפים לרשימת המסוננים
             }
         }
-        fragment.updateSummaryList(filteredList);
+        fragment.updateSummaryList(filteredList); // מציגים רק את הסיכומים המסוננים
     }
 
 }

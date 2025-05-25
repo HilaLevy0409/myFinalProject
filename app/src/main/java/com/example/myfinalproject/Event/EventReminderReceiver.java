@@ -18,12 +18,15 @@ public class EventReminderReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
+            // קבלת כותרת האירוע מתוך ה-intent
             String eventTitle = intent.getStringExtra("eventTitle");
             if (eventTitle == null) {
                 eventTitle = "אירוע מתוזמן";
             }
-
+            // יצירת ערוץ התראות (אם נדרש לפי גרסה)
             createNotificationChannel(context);
+
+            // בניית ההתראה
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.bell)
                     .setContentTitle("תזכורת לאירוע")
@@ -31,6 +34,7 @@ public class EventReminderReceiver extends BroadcastReceiver {
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setAutoCancel(true);
 
+            // הצגת ההתראה
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager != null) {
                 notificationManager.notify((int) System.currentTimeMillis(), builder.build());
@@ -40,6 +44,7 @@ public class EventReminderReceiver extends BroadcastReceiver {
         }
     }
 
+    // יצירת ערוץ התראות לגרסאות 8 ומעלה
     private void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Event Reminder Channel";

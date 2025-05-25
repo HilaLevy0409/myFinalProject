@@ -40,6 +40,7 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
         return new NotificationViewHolder(view);
     }
 
+    // קושרת התראות ל-ViewHolder במיקום מסוים
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         NotificationAdmin notification = notificationsList.get(position);
@@ -51,20 +52,23 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
         return notificationsList.size();
     }
 
+
+    // מעדכנת את כל הרשימה בנתונים חדשים
     public void updateData(List<NotificationAdmin> newNotifications) {
         this.notificationsList = newNotifications;
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // רענון כללי לרשימה
     }
 
-
+    // מסירה התראה ספציפית מתוך הרשימה ומעדכנת את התצוגה
     public void removeNotification(NotificationAdmin notification) {
         int position = notificationsList.indexOf(notification);
         if (position != -1) {
             notificationsList.remove(position);
-            notifyItemRemoved(position);
+            notifyItemRemoved(position); // מעדכן רק את הפריט שהוסר
         }
     }
 
+    // ViewHolder פנימי שמייצג פריט יחיד ברשימה
     public class NotificationViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvUserName;
         private final TextView tvTimestamp;
@@ -73,6 +77,7 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
         private final TextView tvReason;
         private final MaterialCardView cardNotification;
 
+        // אתחול רכיבי התצוגה מתוך ה-layout
         public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUserName = itemView.findViewById(R.id.tvUserName);
@@ -83,11 +88,13 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
             cardNotification = itemView.findViewById(R.id.cardNotification);
         }
 
+        //  מעדכנת את תצוגת הפריט לפי נתוני ההתראה
         public void bind(NotificationAdmin notification) {
+            // הצגת שם המשתמש ותוכן ההודעה
             tvUserName.setText(notification.getUserName());
             tvContent.setText(notification.getContent());
 
-
+            // עיבוד והצגת תאריך ההודעה
             Timestamp timestamp = notification.getTimestamp();
             if (timestamp != null) {
                 Date date = timestamp.toDate();
@@ -98,6 +105,7 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
                 tvTimestamp.setText("");
             }
 
+            // הצגת סוג ההודעה: דיווח או הודעה רגילה
             if ("REPORT".equals(notification.getType())) {
                 tvType.setText("דיווח");
                 tvType.setTextColor(itemView.getContext().getResources().getColor(R.color.red));
@@ -110,7 +118,7 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
                 tvReason.setText("סיבה: " + notification.getContactReason());
             }
 
-
+            // טיפול בלחיצה על הכרטיס – הפעלת ה-callback עם ההתראה שנלחצה
             cardNotification.setOnClickListener(v -> {
                 if (callback != null) {
                     callback.onNotificationClick(notification);

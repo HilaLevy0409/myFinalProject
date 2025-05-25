@@ -41,12 +41,13 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         this.db = FirebaseFirestore.getInstance();
     }
 
-
+    // getView – מצייר כל שורה ברשימה בהתאם לאובייקט Summary
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
 
+        // שימוש ב-ViewHolder לשיפור ביצועים (מניעת findViewById כל פעם מחדש)
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.onerow_summary, parent, false);
             holder = new ViewHolder();
@@ -63,7 +64,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-
+        // קבלת האובייקט המתאים מהמיקום ברשימה
         Summary summary = summaries.get(position);
 
         holder.tvClass.setText("כיתה: " + summary.getClassOption());
@@ -74,6 +75,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         float rating = summary.getRating();
         holder.ratingBarSum.setRating(rating);
 
+        // טוען את הדירוג העדכני מ-Firestore לפי ה-ID של התקציר
         fetchRatingFromFirestore(summary.getSummaryId(), holder);
 
         Date createdDate = summary.getCreatedDate();
@@ -85,7 +87,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             holder.tvCreatedDate.setText("תאריך לא זמין");
         }
 
-
+        // טעינת תמונה מקוד Base64
         if (summary.getImage() != null && !summary.getImage().isEmpty()) {
             try {
                 byte[] decodedString = Base64.decode(summary.getImage(), Base64.DEFAULT);
@@ -102,11 +104,11 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         return convertView;
     }
 
+    // טוען את הדירוג העדכני מ-Firestore
     private void fetchRatingFromFirestore(String summaryId, ViewHolder holder) {
         if (summaryId == null || summaryId.isEmpty()) {
             return;
         }
-
         db.collection("summaries").document(summaryId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -123,7 +125,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
                 });
     }
 
-
+    // מבנה פנימי לשמירת רכיבי תצוגה
     private static class ViewHolder {
         ImageView imageSum;
         TextView tvClass;
@@ -134,6 +136,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
 
     }
 
+    // עדכון רשימת התקצירים והתרעננות של התצוגה
     public void updateSummaries(List<Summary> newSummaries) {
         summaries.clear();
         summaries.addAll(newSummaries);

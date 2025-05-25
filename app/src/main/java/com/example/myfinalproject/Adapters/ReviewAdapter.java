@@ -24,11 +24,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
-    private List<Review> reviewList;
-    private String userId;
-    private ReviewCallback callback;
-
-    private boolean isAdmin = false;
+    private List<Review> reviewList; // רשימת הביקורות
+    private String userId; // מזהה המשתמש המחובר
+    private ReviewCallback callback; // ממשק ללחיצות (מחיקה, עריכה, שמירה)
+    private boolean isAdmin = false; // האם המשתמש הנוכחי הוא מנהל
 
 
     public ReviewAdapter(List<Review> reviewList, ReviewCallback callback) {
@@ -37,7 +36,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         this.userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
-        this.isAdmin = Admin.isAdminLoggedIn();
+        this.isAdmin = Admin.isAdminLoggedIn(); // בדיקת הרשאת מנהל
     }
 
     @NonNull
@@ -48,6 +47,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return new ReviewViewHolder(itemView);
     }
 
+
+    // קישור נתוני ביקורת לתצוגה
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         if (reviewList == null || position < 0 || position >= reviewList.size()) {
@@ -56,41 +57,52 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
         Review review = reviewList.get(position);
 
+        // הצגת שם המשתמש
         String userName = review.getUserName();
         holder.tvUser.setText(userName != null ? userName : "משתמש אנונימי");
 
+        // הצגת תוכן הביקורת
         String reviewText = review.getReviewText();
         holder.tvWritingReview.setText(reviewText != null ? reviewText : "");
 
+        // הצגת דירוג (כוכבים)
         holder.rbReviewRating.setRating(review.getRating());
 
+        // הצגת תאריך יצירה
         if (review.getCreatedAt() != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault());
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
             holder.tvReviewTimestamp.setText(sdf.format(review.getCreatedAt()));
         }
 
+        // בדיקה אם הביקורת שייכת למשתמש הנוכחי
         boolean isUserReview = userId != null && userId.equals(review.getUserId());
 
+        // בדיקה מחדש אם המשתמש מנהל
         boolean currentIsAdmin = isAdmin || Admin.isAdminLoggedIn();
 
+        // הצגת כפתור מחיקה רק אם המשתמש כתב את הביקורת או אם הוא מנהל
         holder.imgBtnDeleteReview.setVisibility((isUserReview || currentIsAdmin) ? View.VISIBLE : View.GONE);
 
+        // הצגת כפתור עריכה רק אם המשתמש כתב את הביקורת
         holder.imgBtnEditReview.setVisibility(isUserReview ? View.VISIBLE : View.GONE);
         holder.btnSaveChanges.setVisibility(View.GONE);
 
-        holder.tvWritingReview.setEnabled(false);
-        holder.rbReviewRating.setIsIndicator(true);
+        holder.tvWritingReview.setEnabled(false); // מניעת עריכה טקסט
+        holder.rbReviewRating.setIsIndicator(true); // מניעת שינוי כוכבים
 
+        // לחיצה על כפתור מחיקה
         holder.imgBtnDeleteReview.setOnClickListener(v -> {
             if (callback != null) {
                 callback.onDeleteReview(review, holder.getAdapterPosition());
             }
         });
 
+        // לחיצה על כפתור עריכה
         holder.imgBtnEditReview.setOnClickListener(v -> {
             boolean isEditing = holder.btnSaveChanges.getVisibility() == View.VISIBLE;
             if (!isEditing) {
+                // הפעלה של מצב עריכה
                 holder.btnSaveChanges.setVisibility(View.VISIBLE);
                 holder.tvWritingReview.setEnabled(true);
                 holder.tvWritingReview.requestFocus();
@@ -100,18 +112,21 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
                     callback.onEditReview(review, holder.getAdapterPosition());
                 }
             } else {
+                // ביטול מצב עריכה
                 holder.btnSaveChanges.setVisibility(View.GONE);
                 holder.tvWritingReview.setEnabled(false);
                 holder.rbReviewRating.setIsIndicator(true);
             }
         });
 
+        // לחיצה על כפתור שמירת שינויים
         holder.btnSaveChanges.setOnClickListener(v -> {
             if (callback != null) {
                 String newText = holder.tvWritingReview.getText().toString();
                 float newRating = holder.rbReviewRating.getRating();
                 callback.onSaveChanges(review, holder.getAdapterPosition(), newText, newRating);
             }
+            // חזרה למצב רגיל
             holder.btnSaveChanges.setVisibility(View.GONE);
             holder.tvWritingReview.setEnabled(false);
             holder.rbReviewRating.setIsIndicator(true);
@@ -123,6 +138,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return reviewList != null ? reviewList.size() : 0;
     }
 
+    // מחלקת ViewHolder פנימית – מייצגת ביקורת אחת
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
         TextView tvUser, tvReviewTimestamp;
         EditText tvWritingReview;
@@ -142,6 +158,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         }
     }
 
+    // מאפשר לעדכן האם המשתמש הוא מנהל
     public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
         notifyDataSetChanged();
