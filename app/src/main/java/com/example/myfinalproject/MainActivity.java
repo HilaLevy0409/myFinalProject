@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.myfinalproject.AdminFragment.AdminFragment;
 import com.example.myfinalproject.AdminLoginFragment.AdminLoginFragment;
 import com.example.myfinalproject.ChooseClassFragment.ChooseClassFragment;
 import com.example.myfinalproject.ChooseUserFragment.ChooseUserFragment;
@@ -163,9 +164,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new QuestionsFragment()).commit();
         } else if (id == R.id.contact) {
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ContactUsFragment()).commit();
+//        } else if (id == R.id.admin) {
+//            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new AdminLoginFragment()).commit();
+//        }
         } else if (id == R.id.admin) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new AdminLoginFragment()).commit();
-        } else if (id == R.id.timer) {
+            if (Admin.isAdminLoggedIn() && !Admin.isSessionExpired()) {
+                // ההנהלה מחוברת והסשן בתוקף – עבור למסך ניהול
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, new AdminFragment()) // או AdminFragment שאתה משתמש בו
+                        .commit();
+            } else {
+                // לא מחובר או שפג תוקף – שלח להתחברות
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, new AdminLoginFragment())
+                        .commit();
+            }
+        }
+
+
+        else if (id == R.id.timer) {
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new TimerFragment()).commit();
         } else if (id == R.id.logout) {
             new android.app.AlertDialog.Builder(MainActivity.this)

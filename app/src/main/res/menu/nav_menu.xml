@@ -116,7 +116,7 @@
 
             <item
                 android:id="@+id/admin"
-                android:title="התחברות להנהלה"
+                android:title="הנהלה"
                 android:icon="@drawable/ic_m"
                  />
 

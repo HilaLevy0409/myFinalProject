@@ -75,7 +75,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         float rating = summary.getRating();
         holder.ratingBarSum.setRating(rating);
 
-        // טוען את הדירוג העדכני מ-Firestore לפי ה-ID של התקציר
+        // טוען את הדירוג העדכני מ-Firestore לפי ה-ID של הסיכום
         fetchRatingFromFirestore(summary.getSummaryId(), holder);
 
         Date createdDate = summary.getCreatedDate();
@@ -136,7 +136,7 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
 
     }
 
-    // עדכון רשימת התקצירים והתרעננות של התצוגה
+    // עדכון של התצוגה
     public void updateSummaries(List<Summary> newSummaries) {
         summaries.clear();
         summaries.addAll(newSummaries);

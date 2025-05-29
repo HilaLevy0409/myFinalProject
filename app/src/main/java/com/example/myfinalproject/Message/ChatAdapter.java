@@ -27,14 +27,16 @@ import java.util.Locale;
 
 public class ChatAdapter extends BaseAdapter implements Filterable {
     private Context context;
-    private List<Chat> chatList;
-    private List<Chat> chatListFiltered;
-    private LayoutInflater inflater;
+    private List<Chat> chatList; // רשימת השיחות המלאה
+    private List<Chat> chatListFiltered; // רשימת שיחות מסוננת (לפי חיפוש)
+    private LayoutInflater inflater; // אחראי על יצירת תצוגת שורה אחת
+
+
 
     public ChatAdapter(Context context, List<Chat> chatList) {
         this.context = context;
         this.chatList = chatList;
-        this.chatListFiltered = new ArrayList<>(chatList);
+        this.chatListFiltered = new ArrayList<>(chatList); // העתקה לרשימה מסוננת
         this.inflater = LayoutInflater.from(context);
     }
 
@@ -53,10 +55,13 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
         return position;
     }
 
+
+    // יוצר/ממחזר תצוגת שורה ברשימת השיחות
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
 
+        // אם עדיין לא נוצרה שורה – ניצור אותה
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.onerow_message_list, parent, false);
             holder = new ViewHolder();
@@ -65,13 +70,15 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
             holder.tvMessageTimeDate = convertView.findViewById(R.id.tvMessageTimeDate);
             holder.imageView = convertView.findViewById(R.id.imageView);
             holder.holderView = convertView.findViewById(R.id.holderView);
-            convertView.setTag(holder);
+
+            convertView.setTag(holder); // שמירת הקישור בתצוגה לשימוש חוזר
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
         Chat chat = chatListFiltered.get(position);
 
+        // בעת לחיצה על שורת השיחה - תפתח תצוגת הודעות עם המשתמש
         holder.holderView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,6 +98,7 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
         String base64Image = chat.getUserProfileImage();
 
         if ("ADMIN_DEFAULT".equals(base64Image)) {
+            // אם זו תמונת ברירת מחדל של מנהל – נטען לוגו ברירת מחדל
             holder.imageView.setImageResource(R.drawable.newlogo);
         } else if (base64Image != null && !base64Image.isEmpty()) {
             try {
@@ -105,9 +113,11 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
             holder.imageView.setImageResource(R.drawable.newlogo);
         }
 
+
         return convertView;
     }
 
+    // פעולה לפתיחת שיחה עם משתמש אחר
     private void openChatWithUser(String receiverId, String receiverName) {
         try {
             Bundle args = new Bundle();
@@ -117,6 +127,7 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
             MessageFragment messageFragment = new MessageFragment();
             messageFragment.setArguments(args);
 
+            // אם הקונטקסט הוא Activity שמכיל Fragment, טען את ה-MessageFragment
             if (context instanceof FragmentActivity) {
                 FragmentActivity activity = (FragmentActivity) context;
                 activity.getSupportFragmentManager()
@@ -136,6 +147,7 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
         return dateFormat.format(date);
     }
 
+    // פעולה לעדכון רשימת השיחות, אחרי סינון
     public void updateChatList(List<Chat> newChatList) {
         this.chatList.clear();
         this.chatList.addAll(newChatList);
@@ -144,21 +156,23 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
+    // מימוש תמיכה בסינון (חיפוש)
     @Override
     public Filter getFilter() {
         return new Filter() {
+            // תהליך הסינון עצמו (מאחורי הקלעים)
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 List<Chat> filteredList = new ArrayList<>();
 
                 if (constraint == null || constraint.length() == 0) {
-                    filteredList.addAll(chatList);
+                    filteredList.addAll(chatList);  // אם אין טקסט חיפוש – החזר הכל
                 } else {
                     String filterPattern = constraint.toString().toLowerCase().trim();
                     for (Chat chat : chatList) {
                         if (chat.getOtherUserName().toLowerCase().contains(filterPattern)) {
-                            filteredList.add(chat);
+                            filteredList.add(chat); // מוסיף רק התאמות לשם משתמש
                         }
                     }
                 }
@@ -168,6 +182,7 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
                 return results;
             }
 
+            // הצגת התוצאות המסוננות בפועל
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 chatListFiltered.clear();

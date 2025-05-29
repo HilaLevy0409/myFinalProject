@@ -105,7 +105,7 @@ public class NotificationsAdminAdapter extends RecyclerView.Adapter<Notification
                 tvTimestamp.setText("");
             }
 
-            // הצגת סוג ההודעה: דיווח או הודעה רגילה
+            // הצגת סוג ההודעה: דיווח או הודעה
             if ("REPORT".equals(notification.getType())) {
                 tvType.setText("דיווח");
                 tvType.setTextColor(itemView.getContext().getResources().getColor(R.color.red));

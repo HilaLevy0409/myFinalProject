@@ -37,17 +37,7 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
         etAdmin = view.findViewById(R.id.etAdmin);
         etPasswordA = view.findViewById(R.id.etPasswordA);
 
-        // כפתור להתנתקות – רק אם ההנהלה מחוברת כרגע
-        ImageButton btnLogout = view.findViewById(R.id.btnLogout);
-        if (Admin.isAdminLoggedIn()) {
-            btnLogout.setVisibility(View.VISIBLE);
-            btnLogout.setOnClickListener(v -> {
-                Admin.logout();
-                Toast.makeText(getContext(), "התנתקת מההנהלה", Toast.LENGTH_SHORT).show();
-            });
-        } else {
-            btnLogout.setVisibility(View.GONE); // הסתרת הכפתור אם לא מחובר
-        }
+
     }
 
     @Override

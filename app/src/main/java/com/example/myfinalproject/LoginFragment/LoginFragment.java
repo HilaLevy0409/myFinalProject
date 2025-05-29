@@ -50,6 +50,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     private FirebaseFirestore database;
     private LoginUserPresenter presenter;
 
+    private String resetEmail;
+
     public LoginFragment() {
     }
 
@@ -131,13 +133,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             btnFinish.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
 
+            // Store email for later use
+            resetEmail = emailSend;
+
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
+            // First check if email exists in Firestore
             database.collection("users")
                     .whereEqualTo("userEmail", emailSend)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.isEmpty()) {
+                            // Email exists in Firestore, now send reset email
                             auth.sendPasswordResetEmail(emailSend)
                                     .addOnCompleteListener(resetTask -> {
                                         progressBar.setVisibility(View.GONE);
@@ -145,23 +152,17 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
                                         if (resetTask.isSuccessful()) {
                                             Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
-
-                                            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("PasswordResetPrefs", Context.MODE_PRIVATE);
-                                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                                            editor.putBoolean(emailSend, true);
-                                            editor.apply();
-
                                             dialog.dismiss();
 
-                                            askUserToUpdatePasswordInFirestore();
+                                            // Show message to user about next steps
+                                            showPasswordResetInstructions();
 
                                         } else {
                                             Exception exception = resetTask.getException();
                                             if (exception != null) {
                                                 String errorMessage = exception.getMessage();
-
                                                 if (errorMessage != null && errorMessage.contains("no user record")) {
-                                                    Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(getContext(), "האימייל שהזנת אינו רשום במערכת Firebase", Toast.LENGTH_SHORT).show();
                                                 } else {
                                                     Toast.makeText(getContext(), "שגיאה בשליחת המייל לשחזור סיסמה: " + errorMessage, Toast.LENGTH_SHORT).show();
                                                 }
@@ -184,62 +185,81 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         dialog.show();
     }
 
+    private void showPasswordResetInstructions() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("הוראות לשחזור סיסמה");
+        builder.setMessage("מייל לשחזור סיסמה נשלח לכתובת שלך.\n\n" +
+                "שלבים:\n" +
+                "1. בדוק את תיבת המייל שלך\n" +
+                "2. לחץ על הקישור במייל\n" +
+                "3. צור סיסמה חדשה\n" +
+                "4. חזור לאפליקציה ולחץ על 'עדכן סיסמה במערכת'\n\n" +
+                "האם ביצעת כבר את השלבים הללו?");
 
-    //קוד מקורי, למטה חדש עם שיפורים
+        builder.setPositiveButton("כן, עדכנתי את הסיסמה", (dialog, which) -> {
+            dialog.dismiss();
+            askUserToUpdatePasswordInFirestore();
+        });
 
+        builder.setNegativeButton("עדיין לא", (dialog, which) -> {
+            dialog.dismiss();
+            Toast.makeText(getContext(), "בצע את השלבים ואז חזור כאן", Toast.LENGTH_LONG).show();
+        });
 
-//    private void askUserToUpdatePasswordInFirestore() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//        builder.setTitle("עדכון סיסמה במערכת");
-//
-//        final EditText input = new EditText(getContext());
-//        input.setHint("הקלד/י את הסיסמה החדשה");
-//        builder.setView(input);
-//
-//        builder.setPositiveButton("עידכון", (dialog, which) -> {
-//            String newPassword = input.getText().toString().trim();
-//
-//            String validation = Validator.isValidPassword(newPassword);
-//            if (!validation.isEmpty()) {
-//                Toast.makeText(getContext(), validation, Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-//            if (firebaseUser != null) {
-//                FirebaseFirestore.getInstance()
-//                        .collection("users")
-//                        .document(firebaseUser.getUid())
-//                        .update("userPassword", newPassword)
-//                        .addOnSuccessListener(aVoid -> {
-//                            Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
-//                        })
-//                        .addOnFailureListener(e -> {
-//                            Toast.makeText(getContext(), "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        });
-//            }
-//        });
-//
-//        builder.setNegativeButton("ביטול", (dialog, which) -> dialog.cancel());
-//        builder.show();
-//    }
+        builder.setNeutralButton("שלח מייל שוב", (dialog, which) -> {
+            dialog.dismiss();
+            if (resetEmail != null) {
+                resendPasswordResetEmail();
+            }
+        });
 
+        builder.setCancelable(false);
+        builder.show();
+    }
 
+    private void resendPasswordResetEmail() {
+        if (resetEmail == null || resetEmail.isEmpty()) {
+            Toast.makeText(getContext(), "שגיאה: לא נמצאה כתובת מייל", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        FirebaseAuth.getInstance().sendPasswordResetEmail(resetEmail)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "מייל נשלח שוב!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "שגיאה בשליחת המייל: " +
+                                        (task.getException() != null ? task.getException().getMessage() : ""),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-    private void askUserToUpdatePasswordInFirestore() {
+     private void askUserToUpdatePasswordInFirestore() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("עדכון סיסמה במערכת");
+        builder.setMessage("כדי להשלים את התהליך, אנא הזן את הסיסמה החדשה שיצרת:");
 
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
         layout.setPadding(padding, padding, padding, padding);
 
-        final EditText input = new EditText(getContext());
-        input.setHint("הקלד/י את הסיסמה החדשה");
-        input.setGravity(Gravity.RIGHT);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        // Email input (for authentication)
+        final EditText emailInput = new EditText(getContext());
+        emailInput.setHint("כתובת האימייל שלך");
+        emailInput.setGravity(Gravity.RIGHT);
+        emailInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        if (resetEmail != null) {
+            emailInput.setText(resetEmail);
+        }
+        layout.addView(emailInput);
+
+        // Password input
+        final EditText passwordInput = new EditText(getContext());
+        passwordInput.setHint("הסיסמה החדשה");
+        passwordInput.setGravity(Gravity.RIGHT);
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
         final ImageView togglePasswordVisibility = new ImageView(getContext());
         togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
@@ -250,7 +270,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         passwordLayout.setGravity(Gravity.CENTER_VERTICAL);
 
         LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-        passwordLayout.addView(input, inputParams);
+        passwordLayout.addView(passwordInput, inputParams);
         passwordLayout.addView(togglePasswordVisibility);
 
         layout.addView(passwordLayout);
@@ -270,65 +290,45 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         dialog.setOnShowListener(d -> {
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             positiveButton.setOnClickListener(v -> {
-                String newPassword = input.getText().toString().trim();
+                String email = emailInput.getText().toString().trim();
+                String newPassword = passwordInput.getText().toString().trim();
+
+                if (TextUtils.isEmpty(email)) {
+                    emailInput.setError("יש להזין כתובת אימייל");
+                    emailInput.requestFocus();
+                    return;
+                }
 
                 if (TextUtils.isEmpty(newPassword)) {
-                    input.setError("יש להזין סיסמה");
-                    input.requestFocus();
+                    passwordInput.setError("יש להזין סיסמה");
+                    passwordInput.requestFocus();
                     return;
                 }
 
                 String validationMessage = isValidPassword(newPassword);
                 if (!validationMessage.isEmpty()) {
-                    input.setError(validationMessage);
-                    input.requestFocus();
+                    passwordInput.setError(validationMessage);
+                    passwordInput.requestFocus();
                     return;
                 }
 
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (firebaseUser != null) {
-                    firebaseUser.updatePassword(newPassword)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    String email = firebaseUser.getEmail();
-                                    if (email == null) {
-                                        Toast.makeText(getContext(), "לא ניתן למצוא את כתובת האימייל של המשתמש", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-
-                                    FirebaseFirestore.getInstance()
-                                            .collection("users")
-                                            .whereEqualTo("userEmail", email)
-                                            .get()
-                                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                                if (!queryDocumentSnapshots.isEmpty()) {
-                                                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-                                                    document.getReference().update("userPass", newPassword)
-                                                            .addOnSuccessListener(aVoid -> {
-                                                                Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
-                                                                dialog.dismiss();
-                                                            })
-                                                            .addOnFailureListener(e -> {
-                                                                Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                            });
-                                                } else {
-                                                    Toast.makeText(getContext(), "לא נמצא משתמש תואם במסד הנתונים", Toast.LENGTH_SHORT).show();
-                                                }
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            });
-
-                                } else {
-                                    Exception exception = task.getException();
-                                    Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה ב-Firebase: " + (exception != null ? exception.getMessage() : ""), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                }
+                // Test authentication with new password to verify it was changed
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email, newPassword)
+                        .addOnCompleteListener(signInTask -> {
+                            if (signInTask.isSuccessful()) {
+                                // Password is correct, now update Firestore
+                                updatePasswordInFirestore(email, newPassword, dialog);
+                                // DON'T sign out here - keep the user authenticated
+                                // The user should remain logged in after successful password update
+                            } else {
+                                Toast.makeText(getContext(),
+                                        "הסיסמה שהזנת אינה תואמת לסיסמה שיצרת. אנא ודא שהזנת את הסיסמה הנכונה.",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
             });
 
-            input.addTextChangedListener(new TextWatcher() {
+            passwordInput.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
                 @Override public void afterTextChanged(Editable s) {
@@ -337,28 +337,66 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             });
 
             togglePasswordVisibility.setOnClickListener(v -> {
-                if (input.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-
-                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
-                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
-                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
-                    }).start();
+                if (passwordInput.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
                 } else {
-                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-                    togglePasswordVisibility.animate().alpha(0f).setDuration(200).withEndAction(() -> {
-                        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
-                        togglePasswordVisibility.animate().alpha(1f).setDuration(200).start();
-                    }).start();
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
                 }
-
-                input.setSelection(input.getText().length());
+                passwordInput.setSelection(passwordInput.getText().length());
             });
-
         });
 
         dialog.show();
+    }
+
+    private void updatePasswordInFirestore(String email, String newPassword, AlertDialog dialog) {
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .whereEqualTo("userEmail", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+
+                        // Get user data to save to local storage
+                        User user = document.toObject(User.class);
+                        if (user != null) {
+                            user.setId(document.getId());
+                        }
+
+                        document.getReference().update("userPass", newPassword)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה במערכת!", Toast.LENGTH_LONG).show();
+                                    dialog.dismiss();
+                                    resetEmail = null; // Clear stored email
+
+                                    // Save user to local storage and update UI
+                                    if (user != null) {
+                                        saveUserToLocalStorage(user);
+
+                                        if (getActivity() instanceof MainActivity) {
+                                            ((MainActivity) getActivity()).updateNavigationHeader();
+                                        }
+
+                                        // Navigate to ChooseClassFragment
+                                        requireActivity().getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.flFragment, new ChooseClassFragment())
+                                                .commit();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Toast.makeText(getContext(), "לא נמצא משתמש תואם במסד הנתונים", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "שגיאה בגישה למסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void updatePasswordStrengthView(String password, TextView passwordStrength) {
@@ -370,7 +408,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             passwordStrength.setTextColor(Color.RED);
         } else if (strength < 5) {
             strengthMessage = "סיסמה בינונית";
-            passwordStrength.setTextColor(Color.YELLOW);
+            passwordStrength.setTextColor(Color.rgb(255, 165, 0)); // Orange color
         } else {
             strengthMessage = "סיסמה חזקה";
             passwordStrength.setTextColor(Color.GREEN);
@@ -404,7 +442,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
         return strength;
     }
-
 
 
     @Override

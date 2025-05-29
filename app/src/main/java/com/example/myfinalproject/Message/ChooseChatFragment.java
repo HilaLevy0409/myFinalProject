@@ -1,6 +1,5 @@
 package com.example.myfinalproject.Message;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +15,6 @@ import com.example.myfinalproject.Admin;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,9 +23,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class ChooseMessageFragment extends Fragment {
+public class ChooseChatFragment extends Fragment {
 
-    private static final String TAG = "ChooseMessageFragment";
     private ListView listViewMessages;
     private SearchView searchView;
     private List<Chat> chatsList;
@@ -36,7 +33,7 @@ public class ChooseMessageFragment extends Fragment {
     private FirebaseAuth auth;
     private String currentUserId;
 
-    public ChooseMessageFragment() {
+    public ChooseChatFragment() {
     }
 
     @Override
@@ -47,12 +44,13 @@ public class ChooseMessageFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // Fix: Handle both regular user and admin login
+        // בדיקה אם המשתמש מחובר או אם זה מנהל
         if (auth.getCurrentUser() != null) {
-            currentUserId = auth.getCurrentUser().getUid();
+            currentUserId = auth.getCurrentUser().getUid(); // משתמש רגיל
         } else if (Admin.isAdminLoggedIn()) {
-            currentUserId = "admin";
+            currentUserId = "admin"; // התחברות של מנהל
         } else {
+            // לא מחובר - מציג הודעה ומחזיר למסך התחברות
             Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager()
@@ -66,10 +64,12 @@ public class ChooseMessageFragment extends Fragment {
         listViewMessages = view.findViewById(R.id.listViewMessages);
         searchView = view.findViewById(R.id.searchView);
 
+        // אתחול רשימת שיחות ואדפטר
         chatsList = new ArrayList<>();
         chatAdapter = new ChatAdapter(getContext(), chatsList);
-        listViewMessages.setAdapter(chatAdapter);
+        listViewMessages.setAdapter(chatAdapter); // חיבור האדפטר לרשימה
 
+        // האזנה לשינויים בטקסט החיפוש
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -78,61 +78,51 @@ public class ChooseMessageFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                chatAdapter.getFilter().filter(newText);
+                chatAdapter.getFilter().filter(newText); // מסנן את רשימת השיחות לפי הקלט
                 return false;
             }
         });
 
+        // לחיצה על שורה ברשימה – תפתח את השיחה עם המשתמש הנבחר
         listViewMessages.setOnItemClickListener((parent, view1, position, id) -> {
-            Log.d(TAG, "ListView item clicked at position: " + position);
-
             try {
-
                 Object item = chatAdapter.getItem(position);
-                Log.d(TAG, "Item retrieved: " + (item != null ? item.getClass().getSimpleName() : "null"));
 
                 if (item instanceof Chat) {
                     Chat selectedChat = (Chat) item;
-                    Log.d(TAG, "Chat selected: " + selectedChat.getOtherUserId() + ", " + selectedChat.getOtherUserName());
                     openChatWithUser(selectedChat.getOtherUserId(), selectedChat.getOtherUserName());
                 } else {
-                    Log.e(TAG, "Item is not a Chat object: " + item);
                     Toast.makeText(getContext(), "שגיאה בפתיחת השיחה", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error handling item click", e);
                 Toast.makeText(getContext(), "שגיאה בפתיחת השיחה", Toast.LENGTH_SHORT).show();
             }
         });
 
-        loadUserChats();
+        loadUserChats(); // טעינת רשימת השיחות מה-DB
 
         return view;
     }
 
+    // פעולה שמביאה את השיחות של המשתמש ממסד הנתונים
     private void loadUserChats() {
-        Log.d(TAG, "Loading chats for user: " + currentUserId);
 
         db.collection("chats")
-                .whereArrayContains("participants", currentUserId)
+                .whereArrayContains("participants", currentUserId) // מחפש שיחות שמשתתפות בהן המשתמש הנוכחי
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.e(TAG, "Error loading chats", error);
                         Toast.makeText(getContext(), "שגיאה בטעינת ההתכתבויות", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     if (value == null || value.getDocuments().isEmpty()) {
-                        Log.d(TAG, "No chats found for user: " + currentUserId);
-                        chatAdapter.updateChatList(new ArrayList<>());
+                        chatAdapter.updateChatList(new ArrayList<>()); // אין שיחות
                         return;
                     }
-
-                    Log.d(TAG, "Found " + value.getDocuments().size() + " chats");
-
                     List<Chat> tempChatsList = new ArrayList<>();
                     int totalChats = 0;
 
+                    // סופרים רק שיחות תקינות (1 או 2 משתתפים)
                     for (DocumentSnapshot document : value.getDocuments()) {
                         List<String> participants = (List<String>) document.get("participants");
                         if (participants != null && (participants.size() == 1 || participants.size() == 2)) {
@@ -145,6 +135,7 @@ public class ChooseMessageFragment extends Fragment {
                         return;
                     }
 
+                    // מעבר על כל שיחה ובניית אובייקט Chat
                     for (DocumentSnapshot document : value.getDocuments()) {
                         String chatId = document.getId();
                         List<String> participants = (List<String>) document.get("participants");
@@ -153,6 +144,7 @@ public class ChooseMessageFragment extends Fragment {
 
                         if (participants == null || (participants.size() != 1 && participants.size() != 2)) continue;
 
+                        // זיהוי הצד השני בשיחה (אם זה עם עצמי או עם מישהו אחר)
                         String otherUserId = (participants.size() == 1)
                                 ? currentUserId // שיחה עם עצמי
                                 : (participants.get(0).equals(currentUserId) ? participants.get(1) : participants.get(0));
@@ -160,18 +152,19 @@ public class ChooseMessageFragment extends Fragment {
                         final String finalOtherUserId = otherUserId;
                         final int finalTotalChats = totalChats;
 
-                        // Fix: Handle admin user lookup
                         if (finalOtherUserId.equals("admin")) {
+                            // שיחה עם ההנהלה
                             String adminName = "הנהלה";
                             Chat chat = new Chat(chatId, finalOtherUserId, adminName, lastMessage, lastMessageTime, "ADMIN_DEFAULT");
 
                             synchronized (tempChatsList) {
                                 tempChatsList.add(chat);
                                 if (tempChatsList.size() == finalTotalChats) {
-                                    updateSortedChatList(tempChatsList);
+                                    updateSortedChatList(tempChatsList); // עדכון הרשימה רק כשסיימנו להוסיף הכל
                                 }
                             }
                         } else {
+                            // שיחה עם משתמש רגיל – מביאים את פרטי המשתמש מה-DB
                             db.collection("users")
                                     .document(finalOtherUserId)
                                     .get()
@@ -224,7 +217,7 @@ public class ChooseMessageFragment extends Fragment {
                                         }
                                     })
                                     .addOnFailureListener(e -> {
-                                        Log.e(TAG, "Error loading user name for ID: " + finalOtherUserId, e);
+                                        // אם קרתה שגיאה, נשתמש בנתונים כלליים
                                         String fallbackName = finalOtherUserId.equals(currentUserId) ? "אני" : "משתמש לא ידוע";
                                         Chat chat = new Chat(chatId, finalOtherUserId, fallbackName, lastMessage, lastMessageTime, null);
 
@@ -240,6 +233,7 @@ public class ChooseMessageFragment extends Fragment {
                 });
     }
 
+    // ממיינת את רשימת השיחות לפי זמן הודעה אחרונה (מהחדש לישן)
     private void updateSortedChatList(List<Chat> chatList) {
         Collections.sort(chatList, (c1, c2) -> {
             if (c1.getLastMessageTime() == null && c2.getLastMessageTime() == null) return 0;
@@ -251,9 +245,8 @@ public class ChooseMessageFragment extends Fragment {
         chatAdapter.updateChatList(new ArrayList<>(chatList));
     }
 
+    // פתיחת שיחה עם משתמש ספציפי
     private void openChatWithUser(String receiverId, String receiverName) {
-        Log.d(TAG, "Opening chat with user: " + receiverId + ", name: " + receiverName);
-
         try {
             Bundle args = new Bundle();
             args.putString("receiverId", receiverId);
@@ -263,20 +256,21 @@ public class ChooseMessageFragment extends Fragment {
             messageFragment.setArguments(args);
 
             if (getActivity() != null) {
-                Log.d(TAG, "Starting fragment transaction");
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, messageFragment)
                         .addToBackStack(null)
                         .commit();
-                Log.d(TAG, "Fragment transaction committed");
             } else {
-                Log.e(TAG, "Activity is null, cannot open chat");
                 Toast.makeText(getContext(), "שגיאה בפתיחת השיחה", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error opening chat", e);
             Toast.makeText(getContext(), "שגיאה בפתיחת השיחה", Toast.LENGTH_SHORT).show();
         }
     }
 }
+
+// שימוש במילת המפתח synchronized כדי למנוע מצב שבו מספר תהליכונים (Threads)
+// ייגשו בו-זמנית לרשימת tempChatsList. זה מבטיח שרק תהליכון אחד בכל רגע נתון
+// יוכל להיכנס לבלוק הקוד הזה ולבצע שינוי ברשימה. כך נמנעים מתקלות כמו נתונים כפולים,
+// שגיאות בגישה לרשימה, או קריסות עקב גישה בו-זמנית לאובייקט משותף.

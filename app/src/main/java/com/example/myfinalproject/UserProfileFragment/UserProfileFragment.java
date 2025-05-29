@@ -16,7 +16,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -25,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import android.os.Environment;
 import android.provider.MediaStore;
 
 import android.text.Editable;
@@ -46,7 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfinalproject.LoginFragment.LoginFragment;
-import com.example.myfinalproject.Message.ChooseMessageFragment;
+import com.example.myfinalproject.Message.ChooseChatFragment;
 import com.example.myfinalproject.DataModels.User;
 import com.example.myfinalproject.R;
 import com.example.myfinalproject.RegistrationFragment.RegistrationFragment;
@@ -63,8 +61,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -484,7 +480,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         } else if (view == btnSendMessage) {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new ChooseMessageFragment())
+                    .replace(R.id.flFragment, new ChooseChatFragment())
                     .addToBackStack(null)
                     .commit();
         }  if (view == btnChangePassword) {

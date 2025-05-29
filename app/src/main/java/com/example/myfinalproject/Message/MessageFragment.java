@@ -10,8 +10,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,11 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myfinalproject.Admin;
 import com.example.myfinalproject.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.example.myfinalproject.LoginFragment.LoginFragment;
 
 
@@ -59,12 +55,13 @@ public class MessageFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-
+        // בדיקת משתמש מחובר או מנהל
         if (auth.getCurrentUser() != null) {
             currentUserId = auth.getCurrentUser().getUid();
         } else if (Admin.isAdminLoggedIn()) {
             currentUserId = "admin";
         } else {
+            // אם אין משתמש – חזרה למסך התחברות
             Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager()
@@ -83,6 +80,7 @@ public class MessageFragment extends Fragment {
         ImageButton btnSend = view.findViewById(R.id.btnSend);
         imgBtnBack = view.findViewById(R.id.imgBtnBack);
 
+        // קבלת מזהי המשתמש והצ'אט מה־Arguments שהועברו
         if (getArguments() != null) {
             receiverId = getArguments().getString("receiverId");
             String receiverName = getArguments().getString("receiverName");
@@ -91,14 +89,15 @@ public class MessageFragment extends Fragment {
             chatId = generateChatId(currentUserId, receiverId);
             Log.d(TAG, "Chat ID: " + chatId);
 
-            checkIfAdminStartedChat();
+            checkIfAdminStartedChat(); // בדיקה אם המנהל התחיל את השיחה
         }
 
+        // אתחול רשימת הודעות ואדפטר
         messages = new ArrayList<>();
         messageAdapter = new MessageAdapter(messages);
         recyclerView.setAdapter(messageAdapter);
 
-        loadMessages();
+        loadMessages(); // טעינת ההודעות ממסד הנתונים
 
         btnSend.setOnClickListener(v -> {
             String messageText = etMessageInput.getText().toString().trim();
@@ -112,13 +111,14 @@ public class MessageFragment extends Fragment {
         imgBtnBack.setOnClickListener(v -> {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.flFragment, new ChooseMessageFragment())
+                    .replace(R.id.flFragment, new ChooseChatFragment())
                     .commit();
         });
 
         return view;
     }
 
+    // יצירת מזהה ייחודי לצ'אט לפי שני המשתמשים
     private String generateChatId(String userId1, String userId2) {
         if (userId1.compareTo(userId2) < 0) {
             return userId1 + "_" + userId2;
@@ -132,23 +132,19 @@ public class MessageFragment extends Fragment {
         return calendar.getTime();
     }
 
-
+    // טעינת ההודעות של הצ'אט מהמסד
     private void loadMessages() {
         if (chatId == null) {
-            Log.e(TAG, "Chat ID is null. Cannot load messages.");
             return;
         }
-
         db.collection("chats")
                 .document(chatId)
                 .collection("messages")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.e(TAG, "Error loading messages", error);
                         return;
                     }
-
                     if (value != null) {
                         messages.clear();
                         Date lastDateHeader = null;
@@ -160,16 +156,16 @@ public class MessageFragment extends Fragment {
 
                             boolean isSent = senderId.equals(currentUserId);
 
+                            // הוספת כותרת תאריך אם זהו יום חדש
                             if (lastDateHeader == null || !isSameDay(lastDateHeader, timestamp)) {
                                 messages.add(new Message(timestamp));
                                 lastDateHeader = timestamp;
                             }
-
                             messages.add(new Message(messageText, isSent, timestamp));
                         }
-
                         messageAdapter.notifyDataSetChanged();
 
+                        // גלילה להודעה האחרונה
                         if (messages.size() > 0) {
                             recyclerView.smoothScrollToPosition(messages.size() - 1);
                         }
@@ -177,7 +173,7 @@ public class MessageFragment extends Fragment {
                 });
     }
 
-
+    // בדיקה אם שתי תאריכים הם באותו יום
     private boolean isSameDay(Date date1, Date date2) {
         Calendar cal1 = Calendar.getInstance();
         Calendar cal2 = Calendar.getInstance();
@@ -187,16 +183,16 @@ public class MessageFragment extends Fragment {
                 && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
-
+    // שליחת הודעה לצ'אט
     private void sendMessage(String messageText) {
         if (chatId == null) {
-            Log.e(TAG, "Chat ID is null. Cannot send message.");
             return;
         }
 
         String senderId;
         String senderName;
 
+        // קביעת השולח לפי הרשאות
         if (Admin.isAdminLoggedIn()) {
             senderId = "admin";
             senderName = "הנהלה";
@@ -207,7 +203,7 @@ public class MessageFragment extends Fragment {
                     : "משתמש";
         }
 
-
+        // יצירת אובייקט של הודעה
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("text", messageText);
         messageData.put("senderId", senderId);
@@ -215,23 +211,22 @@ public class MessageFragment extends Fragment {
         messageData.put("receiverId", receiverId);
         messageData.put("timestamp", getIsraelTime());
 
+        // שליחת ההודעה למסד=
         db.collection("chats")
                 .document(chatId)
                 .collection("messages")
                 .add(messageData)
                 .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Message sent with ID: " + documentReference.getId());
                     etMessageInput.setText("");
 
-                    updateChatMetadata(messageText);
+                    updateChatMetadata(messageText); // עדכון הודעה אחרונה של השיחה
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error sending message", e);
                     Toast.makeText(getContext(), "שגיאה בשליחת ההודעה", Toast.LENGTH_SHORT).show();
                 });
     }
 
-
+    // עדכון נתוני צ'אט (למשל הודעה אחרונה וזמן)
     private void updateChatMetadata(String lastMessage) {
         Map<String, Object> chatData = new HashMap<>();
         chatData.put("lastMessage", lastMessage);
@@ -249,7 +244,7 @@ public class MessageFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating chat metadata", e));
     }
 
-
+    // בדיקה אם המנהל התחיל את השיחה (ולא לאפשר למשתמש לענות)
     private void checkIfAdminStartedChat() {
         db.collection("chats")
                 .document(chatId)
@@ -262,6 +257,7 @@ public class MessageFragment extends Fragment {
                         DocumentSnapshot firstMessage = queryDocumentSnapshots.getDocuments().get(0);
                         String senderId = firstMessage.getString("senderId");
 
+                        // אם ההודעה הראשונה מהנהלה, המשתמש לא יוכל להשיב
                         if (!Admin.isAdminLoggedIn() && "admin".equals(senderId)) {
                             etMessageInput.setVisibility(View.GONE);
                             getView().findViewById(R.id.btnSend).setVisibility(View.GONE);

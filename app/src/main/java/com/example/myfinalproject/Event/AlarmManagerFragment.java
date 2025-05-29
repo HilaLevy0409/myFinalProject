@@ -119,6 +119,9 @@ public class AlarmManagerFragment extends Fragment {
             dateSelected = true;
             btnSelectDate.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
         }, year, month, day);
+
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
         datePickerDialog.show();
     }
 
@@ -159,6 +162,9 @@ public class AlarmManagerFragment extends Fragment {
             reminderDateSelected = true;
             btnSelectReminderDate.setText(String.format("%d-%d-%d", dayOfMonth, month + 1, year));
         }, startYear, startMonth, startDay);
+
+        reminderDateDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
         reminderDateDialog.show();
     }
 
@@ -218,7 +224,6 @@ public class AlarmManagerFragment extends Fragment {
         if (getContext() == null) {
             return;
         }
-
         try {
             // שליפת כותרת ותיאור מהשדות
             String title = etEventTitle.getText().toString();
@@ -259,7 +264,6 @@ public class AlarmManagerFragment extends Fragment {
                 Toast.makeText(getContext(), "לא נמצא יומן תקף במכשיר", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             // הגדרת פרטי האירוע להכנסה ליומן
             ContentResolver cr = requireContext().getContentResolver();
             ContentValues values = new ContentValues();
@@ -274,7 +278,7 @@ public class AlarmManagerFragment extends Fragment {
             values.put(CalendarContract.Events.EVENT_LOCATION, "");
             values.put(CalendarContract.Events.STATUS, CalendarContract.Events.STATUS_CONFIRMED);
 
-            Uri eventUri = null;
+            Uri eventUri = null; //כתובת משאב - אירוע ביומן 
 
             // ניסיון להוסיף את האירוע ליומן
             try {
@@ -290,9 +294,9 @@ public class AlarmManagerFragment extends Fragment {
                 return;
             }
 
-            long eventID;
+            long eventID; // לונג - מספר גדול מאוד
             try {
-                // שליפת מזהה האירוע מהמזהה של המשאב שנוצר
+                // שליפת מזהה האירוע מהמזהה של האירוע שנוצר
                 String lastPathSegment = eventUri.getLastPathSegment();
                 if (lastPathSegment == null) {
                     Toast.makeText(getContext(), "שגיאה בזיהוי האירוע", Toast.LENGTH_SHORT).show();
@@ -369,7 +373,7 @@ public class AlarmManagerFragment extends Fragment {
                 if (alarmManager != null) {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
                         if (alarmManager.canScheduleExactAlarms()) {
-                            // תזכורת מדויקת אם מותר
+                            // תזכורת מדויקת אם אפשר
                             alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
                         } else {
                             // תזכורת רגילה אם אין הרשאה

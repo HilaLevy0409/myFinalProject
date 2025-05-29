@@ -44,7 +44,7 @@ public class EventReminderReceiver extends BroadcastReceiver {
         }
     }
 
-    // יצירת ערוץ התראות לגרסאות 8 ומעלה
+    // יצירת ערוץ התראות
     private void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Event Reminder Channel";

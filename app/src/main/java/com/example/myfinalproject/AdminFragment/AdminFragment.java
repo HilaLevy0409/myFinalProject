@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -114,8 +115,23 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
             public void onNothingSelected(AdapterView<?> parentView) {
             }
         });
+
+
+        // כפתור להתנתקות – רק אם ההנהלה מחוברת כרגע
+        ImageButton btnLogout = view.findViewById(R.id.btnLogout);
+        if (Admin.isAdminLoggedIn()) {
+            btnLogout.setOnClickListener(v -> {
+                Admin.logout();
+                Toast.makeText(getContext(), "התנתקת מההנהלה", Toast.LENGTH_SHORT).show();
+
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, new AdminLoginFragment())
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
     }
-    // מעבר למסך ניהול משתמש מסוים
     private void navigateToUserProfile(String username) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
@@ -125,7 +141,6 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         User user = document.toObject(User.class);
 
-                        // העברת פרטי המשתמש כ-Bundle
                         Bundle bundle = new Bundle();
                         bundle.putString("userName", user.getUserName());
                         bundle.putString("userEmail", user.getUserEmail());
@@ -135,7 +150,6 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                         bundle.putInt("sumCount", user.getSumCount());
                         bundle.putString("profilePicData", user.getImageProfile());
 
-                        // מעבר למסך ניהול המשתמש
                         ManageUserFragment manageUserFragment = new ManageUserFragment();
                         manageUserFragment.setArguments(bundle);
                         getActivity().getSupportFragmentManager()

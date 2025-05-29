@@ -16,21 +16,16 @@ import java.util.Locale;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
-    private final List<Message> messages;
-    private static final int VIEW_TYPE_SENT = 1;
-    private static final int VIEW_TYPE_RECEIVED = 2;
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private final List<Message> messages; // רשימת ההודעות להצגה
+
 
     public MessageAdapter(List<Message> messages) {
         this.messages = messages;
     }
 
-//    @Override
-//    public int getItemViewType(int position) {
-//        Message message = messages.get(position);
-//        return message.isSent() ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
-//    }
 
+    // מחזיר את סוג ה-View בהתאם לתוכן ההודעה:
+    // 0 = כותרת תאריך, 1 = הודעה שנשלחה, 2 = הודעה שהתקבלה
     @Override
     public int getItemViewType(int position) {
         if (messages.get(position).isDateHeader()) {
@@ -40,15 +35,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
-
-//    @NonNull
-//    @Override
-//    public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.onerow_message, parent, false);
-//        return new MessageViewHolder(view);
-//    }
-
+    // יוצר ViewHolder חדש בהתאם לסוג התצוגה (viewType)
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -63,6 +50,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return new MessageViewHolder(view, viewType);
     }
 
+    // קושר את המידע לתוך תצוגת ההודעה בהתאם למיקומה ברשימה
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
@@ -73,6 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.tvDateHeader.setText(dateStr);
         } else {
             if (message.isSent()) {
+                // אם זו הודעה שנשלחה (מוצגת בצד ימין)
                 holder.sentLayout.setVisibility(View.VISIBLE);
                 holder.receivedLayout.setVisibility(View.GONE);
 
@@ -81,6 +70,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     holder.tvSentTime.setText(message.getTimestamp());
                 }
             } else {
+                // אם זו הודעה שהתקבלה (מוצגת בצד שמאל)
                 holder.receivedLayout.setVisibility(View.VISIBLE);
                 holder.sentLayout.setVisibility(View.GONE);
 
@@ -92,13 +82,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
-
     @Override
     public int getItemCount() {
         return messages.size();
     }
-
-
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         ConstraintLayout sentLayout;

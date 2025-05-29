@@ -168,7 +168,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
             if (bitmap != null) {
                 imageViewSummary.setImageBitmap(bitmap);
-                existingImageData = imageData; // Store for later use
+                existingImageData = imageData;
             }
         } catch (Exception e) {
             Log.e("WritingSumFragment", "Error decoding existing image", e);
@@ -183,7 +183,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnWriteSummary.setAlpha(1.0f);
         btnUploadSummary.setAlpha(0.6f);
 
-        // מיקום כפתור השליחה מתחת ל־CardView
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) btnSubmit.getLayoutParams();
         layoutParams.topToBottom = R.id.writeSummaryCard;
         btnSubmit.setLayoutParams(layoutParams);
@@ -275,7 +274,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         summaryPresenter.submitSummaryClicked(summary);
     }
 
-    // Update existing summary data
     private void updateSummaryData() {
         if (summaryId == null || summaryId.isEmpty()) {
             showToast("שגיאה: מזהה סיכום לא תקין");
@@ -306,14 +304,12 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
             updateData.put("summaryContent", ""); // Remove content if switching to image mode
         }
 
-        // Update the summary in Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("summaries").document(summaryId)
                 .update(updateData)
                 .addOnSuccessListener(aVoid -> {
                     showToast("הסיכום עודכן בהצלחה!");
 
-                    // Navigate back to the updated summary
                     if (getActivity() != null) {
                         getActivity().getSupportFragmentManager().popBackStack();
                     }

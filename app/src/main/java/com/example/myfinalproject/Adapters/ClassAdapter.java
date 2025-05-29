@@ -13,7 +13,7 @@ import com.example.myfinalproject.R;
 import java.util.Random;
 
 public class ClassAdapter extends BaseAdapter {
-    private Context context;     // משתנה להקשר של האפליקציה – נדרש ליצירת Layout וכו'
+    private Context context;     // משתנה להקשר – נדרש ליצירת Layout וכו'
     private String[] classes;
     private Random random;
 
@@ -31,15 +31,15 @@ public class ClassAdapter extends BaseAdapter {
     @Override
     public Object getItem(int position) {
         return classes[position];
-    }     // מחזיר את האובייקט שנמצא במיקום מסוים
+    }     // מחזיר את הכיתה שנמצאת במיקום מסוים
 
 
     @Override
     public long getItemId(int position) {
         return position;
-    }     // מחזיר מזהה ייחודי לאובייקט – במקרה הזה פשוט את המיקום שלו
+    }     // מחזיר מזהה ייחודי לכיתה – את המיקום שלו
 
-    // אחראי על יצירת התצוגה של כל פריט ברשימה (Grid/List)
+    // אחראי על יצירת התצוגה של כל פריט ברשימה (Grid)
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // אם אין תצוגה ממוחזרת, מייצר תצוגה חדשה מהקובץ grid_item.xml

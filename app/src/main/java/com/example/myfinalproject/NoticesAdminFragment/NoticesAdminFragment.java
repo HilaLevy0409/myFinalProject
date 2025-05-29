@@ -365,7 +365,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
     private void findUserByUsernameAndNavigate(String username, Runnable onNotFound) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        String[] possibleUsernameFields = {"username", "userName", "displayName", "name", "fullName"};
+        String[] possibleUsernameFields = {"username", "userName", "displayName"};
 
         findUserByField(db, possibleUsernameFields, 0, username, onNotFound);
     }

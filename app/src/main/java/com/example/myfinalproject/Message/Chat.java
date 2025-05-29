@@ -13,7 +13,6 @@ public class Chat {
     private String userProfileImage;
 
     public Chat() {
-
     }
 
     public Chat(String chatId, String otherUserId, String otherUserName, String lastMessage, Date lastMessageTime, String userProfileImage) {
