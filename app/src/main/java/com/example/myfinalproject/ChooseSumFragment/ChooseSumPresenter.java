@@ -18,10 +18,7 @@ public class ChooseSumPresenter {
      * טוען את כל הסיכומים מה־Repository, ואם נבחרו כיתה ומקצוע – מסנן לפיהם.
      *
      * @param callback           קריאה חוזרת עם תוצאה
-     * @param selectedClass      כיתה שנבחרה (יכול להיות null)
-     * @param selectedProfession מקצוע שנבחר (יכול להיות null)
      */
-
     public void loadSummaries(SummariesCallback callback, String selectedClass, String selectedProfession) {
         summaryDb.getAllSummaries(new SummariesCallback() {
             @Override
@@ -45,7 +42,7 @@ public class ChooseSumPresenter {
                     boolean professionMatch = selectedProfession == null ||
                             (summary.getProfession() != null && summary.getProfession().equals(selectedProfession));
 
-                    // אם מתאים לשני התנאים – מוסיפים לרשימת התוצאות
+                    // אם מתאים לשני התנאים – מוסיפים לרשימה
                     if (classMatch && professionMatch) {
                         filteredSummaries.add(summary);
                     }

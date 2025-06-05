@@ -66,9 +66,7 @@
         android:paddingHorizontal="16dp"
         android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/tabLayout"
-        app:layout_constraintBaseline_toBottomOf="parent"/>
-
-
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

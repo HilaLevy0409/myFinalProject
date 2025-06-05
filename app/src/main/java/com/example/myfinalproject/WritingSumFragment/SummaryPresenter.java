@@ -41,8 +41,6 @@ public class SummaryPresenter {
                         .addOnFailureListener(e -> {
                             Log.e("Summary", "שגיאה בעדכון מונה סיכומים", e);
                         });
-
-
                 if (view.getActivity() != null) {
                     view.getActivity().getSupportFragmentManager().popBackStack();
                 }

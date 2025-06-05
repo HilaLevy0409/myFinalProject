@@ -31,28 +31,22 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class AdminFragment extends Fragment implements View.OnClickListener{
-
 
     private Button btnSend;
     private TextView tvNumUsers;
 
-    public AdminFragment() {
-    }
-
+    public AdminFragment() {}
 
     public static AdminFragment newInstance() {
         AdminFragment fragment = new AdminFragment();
         Bundle args = new Bundle();
-
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
     }
 
@@ -68,9 +62,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
         btnSend = view.findViewById(R.id.btnSend);
         tvNumUsers = view.findViewById(R.id.tvNumUsers);
 
-
         btnSend.setOnClickListener(this);
-
 
         List<String> usersList = new ArrayList<>();
         usersList.add("בחירת משתמש"); // אפשרות ברירת מחדל
@@ -93,9 +85,9 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                     }
 
                     // עדכון הטקסט עם מספר המשתמשים
-                    tvNumUsers.setText(tvNumUsers.getText().toString() + usersList.size());
+                    tvNumUsers.setText("מספר משתמשים: " + (usersList.size() - 1));
                     adapter.notifyDataSetChanged(); // עדכון התצוגה
-                    spinner.setSelection(0); // ברירת מחדל
+                    spinner.setSelection(0); // ברירת מחדל - בחירת משתמש
 
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "שגיאה בטעינת משתמשים", Toast.LENGTH_SHORT).show());
@@ -116,8 +108,7 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
             }
         });
 
-
-        // כפתור להתנתקות – רק אם ההנהלה מחוברת כרגע
+        // כפתור להתנתקות
         ImageButton btnLogout = view.findViewById(R.id.btnLogout);
         if (Admin.isAdminLoggedIn()) {
             btnLogout.setOnClickListener(v -> {
@@ -161,8 +152,6 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "שגיאה בטעינת פרטי משתמש", Toast.LENGTH_SHORT).show());
     }
-
-
 
     public void onClick(View v) {
             if(v == btnSend ) {
@@ -211,5 +200,4 @@ public class AdminFragment extends Fragment implements View.OnClickListener{
                 .setCancelable(false)
                 .show();
     }
-
 }

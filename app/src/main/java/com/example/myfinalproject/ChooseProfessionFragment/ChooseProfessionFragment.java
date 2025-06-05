@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myfinalproject.Adapters.ProfessionAdapter;
-import com.example.myfinalproject.CallBacks.ProfessionClickListenerCallback;
+import com.example.myfinalproject.CallBacks.ProfessionClickListener;
 import com.example.myfinalproject.ChooseSumFragment.ChooseSumFragment;
 import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.R;
@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChooseProfessionFragment extends Fragment implements ProfessionClickListenerCallback {
+public class ChooseProfessionFragment extends Fragment implements ProfessionClickListener {
 
     private RecyclerView recyclerProfessions;
     private ProfessionAdapter adapter;
@@ -55,7 +55,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
         // קבלת הכיתה שנבחרה מהפרגמנט הקודם
         if (getArguments() != null) {
             selectedClass = getArguments().getString("selected_class", "");
-
         }
     }
 
@@ -64,9 +63,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_choose_profession, container, false);
     }
-
-
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -89,9 +85,9 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
             searchView.setQuery("", false);
             searchView.clearFocus();
 
-            TabLayout.Tab tab = tabLayout.getTabAt(0);
-            if (tab != null) {
-                tab.select();
+            TabLayout.Tab tab = tabLayout.getTabAt(0); // מביא את הטאב הראשון (במיקום 0) מתוך ה-TabLayout
+            if (tab != null) { // בודק שהטאב לא null (כלומר – באמת קיים טאב במיקום הזה)
+                tab.select();     // בוחר את הטאב הזה – כאילו המשתמש לחץ עליו
             }
         });
 
@@ -143,7 +139,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
         });
     }
 
-    // יצירת רשימת מקצועות עם חלוקה לקטגוריות
     private List<Profession> createProfessionsList() {
         List<Profession> professions = new ArrayList<>();
 
@@ -184,8 +179,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
             emptyState.setVisibility(View.GONE);
         }
     }
-
-
 
     @Override
     public void onProfessionClick(Profession profession) {

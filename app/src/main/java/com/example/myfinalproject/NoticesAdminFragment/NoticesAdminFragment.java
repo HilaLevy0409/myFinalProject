@@ -36,9 +36,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.myfinalproject.CallBacks.OnNotificationClickListenerCallback;
+import com.example.myfinalproject.CallBacks.OnNotificationClickListener;
 
-public class NoticesAdminFragment extends Fragment implements OnNotificationClickListenerCallback {
+public class NoticesAdminFragment extends Fragment implements OnNotificationClickListener {
 
     private TabLayout tabLayout;
     private RecyclerView recyclerNotifications;
@@ -85,7 +85,6 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-
                 loadNotifications(tab.getPosition());
             }
 
@@ -329,10 +328,8 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
             } else {
                 messageBuilder.append(displayName);
             }
-
             messageBuilder.append("\n\n");
         }
-
         messageBuilder.append("תוכן:\n").append(notification.getContent());
 
         TextView messageView = new TextView(getContext());
@@ -356,7 +353,6 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
         currentDialog.show();
     }
 
-
     // מחפש משתמש לפי שם משתמש וניגש אליו, אם לא נמצא – יכול להריץ קוד חלופי (onNotFound)
     private void findUserByUsernameAndNavigate(String username) {
         findUserByUsernameAndNavigate(username, null);
@@ -369,7 +365,6 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
 
         findUserByField(db, possibleUsernameFields, 0, username, onNotFound);
     }
-
 
     // חיפוש רקורסיבי בשדות שונים כדי למצוא משתמש לפי שם
     private void findUserByField(FirebaseFirestore db, String[] fields, int fieldIndex, String username, Runnable onNotFound) {
@@ -397,12 +392,11 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("NoticesAdmin", "Error searching for user by " + currentField + ": " + e.getMessage());
                     findUserByField(db, fields, fieldIndex + 1, username, onNotFound);
                 });
     }
 
-    // מחפש סיכום לפי כותרת וניגש לפרגמנט שמציג אותו
+    // מחפש סיכום לפי נושא וניגש לפרגמנט שמציג אותו
     private void findSummaryByTitleAndNavigate(String summaryTitle) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("summaries")
@@ -421,15 +415,14 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                                 .addToBackStack(null)
                                 .commit();
                     } else {
-                        Toast.makeText(getContext(), "לא נמצא תוכן בשם: " + summaryTitle, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "לא נמצא סיכום בשם: " + summaryTitle, Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "שגיאה בחיפוש תוכן", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "שגיאה בחיפוש", Toast.LENGTH_SHORT).show();
                     Log.e("NoticesAdmin", "Error searching for summary: " + e.getMessage());
                 });
     }
-
 
     // ניווט לניהול משתמש לפי מזהה (userId)
     private void navigateToManageUserFragmentById(String userId) {

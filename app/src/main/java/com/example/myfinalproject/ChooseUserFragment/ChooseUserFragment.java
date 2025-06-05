@@ -72,17 +72,15 @@ public class ChooseUserFragment extends Fragment {
 
 // יצירת מופע של UserAdapter - אחראי על חיבור הנתונים של המשתמשים לתצוגה ברשימה
         userAdapter = new UserAdapter(
-                getContext(),              // הקונטקסט הנוכחי
-                userList,                 // רשימת המשתמשים שתוצג
-                reportClickListener,      // מאזין ללחיצה על כפתור דיווח עבור כל משתמש
-                summaryClickListener,     // מאזין ללחיצה על צפייה בסיכומים של משתמש
-                messageClickListener      // מאזין ללחיצה על שליחת הודעה למשתמש
+                getContext(),
+                userList,
+                reportClickListener,
+                summaryClickListener,
+                messageClickListener
         );
 
 // הצמדת ה־Adapter לרכיב התצוגה ListView - כך שהרשימה תוצג למשתמש בפועל
         listViewUsers.setAdapter(userAdapter);
-
-
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -96,9 +94,7 @@ public class ChooseUserFragment extends Fragment {
                 return true;
             }
         });
-
         presenter.loadUsers();
-
     }
 
     private void navigateToReportFragment(User user) {
@@ -139,14 +135,11 @@ public class ChooseUserFragment extends Fragment {
         MessageFragment messagesFragment = new MessageFragment();
      messagesFragment.setArguments(bundle);
 
-
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, messagesFragment)
                 .addToBackStack(null)
                 .commit();
-
-
     }
 // מופעלת כאשר המשתמשים נטענו בהצלחה מהמסד נתונים
     public void onUsersLoaded(List<User> users) {

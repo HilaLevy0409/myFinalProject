@@ -43,7 +43,7 @@ public class TimerPresenter {
                 }
             });
 
-            // במידה והטיימר כבר רץ – עדכון מצב הכפתורים והתצוגה
+            // במידה שהטיימר כבר רץ – עדכון מצב הכפתורים והתצוגה
             if (timerService.isTimerRunning()) {
                 if (view != null) {
                     view.updateTimerDisplay(timerService.getTimeRemaining());
@@ -64,7 +64,7 @@ public class TimerPresenter {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             isBound = false;
-        }
+        } // מתריעה למערכת שאין חיבור לשירות, כדי שלא תנסה להמשיך לתקשר איתו.
     };
 
     public TimerPresenter(TimerFragment view) {
@@ -194,7 +194,7 @@ public class TimerPresenter {
     public void resetTimer() {
         if (isBound) {
             timerService.resetTimer();            // איפוס הטיימר בשירות
-            view.updateTimerDisplay(0);          // הצגת זמן אפס
+            view.updateTimerDisplay(0); // הצגת זמן אפס
             view.clearInputFields();             // ניקוי שדות
             view.resetButtonStates();            // איפוס הכפתורים
         }

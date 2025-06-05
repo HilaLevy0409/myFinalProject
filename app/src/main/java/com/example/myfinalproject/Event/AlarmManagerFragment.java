@@ -51,8 +51,8 @@ public class AlarmManagerFragment extends Fragment {
     private boolean reminderTimeSelected = false;
 
     private static final int PERMISSION_REQUEST_CODE = 1;
-    public AlarmManagerFragment() {
-    }
+
+    public AlarmManagerFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,7 +84,6 @@ public class AlarmManagerFragment extends Fragment {
 
         btnSelectReminderDate.setOnClickListener(v -> showReminderDatePickerDialog());
         btnSelectReminderTime.setOnClickListener(v -> showReminderTimePickerDialog());
-
 
         // לחצן להוספת האירוע – בדיקת הרשאות לפני הפעולה
         btnAddEvent.setOnClickListener(v -> {
@@ -219,12 +218,11 @@ public class AlarmManagerFragment extends Fragment {
     }
 
     // פעולה שמוסיפה את האירוע ליומן ומגדירה תזכורת
-    @SuppressLint("ScheduleExactAlarm")
+    @SuppressLint("ScheduleExactAlarm") // מבטל אזהרה שהמערכת מציגה לגבי השימוש ב-ScheduleExactAlarm
     private void addEventToCalendar() {
         if (getContext() == null) {
             return;
-        }
-        try {
+        }try {
             // שליפת כותרת ותיאור מהשדות
             String title = etEventTitle.getText().toString();
             String description = etEventDescription.getText().toString();
@@ -351,6 +349,7 @@ public class AlarmManagerFragment extends Fragment {
                 Toast.makeText(getContext(), "האירוע נוצר אך יש שגיאה בהוספת תזכורת", Toast.LENGTH_SHORT).show();
             }
 
+            // ניסיון לקבל את ה־Context של הפרגמנט. אם הוא null, לא ניתן להמשיך – ולכן יוצאים מהפונקציה.
             Context context = getContext();
             if (context == null) {
                 return;
@@ -361,6 +360,7 @@ public class AlarmManagerFragment extends Fragment {
                 Intent alarmIntent = new Intent(context, EventReminderReceiver.class);
                 alarmIntent.putExtra("eventTitle", title);
 
+                // יצירת PendingIntent כדי שהמערכת תוכל להפעיל את ה־Broadcast בזמן המתאים
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(
                         context,
                         (int) eventID,
@@ -372,11 +372,12 @@ public class AlarmManagerFragment extends Fragment {
 
                 if (alarmManager != null) {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        // בדיקה האם לאפליקציה יש הרשאה להפעיל תזכורות מדויקות
                         if (alarmManager.canScheduleExactAlarms()) {
-                            // תזכורת מדויקת אם אפשר
+                            // תזמון מדויק של התזכורת בזמן שנבחר (מדויק עד השנייה)
                             alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
                         } else {
-                            // תזכורת רגילה אם אין הרשאה
+                            // אין הרשאה לתזכורות מדויקות – תזמון רגיל, פחות מדויק
                             alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime.getTimeInMillis(), pendingIntent);
                             Toast.makeText(context, "אירוע נוסף ליומן, אך ייתכן שהתזכורת לא תהיה מדויקת", Toast.LENGTH_LONG).show();
                             clearInputFields();

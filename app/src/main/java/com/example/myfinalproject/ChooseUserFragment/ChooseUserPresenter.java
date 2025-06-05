@@ -38,7 +38,6 @@ public class ChooseUserPresenter {
         });
     }
 
-
     // פעולה שמסננת את המשתמשים לפי שם ומחזירה לרשימה חדשה רק את אלו שעונים על החיפוש
     public void filterUsersByName(String query) {
         List<User> filteredList = new ArrayList<>();

@@ -59,7 +59,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
     private Summary summary;
     private boolean isWriteMode = true;
 
-    // Edit mode variables
     private boolean isEditMode = false;
     private String summaryId;
     private String existingImageData;
@@ -75,10 +74,13 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
             selectedClass = getArguments().getString("selected_class", "");
             selectedProfession = getArguments().getString("selected_profession", "");
 
-            // Check if this is edit mode
+            // בודק האם הפרגמנט פועל במצב עריכה או יצירה חדשה.
+// אם לא התקבל ערך עבור "isEditMode", ברירת המחדל היא false.
             isEditMode = getArguments().getBoolean("isEditMode", false);
 
             if (isEditMode) {
+                // אם מדובר במצב עריכה, מקבלים את המזהה של הסיכום הקיים (summaryId)
+                // וכן את המידע על התמונה הקיימת
                 summaryId = getArguments().getString("summaryId");
                 existingImageData = getArguments().getString("image");
             }
@@ -127,40 +129,41 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
         btnWriteSummary.setOnClickListener(this);
         btnUploadSummary.setOnClickListener(this);
 
-        // If in edit mode, populate existing data
         if (isEditMode) {
             populateExistingData();
-            // Change button text for edit mode
-            btnSubmit.setText("עדכון סיכום");
+            btnSubmit.setText("עדכון הסיכום");
         } else {
             showWriteMode(); // ברירת מחדל – מצב כתיבה
         }
     }
 
-    // Populate fields with existing summary data for editing
+    //  טוענת נתונים קיימים לתוך ממשק המשתמש, אם הם הועברו כארגומנטים לפרגמנט
     private void populateExistingData() {
         if (getArguments() != null) {
+            // מקבל את כותרת הסיכום שהועברה, ברירת מחדל – מחרוזת ריקה
             String title = getArguments().getString("summaryTitle", "");
+            // מקבל את תוכן הסיכום (אם קיים), ברירת מחדל – מחרוזת ריקה
             String content = getArguments().getString("summaryContent", "");
+            // מקבל את נתוני התמונה, אם קיימים
             String imageData = getArguments().getString("image", "");
 
+            // מציב את הכותרת בשדה המתאים
             etSummaryTitle.setText(title);
 
+            // אם קיימת תמונה – מציג את המסך במצב של העלאת תמונה
             if (imageData != null && !imageData.isEmpty()) {
-                // Show image mode
-                showUploadMode();
-                displayExistingImage(imageData);
-            } else if (content != null && !content.isEmpty()) {
-                // Show text mode
-                showWriteMode();
-                etSummaryContent.setText(content);
+                showUploadMode(); // מצב תצוגה של תמונה
+                displayExistingImage(imageData); // מציג את התמונה שכבר קיימת
+            }
+            // אחרת, אם יש טקסט – מציג את המסך במצב כתיבת סיכום
+            else if (content != null && !content.isEmpty()) {
+                showWriteMode(); // מצב תצוגה של כתיבת תוכן
+                etSummaryContent.setText(content); // מציב את הטקסט בשדה התוכן
             } else {
                 showWriteMode();
             }
         }
     }
-
-    // Display existing image from Base64 data
     private void displayExistingImage(String imageData) {
         try {
             byte[] decodedString = Base64.decode(imageData, Base64.DEFAULT);
@@ -282,26 +285,30 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
         String summaryTitle = etSummaryTitle.getText().toString().trim();
 
+        // יצירת מפת נתונים לעדכון במסד הנתונים
         Map<String, Object> updateData = new HashMap<>();
-        updateData.put("summaryTitle", summaryTitle);
-        updateData.put("classOption", selectedClass);
-        updateData.put("profession", selectedProfession);
-        updateData.put("isEdited", true);
-        updateData.put("lastEditTime", FieldValue.serverTimestamp());
+        updateData.put("summaryTitle", summaryTitle);           // כותרת הסיכום
+        updateData.put("classOption", selectedClass);           // כיתה נבחרת
+        updateData.put("profession", selectedProfession);       // מקצוע נבחר
+        updateData.put("isEdited", true);                       // מסמן שהסיכום עבר עריכה
+        updateData.put("lastEditTime", FieldValue.serverTimestamp()); // זמן העריכה
 
         if (isWriteMode) {
             String summaryContent = etSummaryContent.getText().toString().trim();
-            updateData.put("summaryContent", summaryContent);
-            updateData.put("image", null); // Remove image if switching to text mode
+            updateData.put("summaryContent", summaryContent); // תוכן הסיכום
+            updateData.put("image", null); // מחיקת התמונה בבחירת מצב כתיבה
         } else {
+            // אם יש תמונה מוצגת בתצוגה – ממירים אותה ל־Base64 ושומרים
             if (imageViewSummary.getDrawable() != null) {
                 String base64Image = bitmapToBase64(((BitmapDrawable) imageViewSummary.getDrawable()).getBitmap());
                 updateData.put("image", base64Image);
+
+                // אם לא נבחרה תמונה חדשה אבל קיימת תמונה ישנה – משמרים אותה
             } else if (existingImageData != null) {
-                // Keep existing image if no new image was selected
+                //אם אין תמונה חדשה, שמירת תמונה קיימת
                 updateData.put("image", existingImageData);
             }
-            updateData.put("summaryContent", ""); // Remove content if switching to image mode
+            updateData.put("summaryContent", ""); //מחיקת תוכן בבחירת מצב העלאה
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -380,7 +387,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
                     String path = saveImage(bitmap);
                     Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
                     imageViewSummary.setImageBitmap(bitmap);
-                    existingImageData = null; // Clear existing image data when new image is selected
+                    existingImageData = null; // בבחירת תמונה חדשה, מחיקת הקיימת
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(getContext(), "נכשל!", Toast.LENGTH_SHORT).show();
@@ -391,7 +398,7 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
             Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
             imageViewSummary.setImageBitmap(thumbnail);
             saveImage(thumbnail);
-            existingImageData = null; // Clear existing image data when new image is captured
+            existingImageData = null; // נקה נתוני תמונה קיימים בעת צילום תמונה חדשה
             Toast.makeText(getContext(), "התמונה נשמרה!", Toast.LENGTH_SHORT).show();
         }
 

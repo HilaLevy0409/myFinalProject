@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myfinalproject.CallBacks.ProfessionClickListenerCallback;
+import com.example.myfinalproject.CallBacks.ProfessionClickListener;
 import com.example.myfinalproject.DataModels.Profession;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
@@ -21,10 +21,10 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
 
     private List<Profession> professions;
     private List<Profession> filteredProfessions;
-    private Context context; // קונטקסט נדרש ליצירת תצוגות
-    private ProfessionClickListenerCallback callback;
+    private Context context;
+    private ProfessionClickListener callback;
 
-    public ProfessionAdapter(Context context, List<Profession> professions, ProfessionClickListenerCallback callback) {
+    public ProfessionAdapter(Context context, List<Profession> professions, ProfessionClickListener callback) {
         this.context = context;
         this.professions = professions;
         this.filteredProfessions = new ArrayList<>(professions);
@@ -38,7 +38,7 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
         return new ProfessionViewHolder(view);
     }
 
-    // קישור נתוני מקצוע אחד לתצוגה (ViewHolder)
+    // קישור נתוני מקצוע לתצוגה (ViewHolder)
     @Override
     public void onBindViewHolder(@NonNull ProfessionViewHolder holder, int position) {
         Profession profession = filteredProfessions.get(position); // מקצוע נוכחי
@@ -56,7 +56,6 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
     public int getItemCount() {
         return filteredProfessions.size();
     }
-
 
     // סינון מקצועות לפי קטגוריה
     public void filterByCategory(String category) {

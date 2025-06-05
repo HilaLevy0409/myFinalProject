@@ -23,7 +23,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.messages = messages;
     }
 
-
     // מחזיר את סוג ה-View בהתאם לתוכן ההודעה:
     // 0 = כותרת תאריך, 1 = הודעה שנשלחה, 2 = הודעה שהתקבלה
     @Override

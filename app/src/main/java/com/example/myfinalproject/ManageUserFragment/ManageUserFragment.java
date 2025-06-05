@@ -85,7 +85,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
 
         imgUserProfile = view.findViewById(R.id.imgUserProfile);
 
-
         btnAddPoint.setOnClickListener(this);
         btnRemovePoint.setOnClickListener(this);
         btnShowSums.setOnClickListener(this);

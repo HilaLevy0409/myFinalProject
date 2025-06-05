@@ -87,7 +87,6 @@ public class MessageFragment extends Fragment {
             tvUserName.setText(receiverName);
 
             chatId = generateChatId(currentUserId, receiverId);
-            Log.d(TAG, "Chat ID: " + chatId);
 
             checkIfAdminStartedChat(); // בדיקה אם המנהל התחיל את השיחה
         }
@@ -173,7 +172,7 @@ public class MessageFragment extends Fragment {
                 });
     }
 
-    // בדיקה אם שתי תאריכים הם באותו יום
+    // בדיקה אם שני תאריכים הם באותו יום
     private boolean isSameDay(Date date1, Date date2) {
         Calendar cal1 = Calendar.getInstance();
         Calendar cal2 = Calendar.getInstance();
@@ -211,7 +210,7 @@ public class MessageFragment extends Fragment {
         messageData.put("receiverId", receiverId);
         messageData.put("timestamp", getIsraelTime());
 
-        // שליחת ההודעה למסד=
+        // שליחת ההודעה למסד
         db.collection("chats")
                 .document(chatId)
                 .collection("messages")
@@ -261,11 +260,10 @@ public class MessageFragment extends Fragment {
                         if (!Admin.isAdminLoggedIn() && "admin".equals(senderId)) {
                             etMessageInput.setVisibility(View.GONE);
                             getView().findViewById(R.id.btnSend).setVisibility(View.GONE);
-                            Toast.makeText(getContext(), "לא ניתן להשיב להודעת הנהלה", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "לא ניתן להשיב להודעות הנהלה", Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to check who started chat", e));
     }
-
 }

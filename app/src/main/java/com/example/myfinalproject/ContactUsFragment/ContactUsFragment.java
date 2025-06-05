@@ -77,7 +77,6 @@ public class ContactUsFragment extends Fragment {
         btnSendContact = view.findViewById(R.id.btnSendContact);
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
 
-
         // אם המשתמש מחובר – מציגים את שמו, אחרת "אורח"
         if (isUserLoggedIn && !loggedInUsername.isEmpty()) {
             etUserName.setText(loggedInUsername);
@@ -98,6 +97,13 @@ public class ContactUsFragment extends Fragment {
         });
 
         btnSendContact.setOnClickListener(v -> sendMessage());
+
+        if (!isUserLoggedIn) {
+            btnSendContact.setEnabled(false);
+            btnSendContact.setAlpha(0.5f);
+            tvSubmitStatus.setText("רק משתמשים רשומים יכולים לשלוח דיווחים");
+            tvSubmitStatus.setVisibility(View.VISIBLE);
+        }
     }
 
     // פעולה ששולחת את ההודעה לאחר בדיקות תקינות
@@ -134,7 +140,6 @@ public class ContactUsFragment extends Fragment {
         // קבלת מזהה המשתמש (אם מחובר), אחרת מציין "anonymous"
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser != null ? currentUser.getUid() : "anonymous";
-
 
         // יצירת אובייקט ההודעה ושליחתה למסד הנתונים
         NotificationAdmin message = new NotificationAdmin(

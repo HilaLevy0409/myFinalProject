@@ -64,7 +64,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private boolean isAuthor = false;
     private boolean isAdmin = false;
 
-    // Store the current summary data for editing
     private DocumentSnapshot currentSummaryDocument;
 
     public SumFragment() {}
@@ -116,7 +115,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         btnStart.setOnClickListener(this);
         btnReset.setOnClickListener(this);
 
-        // Initialize edit and delete buttons
         ImgBtnDeleteSum = view.findViewById(R.id.ImgBtnDeleteSum);
         ImgBtnEditSum = view.findViewById(R.id.ImgBtnEditSum);
         ImgBtnDeleteSum.setOnClickListener(this);
@@ -185,33 +183,27 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     // עדכון מצב כפתורי העריכה והמחיקה בהתאם למי שמציג את הסיכום
     private void updateActionButtonsVisibility() {
         if (isAuthor) {
-            // Author can both edit and delete
             ImgBtnEditSum.setVisibility(View.VISIBLE);
             ImgBtnDeleteSum.setVisibility(View.VISIBLE);
         } else if (isAdmin) {
-            // Admin can only delete, not edit
             ImgBtnEditSum.setVisibility(View.GONE);
             ImgBtnDeleteSum.setVisibility(View.VISIBLE);
         } else {
-            // Regular users can't edit or delete
             ImgBtnEditSum.setVisibility(View.GONE);
             ImgBtnDeleteSum.setVisibility(View.GONE);
         }
     }
 
-    // Navigate to WritingSumFragment with existing summary data for editing
     private void editSummary() {
         if (!isAuthor) {
             Toast.makeText(getContext(), "רק יוצר הסיכום יכול לערוך אותו", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (currentSummaryDocument == null) {
             Toast.makeText(getContext(), "שגיאה בטעינת נתוני הסיכום", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create bundle with existing summary data
         Bundle args = new Bundle();
         args.putString("summaryId", summaryId);
         args.putString("summaryTitle", currentSummaryDocument.getString("summaryTitle"));
@@ -221,7 +213,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
         args.putString("selected_profession", currentSummaryDocument.getString("profession"));
         args.putBoolean("isEditMode", true);
 
-        // Navigate to WritingSumFragment
         WritingSumFragment writingSumFragment = new WritingSumFragment();
         writingSumFragment.setArguments(args);
 
@@ -356,7 +347,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // Store the document for editing purposes
                         currentSummaryDocument = documentSnapshot;
 
                         String authorId = documentSnapshot.getString("userId");
@@ -368,7 +358,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                         } else {
                             isAuthor = false;
                         }
-
                         updateActionButtonsVisibility();
                         displaySummaryData(documentSnapshot);
                     } else {
@@ -382,13 +371,12 @@ public class SumFragment extends Fragment implements View.OnClickListener {
 
     // מציג את נתוני הסיכום במסך בהתאם למסמך שנשלף מ-Firestore
     private void displaySummaryData(DocumentSnapshot document) {
-        // קריאת נושא הסיכום והצגתו
+        //  נושא הסיכום והצגתו
         String topic = document.getString("summaryTitle");
         if (topic != null) {
             tvTopic.setText(topic);
         }
 
-        // Check if summary was edited and display indicator
         Boolean isEdited = document.getBoolean("isEdited");
         if (isEdited != null && isEdited) {
             tvTopic.setText(topic + " (סיכום ערוך)");
@@ -555,41 +543,41 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     }
 
     // AsyncTask להורדת תמונה מהרשת והצגתה ב-ImageView
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView imageView;
-
-        public DownloadImageTask(ImageView imageView) {
-            this.imageView = imageView;
-        }
-
-        // הורדת התמונה ברקע (ב-thread נפרד)
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            String urlDisplay = urls[0];
-            Bitmap bitmap = null;
-            try {
-                URL url = new URL(urlDisplay);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                bitmap = BitmapFactory.decodeStream(input);
-            } catch (IOException e) {
-                Log.e("", "שגיאה בהורדת התמונה", e);
-            }
-            return bitmap;
-        }
-
-        // לאחר סיום ההורדה, מציגים את התמונה או תמונת ברירת מחדל במקרה של כשלון
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            if (result != null && imageView != null) {
-                imageView.setImageBitmap(result);
-            } else {
-                imageView.setImageResource(R.drawable.newlogo);
-            }
-        }
-    }
+//    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+//        ImageView imageView;
+//
+//        public DownloadImageTask(ImageView imageView) {
+//            this.imageView = imageView;
+//        }
+//
+//        // הורדת התמונה ברקע (ב-thread נפרד)
+//        @Override
+//        protected Bitmap doInBackground(String... urls) {
+//            String urlDisplay = urls[0];
+//            Bitmap bitmap = null;
+//            try {
+//                URL url = new URL(urlDisplay);
+//                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//                connection.setDoInput(true);
+//                connection.connect();
+//                InputStream input = connection.getInputStream();
+//                bitmap = BitmapFactory.decodeStream(input);
+//            } catch (IOException e) {
+//                Log.e("", "שגיאה בהורדת התמונה", e);
+//            }
+//            return bitmap;
+//        }
+//
+//        // לאחר סיום ההורדה, מציגים את התמונה או תמונת ברירת מחדל במקרה של כשלון
+//        @Override
+//        protected void onPostExecute(Bitmap result) {
+//            if (result != null && imageView != null) {
+//                imageView.setImageBitmap(result);
+//            } else {
+//                imageView.setImageResource(R.drawable.newlogo);
+//            }
+//        }
+//    }
 
     // בדיקה האם הסיכום נמצא במועדפים של המשתמש הנוכחי
     private void checkIfFavorite() {

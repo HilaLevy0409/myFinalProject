@@ -23,7 +23,6 @@ public class SumByUserPresenter {
         this.summariesCollection = FirebaseFirestore.getInstance().collection("summaries");
     }
 
-
     // טוען את הסיכומים של המשתמש מהמסד נתונים
     public void loadUserSummaries(SummariesCallback callback) {
 
@@ -39,7 +38,7 @@ public class SumByUserPresenter {
                             try {
                                 // ממיר את המסמך לאובייקט Summary
                                 Summary summary = document.toObject(Summary.class);
-                                // שומר את מזהה המסמך ב-Summary (חשוב לשימוש עתידי)
+                                // שומר את מזהה המסמך ב-Summary
                                 summary.setSummaryId(document.getId());
                                 summaries.add(summary); // מוסיף לרשימת התוצאות
                             } catch (Exception e) {

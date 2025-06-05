@@ -24,7 +24,7 @@ public class CountdownTimerService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "TimerServiceChannel";
 
-    private final IBinder binder = new LocalBinder();     // Binder פנימי – מאפשר קישור לשירות דרך אקטיביטי
+    private final IBinder binder = new LocalBinder(); // Binder פנימי – מאפשר קישור לשירות דרך
     private CountDownTimer countDownTimer;
     private long timeRemaining = 0;
     private boolean isTimerRunning = false;

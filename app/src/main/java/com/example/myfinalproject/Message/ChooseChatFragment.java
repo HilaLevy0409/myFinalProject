@@ -33,8 +33,7 @@ public class ChooseChatFragment extends Fragment {
     private FirebaseAuth auth;
     private String currentUserId;
 
-    public ChooseChatFragment() {
-    }
+    public ChooseChatFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +65,14 @@ public class ChooseChatFragment extends Fragment {
 
         // אתחול רשימת שיחות ואדפטר
         chatsList = new ArrayList<>();
-        chatAdapter = new ChatAdapter(getContext(), chatsList);
+//        chatAdapter = new ChatAdapter(getContext(), chatsList);
+        chatAdapter = new ChatAdapter(getContext(), chatsList, new OnChatClickListener() {
+            @Override
+            public void onChatSelected(String userId, String userName) {
+                openChatWithUser(userId, userName);
+            }
+        });
+
         listViewMessages.setAdapter(chatAdapter); // חיבור האדפטר לרשימה
 
         // האזנה לשינויים בטקסט החיפוש
@@ -83,21 +89,7 @@ public class ChooseChatFragment extends Fragment {
             }
         });
 
-        // לחיצה על שורה ברשימה – תפתח את השיחה עם המשתמש הנבחר
-        listViewMessages.setOnItemClickListener((parent, view1, position, id) -> {
-            try {
-                Object item = chatAdapter.getItem(position);
 
-                if (item instanceof Chat) {
-                    Chat selectedChat = (Chat) item;
-                    openChatWithUser(selectedChat.getOtherUserId(), selectedChat.getOtherUserName());
-                } else {
-                    Toast.makeText(getContext(), "שגיאה בפתיחת השיחה", Toast.LENGTH_SHORT).show();
-                }
-            } catch (Exception e) {
-                Toast.makeText(getContext(), "שגיאה בפתיחת השיחה", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         loadUserChats(); // טעינת רשימת השיחות מה-DB
 
@@ -130,8 +122,12 @@ public class ChooseChatFragment extends Fragment {
                         }
                     }
 
+                    // אם מספר השיחות הכולל הוא 0 – כלומר, אין שיחות להצגה
                     if (totalChats == 0) {
+                        // מעדכן את רשימת השיחות באדפטר לרשימה ריקה – כדי שלא יוצגו שיחות במסך
                         chatAdapter.updateChatList(new ArrayList<>());
+
+                        // יוצא מהפונקציה מייד – לא ממשיך הלאה
                         return;
                     }
 

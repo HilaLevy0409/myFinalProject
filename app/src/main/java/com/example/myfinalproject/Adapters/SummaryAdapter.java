@@ -58,7 +58,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
             holder.tvCreatedDate = convertView.findViewById(R.id.tvCreatedDate);
             holder.ratingBarSum = convertView.findViewById(R.id.ratingBarSum);
 
-
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();

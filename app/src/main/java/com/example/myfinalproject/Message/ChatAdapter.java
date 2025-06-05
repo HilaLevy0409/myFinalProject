@@ -31,30 +31,35 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
     private List<Chat> chatListFiltered; // רשימת שיחות מסוננת (לפי חיפוש)
     private LayoutInflater inflater; // אחראי על יצירת תצוגת שורה אחת
 
+    private OnChatClickListener chatClickListener;
 
 
-    public ChatAdapter(Context context, List<Chat> chatList) {
+    public ChatAdapter(Context context, List<Chat> chatList,  OnChatClickListener listener) {
         this.context = context;
         this.chatList = chatList;
         this.chatListFiltered = new ArrayList<>(chatList); // העתקה לרשימה מסוננת
         this.inflater = LayoutInflater.from(context);
+        this.chatClickListener = listener;
     }
 
     @Override
     public int getCount() {
+        // מחזיר את מספר הפריטים ברשימה
         return chatListFiltered.size();
     }
 
     @Override
     public Object getItem(int position) {
+        // מחזיר את האובייקט שנמצא במקום מסוים ברשימה (לפי האינדקס)
         return chatListFiltered.get(position);
     }
 
     @Override
     public long getItemId(int position) {
+        // מחזיר מזהה ייחודי לכל פריט – כאן פשוט מחזירים את המיקום שלו כרשומה
+        // אפשר להשתמש בזה במקרים שבהם צריך מזהה יציב לפריט (כמו בעת קליקים)
         return position;
     }
-
 
     // יוצר/ממחזר תצוגת שורה ברשימת השיחות
     @Override
@@ -78,13 +83,12 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
 
         Chat chat = chatListFiltered.get(position);
 
-        // בעת לחיצה על שורת השיחה - תפתח תצוגת הודעות עם המשתמש
-        holder.holderView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openChatWithUser(chat.getOtherUserId(), chat.getOtherUserName());
+        holder.holderView.setOnClickListener(v -> {
+            if (chatClickListener != null) {
+                chatClickListener.onChatSelected(chat.getOtherUserId(), chat.getOtherUserName());
             }
         });
+
 
         holder.tvUsername.setText(chat.getOtherUserName());
         holder.tvLastMessage.setText(chat.getLastMessage() != null ? chat.getLastMessage() : "אין הודעות");
@@ -112,8 +116,6 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
         } else {
             holder.imageView.setImageResource(R.drawable.newlogo);
         }
-
-
         return convertView;
     }
 
@@ -127,9 +129,11 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
             MessageFragment messageFragment = new MessageFragment();
             messageFragment.setArguments(args);
 
-            // אם הקונטקסט הוא Activity שמכיל Fragment, טען את ה-MessageFragment
+// בדיקה: האם ה-context הוא מסוג FragmentActivity (כלומר Activity שתומכת בניהול פרגמנטים)
             if (context instanceof FragmentActivity) {
+                // המרה (casting): מאחר שה-context הוא FragmentActivity, אפשר להמיר אותו למשתנה מהסוג FragmentActivity
                 FragmentActivity activity = (FragmentActivity) context;
+
                 activity.getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, messageFragment)
@@ -176,7 +180,6 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
                         }
                     }
                 }
-
                 results.values = filteredList;
                 results.count = filteredList.size();
                 return results;

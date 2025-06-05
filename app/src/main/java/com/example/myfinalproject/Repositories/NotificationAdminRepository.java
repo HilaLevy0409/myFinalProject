@@ -23,7 +23,7 @@ public class NotificationAdminRepository {
         return instance;
     }
 
-    // הוספת דיווח למסד הנתונים
+    // הוספת התראה למסד הנתונים
     public Task<Void> addNotification(NotificationAdmin notification) {
         return notifications.add(notification) // הוספה למסד הנתונים
                 .continueWith(task -> {

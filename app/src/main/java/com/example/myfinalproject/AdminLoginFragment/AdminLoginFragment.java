@@ -36,8 +36,6 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
 
         etAdmin = view.findViewById(R.id.etAdmin);
         etPasswordA = view.findViewById(R.id.etPasswordA);
-
-
     }
 
     @Override
@@ -45,7 +43,6 @@ public class AdminLoginFragment extends Fragment implements View.OnClickListener
         if (v == btnContinue) {
             String name = etAdmin.getText().toString().trim();
             String password = etPasswordA.getText().toString().trim();
-
 
             if (name.equals("admin") && password.equals("Admin")) {
                 Admin.login(); // סימון כהנהלה מחוברת

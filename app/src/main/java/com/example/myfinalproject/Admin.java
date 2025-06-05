@@ -4,7 +4,6 @@ public class Admin {
     private static boolean isAdminLoggedIn = false; // משתנה סטטי שמייצג האם המנהל מחובר כרגע
     private static long loginTime = 0;// משתנה שמייצג את זמן ההתחברות האחרון (במילישניות)
 
-
     /**
      * פונקציה שמבצעת התחברות של המנהל
      * משנה את isAdminLoggedIn ל-true

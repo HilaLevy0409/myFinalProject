@@ -34,7 +34,6 @@ import java.util.List;
 
 public class ChooseSumFragment extends Fragment implements View.OnClickListener {
 
-
     private Button btnAdd;
     private ListView listViewSummaries;
     private SummaryAdapter summaryAdapter;
@@ -44,7 +43,6 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
     private String selectedClass, selectedProfession;
     private ArrayList<Summary> fullSummaryList = new ArrayList<>();
     private TextView tvNoSummaries;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,13 +104,11 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                     tvNoSummaries.setVisibility(View.GONE);
                     listViewSummaries.setVisibility(View.VISIBLE);
                 }
-
                 return true;
             }
         });
         loadSummaries();
     }
-
 
     @Override
     public void onClick(View view) {
@@ -169,8 +165,6 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
             }
         }, selectedClass, selectedProfession);
     }
-
-
 
     private void showSum(Summary summary) {
         if (getContext() == null) return;

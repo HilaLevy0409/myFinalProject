@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myfinalproject.CallBacks.OnNotificationClickListenerCallback;
+import com.example.myfinalproject.CallBacks.OnNotificationClickListener;
 import com.example.myfinalproject.DataModels.NotificationAdmin;
 import com.example.myfinalproject.R;
 import com.google.android.material.card.MaterialCardView;
@@ -24,10 +24,10 @@ import java.util.TimeZone;
 public class NotificationsAdminAdapter extends RecyclerView.Adapter<NotificationsAdminAdapter.NotificationViewHolder> {
 
     private List<NotificationAdmin> notificationsList;
-    private final OnNotificationClickListenerCallback callback;
+    private final OnNotificationClickListener callback;
 
 
-    public NotificationsAdminAdapter(List<NotificationAdmin> notificationsList, OnNotificationClickListenerCallback callback) {
+    public NotificationsAdminAdapter(List<NotificationAdmin> notificationsList, OnNotificationClickListener callback) {
         this.notificationsList = notificationsList != null ? notificationsList : new ArrayList<>();
         this.callback = callback;
     }

@@ -83,12 +83,12 @@ public class SummaryRepository {
 //                .addOnFailureListener(e -> callback.onError(e.getMessage()));
 //    }
 
-    public void deleteSummary(String summaryId, SummaryCallback callback) {
-        database.collection("summaries").document(summaryId)
-                .delete()
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-    }
+//    public void deleteSummary(String summaryId, SummaryCallback callback) {
+//        database.collection("summaries").document(summaryId)
+//                .delete()
+//                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+//    }
 
 //    public void uploadSummary(Summary summary, SummaryCallback summaryCallback, UserCallback userCallback) {
 //        // First upload the summary

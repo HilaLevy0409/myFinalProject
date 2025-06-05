@@ -47,7 +47,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return new ReviewViewHolder(itemView);
     }
 
-
     // קישור נתוני ביקורת לתצוגה
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
@@ -78,8 +77,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         // בדיקה אם הביקורת שייכת למשתמש הנוכחי
         boolean isUserReview = userId != null && userId.equals(review.getUserId());
 
-        // בדיקה מחדש אם המשתמש מנהל
-        boolean currentIsAdmin = isAdmin || Admin.isAdminLoggedIn();
+        //  בדיקה מחדש אם המשתמש מנהל - אם אחד מהם אומר שהמשתמש אדמין – נניח שהוא אדמין
+        boolean currentIsAdmin = isAdmin || Admin.isAdminLoggedIn(); //הגדר את currentIsAdmin כ־true אם isAdmin הוא true או אם Admin.isAdminLoggedIn() מחזירה true.
 
         // הצגת כפתור מחיקה רק אם המשתמש כתב את הביקורת או אם הוא מנהל
         holder.imgBtnDeleteReview.setVisibility((isUserReview || currentIsAdmin) ? View.VISIBLE : View.GONE);

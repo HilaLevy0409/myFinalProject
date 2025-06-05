@@ -105,10 +105,20 @@ public class ReportFragment extends Fragment {
         });
 
         btnSendReport.setOnClickListener(v -> submitReport());
+
+
+        if (!isUserLoggedIn) {
+            btnSendReport.setEnabled(false);
+            btnSendReport.setAlpha(0.5f);
+            tvSubmitStatus.setText("רק משתמשים רשומים יכולים לשלוח דיווחים");
+            tvSubmitStatus.setVisibility(View.VISIBLE);
+        }
+
     }
 
     // שליחת דיווח
     private void submitReport() {
+
         String reportDetails = etReportDetails.getText().toString().trim();
 
         if (reportDetails.isEmpty()) {
@@ -168,8 +178,6 @@ public class ReportFragment extends Fragment {
             summaryId = bundle.getString("summaryId");
             if (summaryId != null && !summaryId.isEmpty()) {
 
-
-
                 report.setId(summaryId);
 
             }
@@ -203,7 +211,7 @@ public class ReportFragment extends Fragment {
                         btnSendReport.setEnabled(true);
                     });
         } else {
-            // אם מדובר בדיווח רגיל – שמירה דרך הרפוזיטורי
+            // הוספת הדיווח למסד הנתונים
             notificationRepository.addNotification(report)
                     .addOnSuccessListener(aVoid -> {
                         tvSubmitStatus.setVisibility(View.VISIBLE);
