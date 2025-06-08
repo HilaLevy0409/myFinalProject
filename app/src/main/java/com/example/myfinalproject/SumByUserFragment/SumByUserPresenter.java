@@ -59,7 +59,6 @@ public class SumByUserPresenter {
     }
 
     // סינון סיכומים לפי טקסט חיפוש (query)
-    // מקבל את הטקסט לחיפוש, רשימת הסיכומים המקורית, ואת המתאם של הרשימה
     public void filterSummaries(String query, List<Summary> originalList, SummaryAdapter adapter) {
         ArrayList<Summary> filteredList = new ArrayList<>();
 

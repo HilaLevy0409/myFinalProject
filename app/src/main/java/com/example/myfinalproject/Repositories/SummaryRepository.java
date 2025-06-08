@@ -20,7 +20,6 @@ public class SummaryRepository {
 
     // הוספת סיכום חדש למסד הנתונים
     public void addSummary(Summary summary, AddSummaryCallback callback) {
-        // שמירת האובייקט באוסף "summaries"
         database.collection("summaries").add(summary)
                 .addOnSuccessListener(documentReference -> {
                     // שמירת ה-ID של המסמך באובייקט הסיכום
@@ -30,27 +29,6 @@ public class SummaryRepository {
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
-
-//    public void getSummary(String summaryId, SummaryCallback callback) {
-//        database.collection("summaries").document(summaryId)
-//                .get()
-//                .addOnSuccessListener(documentSnapshot -> {
-//                    if (documentSnapshot.exists()) {
-//                        Summary summary = documentSnapshot.toObject(Summary.class);
-//                        if (summary != null) {
-//                            summary.setSummaryId(documentSnapshot.getId());
-//
-//
-//                            callback.onSuccess(summary);
-//                        } else {
-//                            callback.onError("נתוני סיכום לא חוקיים");
-//                        }
-//                    } else {
-//                        callback.onError("הסיכום לא נמצא");
-//                    }
-//                })
-//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-//    }
 
     // שליפת כל הסיכומים ממסד הנתונים
     public void getAllSummaries(SummariesCallback callback) {
@@ -75,44 +53,4 @@ public class SummaryRepository {
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
-//
-//    public void updateSummary(Summary summary, SummaryCallback callback) {
-//        database.collection("summaries").document(summary.getSummaryId())
-//                .set(summary)
-//                .addOnSuccessListener(aVoid -> callback.onSuccess(summary))
-//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-//    }
-
-//    public void deleteSummary(String summaryId, SummaryCallback callback) {
-//        database.collection("summaries").document(summaryId)
-//                .delete()
-//                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-//                .addOnFailureListener(e -> callback.onError(e.getMessage()));
-//    }
-
-//    public void uploadSummary(Summary summary, SummaryCallback summaryCallback, UserCallback userCallback) {
-//        // First upload the summary
-//        database.collection("summaries").add(summary)
-//                .addOnSuccessListener(documentReference -> {
-//                    // Set the ID in the summary object
-//                    String summaryId = documentReference.getId();
-//                    summary.setSummaryId(summaryId);
-//
-//                    // Update the document with the ID
-//                    documentReference.set(summary)
-//                            .addOnSuccessListener(aVoid -> {
-//                                // Summary uploaded successfully, now increment the user's summary count
-//                                UserRepository userDatabase = new UserRepository();
-//                                userDatabase.decrementUserSummaryCount(summary.getUserId(), userCallback);
-//
-//                                // Notify about successful summary upload
-//                                summaryCallback.onSuccess(summary);
-//                            })
-//                            .addOnFailureListener(e -> summaryCallback.onError(e.getMessage()));
-//                })
-//                .addOnFailureListener(e -> summaryCallback.onError(e.getMessage()));
-//    }
-
-
-
 }

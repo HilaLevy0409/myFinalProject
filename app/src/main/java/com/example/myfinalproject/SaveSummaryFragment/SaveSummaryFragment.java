@@ -87,7 +87,6 @@ public class SaveSummaryFragment extends Fragment {
         }
     }
 
-
     public void navigateToSummary(Summary summary) {
         if (summary == null) {
             return;

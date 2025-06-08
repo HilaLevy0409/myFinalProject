@@ -158,7 +158,7 @@ public class SumFragment extends Fragment implements View.OnClickListener {
     private void checkIfUserIsAdmin() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
-        // בדיקה אם משתמש הוא מנהל דרך מחלקת Admin (שיטה חיצונית)
+        // בדיקה אם משתמש הוא מנהל דרך מחלקת Admin
         if (Admin.isAdminLoggedIn()) {
             isAdmin = true;
             return;
@@ -541,43 +541,6 @@ public class SumFragment extends Fragment implements View.OnClickListener {
                                     Log.e("SumByUserFragment", "שגיאה בעדכון sumCount", e));
                 });
     }
-
-    // AsyncTask להורדת תמונה מהרשת והצגתה ב-ImageView
-//    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-//        ImageView imageView;
-//
-//        public DownloadImageTask(ImageView imageView) {
-//            this.imageView = imageView;
-//        }
-//
-//        // הורדת התמונה ברקע (ב-thread נפרד)
-//        @Override
-//        protected Bitmap doInBackground(String... urls) {
-//            String urlDisplay = urls[0];
-//            Bitmap bitmap = null;
-//            try {
-//                URL url = new URL(urlDisplay);
-//                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//                connection.setDoInput(true);
-//                connection.connect();
-//                InputStream input = connection.getInputStream();
-//                bitmap = BitmapFactory.decodeStream(input);
-//            } catch (IOException e) {
-//                Log.e("", "שגיאה בהורדת התמונה", e);
-//            }
-//            return bitmap;
-//        }
-//
-//        // לאחר סיום ההורדה, מציגים את התמונה או תמונת ברירת מחדל במקרה של כשלון
-//        @Override
-//        protected void onPostExecute(Bitmap result) {
-//            if (result != null && imageView != null) {
-//                imageView.setImageBitmap(result);
-//            } else {
-//                imageView.setImageResource(R.drawable.newlogo);
-//            }
-//        }
-//    }
 
     // בדיקה האם הסיכום נמצא במועדפים של המשתמש הנוכחי
     private void checkIfFavorite() {

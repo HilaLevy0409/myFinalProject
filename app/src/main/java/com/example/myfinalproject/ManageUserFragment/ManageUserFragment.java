@@ -128,25 +128,38 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                         .setTitle("מחיקת משתמש")
                         .setMessage("האם ברצונך למחוק את המשתמש? פעולה זו אינה הפיכה.")
                         .setPositiveButton("כן", (dialog, which) -> {
+//                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+//                            db.collection("users")
+//                                    .whereEqualTo("userEmail", userEmail)
+//                                    .get()
+//                                    .addOnSuccessListener(queryDocumentSnapshots -> {
+//                                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+//                                            doc.getReference().delete()
+//                                                    .addOnSuccessListener(aVoid -> {
+//                                                        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+//                                                        requireActivity().getSupportFragmentManager().popBackStack();
+//                                                    })
+//                                                    .addOnFailureListener(e -> {
+//                                                        Toast.makeText(getContext(), "שגיאה במחיקה", Toast.LENGTH_SHORT).show();
+//                                                    });
+//                                        }
+//                                    })
+//                                    .addOnFailureListener(e -> {
+//                                        Toast.makeText(getContext(), "שגיאה באיתור המשתמש", Toast.LENGTH_SHORT).show();
+//                                    });
+
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
                             db.collection("users")
-                                    .whereEqualTo("userEmail", userEmail)
-                                    .get()
-                                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                                            doc.getReference().delete()
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-                                                        requireActivity().getSupportFragmentManager().popBackStack();
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Toast.makeText(getContext(), "שגיאה במחיקה", Toast.LENGTH_SHORT).show();
-                                                    });
-                                        }
+                                    .document(userId)
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                        requireActivity().getSupportFragmentManager().popBackStack();
                                     })
                                     .addOnFailureListener(e -> {
-                                        Toast.makeText(getContext(), "שגיאה באיתור המשתמש", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "שגיאה במחיקה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     });
+
                         })
                         .setNegativeButton("לא", null)
                         .setCancelable(false)
@@ -251,7 +264,6 @@ public class ManageUserFragment extends Fragment implements View.OnClickListener
                     });
         }
     }
-
 
 
     private void updateBadPointsText() {

@@ -45,12 +45,10 @@ public class UserAdapter extends ArrayAdapter<User> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
 
-        // מימוש ViewHolder לשיפור ביצועים
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.onerow_user, parent, false);
             holder = new ViewHolder();
 
-            // קישור רכיבי התצוגה
             holder.imgUserProfile = convertView.findViewById(R.id.imgUserProfile);
             holder.tvUserName = convertView.findViewById(R.id.tvUserName);
             holder.tvSumNumTitle = convertView.findViewById(R.id.tvSumNumTitle);
@@ -85,11 +83,10 @@ public class UserAdapter extends ArrayAdapter<User> {
                 holder.imgUserProfile.setImageResource(R.drawable.newlogo);
             }
         }
-
         return convertView;
     }
 
-    // מחלקה פנימית – שומרת הפניות לרכיבי התצוגה (ViewHolder Pattern)
+    // מחלקה פנימית – שומרת הפניות לרכיבי התצוגה
     private static class ViewHolder {
         ImageView imgUserProfile;
         TextView tvUserName, tvSumNumTitle;

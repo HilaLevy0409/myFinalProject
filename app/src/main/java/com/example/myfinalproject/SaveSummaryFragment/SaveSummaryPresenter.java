@@ -49,7 +49,6 @@ public class SaveSummaryPresenter {
                 });
     }
 
-
     // טוען את הסיכום לפי מזהה ממסמך Firestore
     private void loadSummary(String summaryId) {
         firestore.collection("summaries").document(summaryId)

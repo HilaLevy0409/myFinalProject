@@ -101,6 +101,4 @@ public class ProfessionAdapter extends RecyclerView.Adapter<ProfessionAdapter.Pr
             cardProfession = itemView.findViewById(R.id.cardPro);
         }
     }
-
-
 }

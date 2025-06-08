@@ -132,7 +132,6 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         TextView tvSummaryTitle;
         TextView tvCreatedDate;
         RatingBar ratingBarSum;
-
     }
 
     // עדכון של התצוגה
@@ -141,5 +140,4 @@ public class SummaryAdapter extends ArrayAdapter<Summary> {
         summaries.addAll(newSummaries);
         notifyDataSetChanged();
     }
-
 }

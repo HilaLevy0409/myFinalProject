@@ -275,7 +275,7 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     return;
                 }
 
-                // בדיקה האם האימייל או השם כבר קיימים במערכת (כולל למניעת כפילויות)
+                // בדיקה האם האימייל או השם כבר קיימים במערכת ( למניעת כפילויות)
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 db.collection("users")
@@ -425,28 +425,19 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
                     .replace(R.id.flFragment, new SumByUserFragment())
                     .addToBackStack(null)
                     .commit();
-        }else if (view == btnDeleteUser) {
+        }
+        else if (view == btnDeleteUser) {
             new AlertDialog.Builder(getContext())
                     .setTitle("מחיקת משתמש")
                     .setMessage("האם ברצונך למחוק את המשתמש? פעולה זו אינה הפיכה.")
                     .setPositiveButton("כן", (dialog, which) -> {
                         presenter.deleteUser();
-
-                        // ניקוי נתוני המשתמש מהזיכרון המקומי
-                        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.clear();
-                        editor.apply();
-
-                        // עדכון תפריט הניווט
-                        if (getActivity() instanceof MainActivity) {
-                            ((MainActivity) getActivity()).updateNavigationHeader();
-                        }
                     })
                     .setNegativeButton("לא", null)
                     .setCancelable(false)
                     .show();
         }
+
         else if (view == btnLogOut) {
             new AlertDialog.Builder(getContext())
                     .setTitle("התנתקות")
@@ -528,14 +519,12 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
         startActivityForResult(intent, CAMERA);
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
-
         ImageView targetImageView = currentDialogImageView != null ? currentDialogImageView : imageView;
 
         if (requestCode == GALLERY) {
@@ -625,6 +614,10 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 
     public void onDeleteSuccess() {
         Toast.makeText(getContext(), "המשתמש נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).updateNavigationHeader();
+        }
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()

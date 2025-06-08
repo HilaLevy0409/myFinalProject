@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void updateNavigationHeader() {
         NavigationView navigationView = findViewById(R.id.navView);
+
+        // מקבל את ה-Header הראשון מתוך ה-NavigationView
         View headerView = navigationView.getHeaderView(0);
 
         TextView tvUserName = headerView.findViewById(R.id.tvUserName);
@@ -165,12 +167,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, new ContactUsFragment()).commit();
         } else if (id == R.id.admin) {
             if (Admin.isAdminLoggedIn() && !Admin.isSessionExpired()) {
-                // ההנהלה מחוברת והסשן בתוקף – עבור למסך ניהול
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, new AdminFragment())
                         .commit();
             } else {
-                // לא מחובר או שפג תוקף – שלח להתחברות
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, new AdminLoginFragment())
                         .commit();

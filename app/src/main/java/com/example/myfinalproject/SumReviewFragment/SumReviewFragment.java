@@ -106,6 +106,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         return view;
     }
 
+    // מתבצע כשמסך ה-Fragment חוזר להיות פעיל (על המסך)
     @Override
     public void onResume() {
         super.onResume();
@@ -120,7 +121,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         if (currentUser == null) {
             tvName.setText("משתמש אנונימי");
             disableReviewForm();
-            Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "כדי לכתוב ביקורת, יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             loadReviews(); // טען ביקורות לצפייה בלבד
             return;
         } else {
@@ -350,7 +351,7 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
     private void submitReview() {
         if (currentUserId == null) {
             disableReviewForm();
-            Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "כדי לכתוב ביקורת, יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             return;
         }
 

@@ -17,7 +17,7 @@ public class ChooseSumPresenter {
     /**
      * טוען את כל הסיכומים מה־Repository, ואם נבחרו כיתה ומקצוע – מסנן לפיהם.
      *
-     * @param callback           קריאה חוזרת עם תוצאה
+     * @param callback קריאה חוזרת עם תוצאה
      */
     public void loadSummaries(SummariesCallback callback, String selectedClass, String selectedProfession) {
         summaryDb.getAllSummaries(new SummariesCallback() {
@@ -57,7 +57,6 @@ public class ChooseSumPresenter {
             }
         });
     }
-
 
     /**
      * מסנן רשימת סיכומים לפי נושא – משמש לחיפוש.

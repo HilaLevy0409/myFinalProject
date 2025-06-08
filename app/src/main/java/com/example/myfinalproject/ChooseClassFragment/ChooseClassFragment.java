@@ -20,12 +20,9 @@ import com.example.myfinalproject.R;
 
 import com.example.myfinalproject.Adapters.ClassAdapter;
 
-
 public class ChooseClassFragment extends Fragment {
 
-
-    public ChooseClassFragment() {
-    }
+    public ChooseClassFragment() {}
 
     public static ChooseClassFragment newInstance() {
         ChooseClassFragment fragment = new ChooseClassFragment();
@@ -49,7 +46,6 @@ public class ChooseClassFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         GridView gridView = view.findViewById(R.id.gridView);
-
 
         // מערך שמכיל את שכבות הכיתה שיוצגו בגריד
         String[] classes = {"ז", "ח", "ט", "י", "יא", "יב"};
@@ -77,6 +73,4 @@ public class ChooseClassFragment extends Fragment {
                     .commit();
         });
     }
-
-
 }

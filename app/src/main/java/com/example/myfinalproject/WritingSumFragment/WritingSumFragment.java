@@ -75,12 +75,10 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
             selectedProfession = getArguments().getString("selected_profession", "");
 
             // בודק האם הפרגמנט פועל במצב עריכה או יצירה חדשה.
-// אם לא התקבל ערך עבור "isEditMode", ברירת המחדל היא false.
             isEditMode = getArguments().getBoolean("isEditMode", false);
 
             if (isEditMode) {
-                // אם מדובר במצב עריכה, מקבלים את המזהה של הסיכום הקיים (summaryId)
-                // וכן את המידע על התמונה הקיימת
+                // אם מדובר במצב עריכה, מקבלים את המזהה של הסיכום הקיים והתמונה
                 summaryId = getArguments().getString("summaryId");
                 existingImageData = getArguments().getString("image");
             }
@@ -133,16 +131,16 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
             populateExistingData();
             btnSubmit.setText("עדכון הסיכום");
         } else {
-            showWriteMode(); // ברירת מחדל – מצב כתיבה
+            showWriteMode();
         }
     }
 
     //  טוענת נתונים קיימים לתוך ממשק המשתמש, אם הם הועברו כארגומנטים לפרגמנט
     private void populateExistingData() {
         if (getArguments() != null) {
-            // מקבל את כותרת הסיכום שהועברה, ברירת מחדל – מחרוזת ריקה
+            // מקבל את כותרת הסיכום שהועברה
             String title = getArguments().getString("summaryTitle", "");
-            // מקבל את תוכן הסיכום (אם קיים), ברירת מחדל – מחרוזת ריקה
+            // מקבל את תוכן הסיכום (אם קיים)
             String content = getArguments().getString("summaryContent", "");
             // מקבל את נתוני התמונה, אם קיימים
             String imageData = getArguments().getString("image", "");
@@ -287,11 +285,11 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
         // יצירת מפת נתונים לעדכון במסד הנתונים
         Map<String, Object> updateData = new HashMap<>();
-        updateData.put("summaryTitle", summaryTitle);           // כותרת הסיכום
-        updateData.put("classOption", selectedClass);           // כיתה נבחרת
-        updateData.put("profession", selectedProfession);       // מקצוע נבחר
-        updateData.put("isEdited", true);                       // מסמן שהסיכום עבר עריכה
-        updateData.put("lastEditTime", FieldValue.serverTimestamp()); // זמן העריכה
+        updateData.put("summaryTitle", summaryTitle);
+        updateData.put("classOption", selectedClass);
+        updateData.put("profession", selectedProfession);
+        updateData.put("isEdited", true);
+        updateData.put("lastEditTime", FieldValue.serverTimestamp());
 
         if (isWriteMode) {
             String summaryContent = etSummaryContent.getText().toString().trim();
@@ -305,7 +303,6 @@ public class WritingSumFragment extends Fragment implements View.OnClickListener
 
                 // אם לא נבחרה תמונה חדשה אבל קיימת תמונה ישנה – משמרים אותה
             } else if (existingImageData != null) {
-                //אם אין תמונה חדשה, שמירת תמונה קיימת
                 updateData.put("image", existingImageData);
             }
             updateData.put("summaryContent", ""); //מחיקת תוכן בבחירת מצב העלאה

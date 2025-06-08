@@ -49,7 +49,6 @@ public class ChooseChatFragment extends Fragment {
         } else if (Admin.isAdminLoggedIn()) {
             currentUserId = "admin"; // התחברות של מנהל
         } else {
-            // לא מחובר - מציג הודעה ומחזיר למסך התחברות
             Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager()
@@ -65,7 +64,6 @@ public class ChooseChatFragment extends Fragment {
 
         // אתחול רשימת שיחות ואדפטר
         chatsList = new ArrayList<>();
-//        chatAdapter = new ChatAdapter(getContext(), chatsList);
         chatAdapter = new ChatAdapter(getContext(), chatsList, new OnChatClickListener() {
             @Override
             public void onChatSelected(String userId, String userName) {
@@ -89,9 +87,7 @@ public class ChooseChatFragment extends Fragment {
             }
         });
 
-
-
-        loadUserChats(); // טעינת רשימת השיחות מה-DB
+        loadUserChats();
 
         return view;
     }
@@ -100,7 +96,7 @@ public class ChooseChatFragment extends Fragment {
     private void loadUserChats() {
 
         db.collection("chats")
-                .whereArrayContains("participants", currentUserId) // מחפש שיחות שמשתתפות בהן המשתמש הנוכחי
+                .whereArrayContains("participants", currentUserId) // מחפש שיחות שמשתמש בהן המשתמש הנוכחי
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Toast.makeText(getContext(), "שגיאה בטעינת ההתכתבויות", Toast.LENGTH_SHORT).show();
@@ -122,7 +118,7 @@ public class ChooseChatFragment extends Fragment {
                         }
                     }
 
-                    // אם מספר השיחות הכולל הוא 0 – כלומר, אין שיחות להצגה
+                    // אם מספר השיחות הכולל הוא 0 – אין שיחות להצגה
                     if (totalChats == 0) {
                         // מעדכן את רשימת השיחות באדפטר לרשימה ריקה – כדי שלא יוצגו שיחות במסך
                         chatAdapter.updateChatList(new ArrayList<>());

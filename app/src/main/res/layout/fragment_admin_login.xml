@@ -41,6 +41,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="viewEnd"
             android:inputType="textPersonName"
+            android:text="admin"
             android:textSize="20sp"
           />
     </com.google.android.material.textfield.TextInputLayout>
@@ -67,6 +68,7 @@
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:textAlignment="viewEnd"
+            android:text="Admin"
             android:textSize="20sp"
             />
     </com.google.android.material.textfield.TextInputLayout>

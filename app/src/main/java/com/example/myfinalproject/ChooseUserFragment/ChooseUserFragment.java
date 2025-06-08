@@ -31,7 +31,6 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-
 public class ChooseUserFragment extends Fragment {
 
     private ListView listViewUsers;
@@ -161,8 +160,7 @@ public class ChooseUserFragment extends Fragment {
         userAdapter.notifyDataSetChanged(); // עדכון ה־Adapter כדי שירענן את התצוגה
     }
 
-    public ChooseUserFragment() {
-    }
+    public ChooseUserFragment() {}
 
     public static ChooseUserFragment newInstance() {
         ChooseUserFragment fragment = new ChooseUserFragment();
@@ -171,8 +169,6 @@ public class ChooseUserFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
-
 }
 
 

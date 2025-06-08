@@ -6,8 +6,6 @@ import com.example.myfinalproject.CallBacks.UserCallback;
 import com.example.myfinalproject.Repositories.UserRepository;
 import com.example.myfinalproject.DataModels.User;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
 public class LoginUserPresenter {
 
     private final LoginCallback view;
@@ -17,7 +15,6 @@ public class LoginUserPresenter {
         this.view = view;
         this.userDb = new UserRepository();
     }
-
 
     public void loginUser(String username, String password) {
        userDb.getUser(username, new UserCallback() {

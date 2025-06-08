@@ -37,9 +37,7 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
     private TextView tvSubtitle;
     private String selectedClass;
 
-
-    public ChooseProfessionFragment() {
-    }
+    public ChooseProfessionFragment() {}
 
     public static ChooseProfessionFragment newInstance() {
         ChooseProfessionFragment fragment = new ChooseProfessionFragment();
@@ -111,7 +109,6 @@ public class ChooseProfessionFragment extends Fragment implements ProfessionClic
                 } else if (tab.getPosition() == 2) {
                     category = "מגמות";
                 }
-
                 adapter.filterByCategory(category); // סינון לפי קטגוריה
                 checkForEmptyState(); // הצגת מסך ריק אם אין תוצאות
             }

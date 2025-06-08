@@ -20,9 +20,9 @@ public class SummaryPresenter {
         this.summaryDb = new SummaryRepository();
     }
 
-    // פעולה שמתבצעת כאשר המשתמש לוחץ על "שלח סיכום"
+    // פעולה שמתבצעת כאשר המשתמש לוחץ על "שליחת סיכום"
         public void submitSummaryClicked(Summary summary) {
-        if (view.getContext() == null) return; // אם אין קונטקסט – יוצא
+        if (view.getContext() == null) return;
 
             // קריאה למחלקת המאגר להוספת הסיכום למסד הנתונים
         summaryDb.addSummary(summary, new AddSummaryCallback() {

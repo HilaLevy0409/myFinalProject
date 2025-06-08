@@ -34,7 +34,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
-    // יוצר ViewHolder חדש בהתאם לסוג התצוגה (viewType)
+    // יוצר ViewHolder חדש בהתאם לסוג התצוגה
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -46,7 +46,6 @@ public class TimerFragment extends Fragment {
         inputValidation(etMinutes);
         inputValidation(etSeconds);
 
-        // מאזין לשינוי מצב ה־Switch של ההתראות
         switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
             etNotificationTime.setEnabled(isChecked); // מאפשר או מחליף את שדה זמן ההתראה
             if (isChecked && etNotificationTime.getText().toString().isEmpty()) {
@@ -133,12 +132,12 @@ public class TimerFragment extends Fragment {
         btnStopContinue.setText("עצירה");
     }
 
-    // שינוי טקסט כפתור עצור/המשך
+    // שינוי טקסט
     public void setStopContinueButtonText(String text) {
         btnStopContinue.setText(text);
     }
 
-    // שינוי זמינות כפתור עצור/המשך
+    // שינוי זמינות
     public void setStopContinueButtonEnabled(boolean enabled) {
         btnStopContinue.setEnabled(enabled);
     }

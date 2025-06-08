@@ -44,15 +44,12 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
     private RecyclerView recyclerNotifications;
     private NotificationsAdminAdapter adapter;
     private NotificationAdminRepository notificationRepository;
-
     private AlertDialog currentDialog;
-
     private static final int TAB_ALL = 0;
     private static final int TAB_MESSAGES = 1;
     private static final int TAB_REPORTS = 2;
 
-    public NoticesAdminFragment() {
-    }
+    public NoticesAdminFragment() {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +76,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
         adapter = new NotificationsAdminAdapter(new ArrayList<>(), this);
         recyclerNotifications.setAdapter(adapter);
 
-        loadNotifications(TAB_ALL);  // טען את כל ההודעות כברירת מחדל
+        loadNotifications(TAB_ALL);
 
         // מאזין לשינוי טאבים
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -121,10 +118,7 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                             }
                         }
                     }
-
                     adapter.updateData(filteredList); // עדכן את הרשימה בתצוגה
-
-
                 })
                 .addOnFailureListener(e -> {
                     if (getContext() != null) {
@@ -132,7 +126,6 @@ public class NoticesAdminFragment extends Fragment implements OnNotificationClic
                     }
                 });
     }
-
 
     //  לוחץ על הודעה, מוצג דיאלוג עם פרטי ההודעה
     @Override

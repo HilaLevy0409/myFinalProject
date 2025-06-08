@@ -315,6 +315,9 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                 saveUserDataToPreferences(addedUser);
 
                 if (getActivity() != null) {
+
+                    Toast.makeText(getContext(), "נרשמת בהצלחה!", Toast.LENGTH_SHORT).show();
+
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.flFragment, new ChooseClassFragment())
@@ -346,7 +349,6 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         editor.putInt("badPoints", user.getBadPoints());
         editor.putInt("sumCount", user.getSumCount());
         editor.apply();
-
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateNavigationHeader();

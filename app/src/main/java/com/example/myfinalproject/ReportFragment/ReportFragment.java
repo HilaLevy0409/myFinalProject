@@ -55,7 +55,7 @@ public class ReportFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_report, container, false);
         notificationRepository = new NotificationAdminRepository();
-        checkUserLoginStatus(); // בדיקה אם המשתמש מחובר
+        checkUserLoginStatus();
         return view;
     }
 
@@ -111,6 +111,17 @@ public class ReportFragment extends Fragment {
             btnSendReport.setEnabled(false);
             btnSendReport.setAlpha(0.5f);
             tvSubmitStatus.setText("רק משתמשים רשומים יכולים לשלוח דיווחים");
+            tvSubmitStatus.setVisibility(View.VISIBLE);
+        }
+
+        String reporterName = etUserName.getText().toString().trim();
+        String reportedUserName = etUserNameOrTopic.getText().toString().trim();
+
+        // מניעת דיווח עצמי
+        if (reportedUserName.equals(reporterName)) {
+            btnSendReport.setEnabled(false);
+            btnSendReport.setAlpha(0.5f);
+            tvSubmitStatus.setText("לא ניתן לדווח על עצמך");
             tvSubmitStatus.setVisibility(View.VISIBLE);
         }
 

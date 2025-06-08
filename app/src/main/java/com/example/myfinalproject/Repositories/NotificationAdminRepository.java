@@ -15,7 +15,7 @@ public class NotificationAdminRepository {
         notifications = FirebaseFirestore.getInstance().collection("notifications");
     }
 
-    // מימוש תבנית שמחזיר מופע יחיד של הרפוזיטורי
+    // מימוש תבנית שמחזירה מופע יחיד של הרפוזיטורי
     public static NotificationAdminRepository getInstance() {
         if (instance == null) {
             instance = new NotificationAdminRepository();

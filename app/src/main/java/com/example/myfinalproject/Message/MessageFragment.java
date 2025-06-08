@@ -61,7 +61,6 @@ public class MessageFragment extends Fragment {
         } else if (Admin.isAdminLoggedIn()) {
             currentUserId = "admin";
         } else {
-            // אם אין משתמש – חזרה למסך התחברות
             Toast.makeText(getContext(), "יש להתחבר תחילה", Toast.LENGTH_SHORT).show();
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager()
@@ -88,7 +87,7 @@ public class MessageFragment extends Fragment {
 
             chatId = generateChatId(currentUserId, receiverId);
 
-            checkIfAdminStartedChat(); // בדיקה אם המנהל התחיל את השיחה
+            checkIfAdminStartedChat();
         }
 
         // אתחול רשימת הודעות ואדפטר
@@ -96,7 +95,7 @@ public class MessageFragment extends Fragment {
         messageAdapter = new MessageAdapter(messages);
         recyclerView.setAdapter(messageAdapter);
 
-        loadMessages(); // טעינת ההודעות ממסד הנתונים
+        loadMessages();
 
         btnSend.setOnClickListener(v -> {
             String messageText = etMessageInput.getText().toString().trim();
@@ -113,13 +112,13 @@ public class MessageFragment extends Fragment {
                     .replace(R.id.flFragment, new ChooseChatFragment())
                     .commit();
         });
-
         return view;
     }
 
+
     // יצירת מזהה ייחודי לצ'אט לפי שני המשתמשים
     private String generateChatId(String userId1, String userId2) {
-        if (userId1.compareTo(userId2) < 0) {
+        if (userId1.compareTo(userId2) < 0) { //  מאפשר לקבוע סדר קבוע בין שני המשתמשים, בלי קשר למי התחיל את השיחה
             return userId1 + "_" + userId2;
         } else {
             return userId2 + "_" + userId1;
@@ -218,7 +217,7 @@ public class MessageFragment extends Fragment {
                 .addOnSuccessListener(documentReference -> {
                     etMessageInput.setText("");
 
-                    updateChatMetadata(messageText); // עדכון הודעה אחרונה של השיחה
+                    updateChatMetadata(messageText);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "שגיאה בשליחת ההודעה", Toast.LENGTH_SHORT).show();
@@ -243,13 +242,13 @@ public class MessageFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating chat metadata", e));
     }
 
-    // בדיקה אם המנהל התחיל את השיחה (ולא לאפשר למשתמש לענות)
+    // בדיקה אם ההנהלה שלחה את ההודעה הראשונה (ולא לאפשר למשתמש לענות)
     private void checkIfAdminStartedChat() {
         db.collection("chats")
                 .document(chatId)
                 .collection("messages")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
-                .limit(1)
+                .limit(1) //שליפת רק הודעה הראשונה
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {

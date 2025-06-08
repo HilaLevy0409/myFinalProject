@@ -133,18 +133,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             btnFinish.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
 
-            // Store email for later use
             resetEmail = emailSend;
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
-            // First check if email exists in Firestore
             database.collection("users")
                     .whereEqualTo("userEmail", emailSend)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.isEmpty()) {
-                            // Email exists in Firestore, now send reset email
                             auth.sendPasswordResetEmail(emailSend)
                                     .addOnCompleteListener(resetTask -> {
                                         progressBar.setVisibility(View.GONE);
@@ -154,7 +151,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                                             Toast.makeText(getContext(), "מייל לשחזור סיסמה נשלח!", Toast.LENGTH_LONG).show();
                                             dialog.dismiss();
 
-                                            // Show message to user about next steps
                                             showPasswordResetInstructions();
 
                                         } else {
@@ -245,7 +241,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
         layout.setPadding(padding, padding, padding, padding);
 
-        // Email input (for authentication)
         final EditText emailInput = new EditText(getContext());
         emailInput.setHint("כתובת האימייל שלך");
         emailInput.setGravity(Gravity.RIGHT);
@@ -255,7 +250,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         }
         layout.addView(emailInput);
 
-        // Password input
         final EditText passwordInput = new EditText(getContext());
         passwordInput.setHint("הסיסמה החדשה");
         passwordInput.setGravity(Gravity.RIGHT);
@@ -312,14 +306,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                     return;
                 }
 
-                // Test authentication with new password to verify it was changed
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(email, newPassword)
                         .addOnCompleteListener(signInTask -> {
                             if (signInTask.isSuccessful()) {
-                                // Password is correct, now update Firestore
                                 updatePasswordInFirestore(email, newPassword, dialog);
-                                // DON'T sign out here - keep the user authenticated
-                                // The user should remain logged in after successful password update
                             } else {
                                 Toast.makeText(getContext(),
                                         "הסיסמה שהזנת אינה תואמת לסיסמה שיצרת. אנא ודא שהזנת את הסיסמה הנכונה.",
@@ -360,7 +350,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                     if (!queryDocumentSnapshots.isEmpty()) {
                         DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
 
-                        // Get user data to save to local storage
                         User user = document.toObject(User.class);
                         if (user != null) {
                             user.setId(document.getId());
@@ -368,24 +357,17 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
                         document.getReference().update("userPass", newPassword)
                                 .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה במערכת!", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getContext(), "הסיסמה עודכנה בהצלחה. התחבר מחדש עם הסיסמה החדשה.", Toast.LENGTH_LONG).show();
                                     dialog.dismiss();
-                                    resetEmail = null; // Clear stored email
+                                    resetEmail = null;
 
-                                    // Save user to local storage and update UI
-                                    if (user != null) {
-                                        saveUserToLocalStorage(user);
+                                    FirebaseAuth.getInstance().signOut();
 
-                                        if (getActivity() instanceof MainActivity) {
-                                            ((MainActivity) getActivity()).updateNavigationHeader();
-                                        }
-
-                                        // Navigate to ChooseClassFragment
-                                        requireActivity().getSupportFragmentManager()
-                                                .beginTransaction()
-                                                .replace(R.id.flFragment, new ChooseClassFragment())
-                                                .commit();
-                                    }
+                                    // מעבר למסך ההתחברות
+                                    requireActivity().getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.flFragment, new LoginFragment()) // שים פה את שם הפרגמנט שלך להתחברות
+                                            .commit();
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(getContext(), "שגיאה בעדכון הסיסמה במסד הנתונים: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -399,6 +381,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
                 });
     }
 
+
     private void updatePasswordStrengthView(String password, TextView passwordStrength) {
         int strength = calculatePasswordStrength(password);
         String strengthMessage;
@@ -408,7 +391,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
             passwordStrength.setTextColor(Color.RED);
         } else if (strength < 5) {
             strengthMessage = "סיסמה בינונית";
-            passwordStrength.setTextColor(Color.rgb(255, 165, 0)); // Orange color
+            passwordStrength.setTextColor(Color.rgb(255, 165, 0));
         } else {
             strengthMessage = "סיסמה חזקה";
             passwordStrength.setTextColor(Color.GREEN);
@@ -469,9 +452,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
         editor.apply();
     }
-
-
-
 
     @Override
     public void showLoginFailure(String error) {

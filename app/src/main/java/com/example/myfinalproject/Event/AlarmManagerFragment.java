@@ -38,18 +38,14 @@ public class AlarmManagerFragment extends Fragment {
 
     private EditText etEventTitle, etEventDescription;
     private Button btnAddEvent, btnSelectDate, btnSelectTime, btnSelectDuration, btnSelectReminderDate, btnSelectReminderTime;
-
     private int year, month, day, hour, minute;
     private boolean dateSelected = false;
     private boolean timeSelected = false;
-
     private int durationHour, durationMinute;
     private boolean durationSelected = false;
-
     private int reminderYear, reminderMonth, reminderDay, reminderHour, reminderMinute;
     private boolean reminderDateSelected = false;
     private boolean reminderTimeSelected = false;
-
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     public AlarmManagerFragment() {}
@@ -340,6 +336,7 @@ public class AlarmManagerFragment extends Fragment {
                 reminderValues.put(CalendarContract.Reminders.MINUTES, reminderMinutes);
                 reminderValues.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
 
+                // מוסיף תזכורת חדשה לאירוע בלוח השנה ומחזיר את ה-URI (כתובת) של התזכורת החדשה שנוצרה
                 Uri reminderUri = cr.insert(CalendarContract.Reminders.CONTENT_URI, reminderValues);
 
                 if (reminderUri == null) {
@@ -368,9 +365,11 @@ public class AlarmManagerFragment extends Fragment {
                         PendingIntent.FLAG_IMMUTABLE
                 );
 
+                // מקבל את השירות של ניהול התראות (AlarmManager) מהמערכת – מאפשר לקבוע התראות שיפעלו בזמן עתידי
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
                 if (alarmManager != null) {
+                    // אם גרסת מערכת ההפעלה היא Android 12 (S) או חדשה יותר – כדי להריץ קוד שתואם רק לגרסאות אלו
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
                         // בדיקה האם לאפליקציה יש הרשאה להפעיל תזכורות מדויקות
                         if (alarmManager.canScheduleExactAlarms()) {

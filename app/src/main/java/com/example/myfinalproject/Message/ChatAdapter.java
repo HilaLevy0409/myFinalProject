@@ -3,7 +3,6 @@ package com.example.myfinalproject.Message;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.FragmentActivity;
 
 import com.example.myfinalproject.R;
 
@@ -26,16 +24,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class ChatAdapter extends BaseAdapter implements Filterable {
-    private Context context;
     private List<Chat> chatList; // רשימת השיחות המלאה
     private List<Chat> chatListFiltered; // רשימת שיחות מסוננת (לפי חיפוש)
     private LayoutInflater inflater; // אחראי על יצירת תצוגת שורה אחת
-
     private OnChatClickListener chatClickListener;
 
 
     public ChatAdapter(Context context, List<Chat> chatList,  OnChatClickListener listener) {
-        this.context = context;
         this.chatList = chatList;
         this.chatListFiltered = new ArrayList<>(chatList); // העתקה לרשימה מסוננת
         this.inflater = LayoutInflater.from(context);
@@ -44,7 +39,6 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        // מחזיר את מספר הפריטים ברשימה
         return chatListFiltered.size();
     }
 
@@ -89,7 +83,6 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
             }
         });
 
-
         holder.tvUsername.setText(chat.getOtherUserName());
         holder.tvLastMessage.setText(chat.getLastMessage() != null ? chat.getLastMessage() : "אין הודעות");
 
@@ -102,7 +95,6 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
         String base64Image = chat.getUserProfileImage();
 
         if ("ADMIN_DEFAULT".equals(base64Image)) {
-            // אם זו תמונת ברירת מחדל של מנהל – נטען לוגו ברירת מחדל
             holder.imageView.setImageResource(R.drawable.newlogo);
         } else if (base64Image != null && !base64Image.isEmpty()) {
             try {
@@ -117,32 +109,6 @@ public class ChatAdapter extends BaseAdapter implements Filterable {
             holder.imageView.setImageResource(R.drawable.newlogo);
         }
         return convertView;
-    }
-
-    // פעולה לפתיחת שיחה עם משתמש אחר
-    private void openChatWithUser(String receiverId, String receiverName) {
-        try {
-            Bundle args = new Bundle();
-            args.putString("receiverId", receiverId);
-            args.putString("receiverName", receiverName);
-
-            MessageFragment messageFragment = new MessageFragment();
-            messageFragment.setArguments(args);
-
-// בדיקה: האם ה-context הוא מסוג FragmentActivity (כלומר Activity שתומכת בניהול פרגמנטים)
-            if (context instanceof FragmentActivity) {
-                // המרה (casting): מאחר שה-context הוא FragmentActivity, אפשר להמיר אותו למשתנה מהסוג FragmentActivity
-                FragmentActivity activity = (FragmentActivity) context;
-
-                activity.getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flFragment, messageFragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private String formatDateTime(Date date) {

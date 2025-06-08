@@ -91,12 +91,10 @@ public class SumByUserFragment extends Fragment {
 
         tvTitle.setText("סיכומים שנכתבו על ידי " + userName);
 
-
         // אתחול הרשימה והמתאם להצגת סיכומים
         summaryList = new ArrayList<>();
         summaryAdapter = new SummaryAdapter(getContext(), summaryList);
         listViewSummaries.setAdapter(summaryAdapter);
-
 
         // יצירת הפרזנטר עם הפרגמנט ומזהה המשתמש
         presenter = new SumByUserPresenter(this, userId);

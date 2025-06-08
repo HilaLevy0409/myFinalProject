@@ -53,7 +53,7 @@ public class CountdownTimerService extends Service {
         return binder;
     }
 
-    // מופעל כאשר השירות מתחיל (startService)
+    // מופעל כאשר השירות מתחיל
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
@@ -174,7 +174,7 @@ public class CountdownTimerService extends Service {
         this.notificationsEnabled = enabled;
     }
 
-    // הצבת callback לעדכונים שוטפים
+    //  callback לעדכונים שוטפים
     public void setTimerUpdateCallback(TimeCallback callback) {
         this.timerUpdateCallback = callback;
     }

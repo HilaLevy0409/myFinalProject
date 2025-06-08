@@ -1,6 +1,5 @@
 package com.example.myfinalproject.ChooseSumFragment;
 
-
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -181,6 +180,4 @@ public class ChooseSumFragment extends Fragment implements View.OnClickListener 
                 .addToBackStack(null)
                 .commit();
     }
-
-
 }

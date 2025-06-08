@@ -15,7 +15,6 @@ public class UserProfilePresenter {
     private UserRepository database;
     private ListenerRegistration userListener;
 
-
     public UserProfilePresenter(UserProfileFragment view) {
         this.view = view;
         this.database = new UserRepository();
@@ -54,7 +53,7 @@ public class UserProfilePresenter {
     }
 
 
-    // מוחק את המשתמש ממסד הנתונים
+
     public void deleteUser() {
         SharedPreferences sp = view.getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String userId = sp.getString("userId", "");
@@ -62,11 +61,19 @@ public class UserProfilePresenter {
             view.showError("משתמש לא מזוהה");
             return;
         }
+
         database.deleteUser(userId, new UserCallback() {
             @Override
             public void onUserReceived(User user) {
+                SharedPreferences sharedPreferences = view.getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+
+                FirebaseAuth.getInstance().signOut();
+
                 view.onDeleteSuccess();
-            } // עדכון ממשק המשתמש לאחר המחיקה
+            }
 
             @Override
             public void onError(String message) {
@@ -76,7 +83,7 @@ public class UserProfilePresenter {
     }
 
 
-    // מתבצע כאשר המשתמש לוחץ על "שמור שינויים" – שולח את הנתונים המעודכנים ל־Firestore
+    // מתבצע כאשר המשתמש לוחץ על "שמירת שינויים" – שולח את הנתונים המעודכנים ל־Firestore
     public void submitClicked(User updatedUser) {
         database.updateUser(updatedUser, new UserCallback() {
             @Override
@@ -90,7 +97,6 @@ public class UserProfilePresenter {
             }
         });
     }
-
 
     // מתחיל האזנה בזמן אמת לעדכוני המשתמש ממסד הנתונים
     public void startUserRealtimeUpdates() {

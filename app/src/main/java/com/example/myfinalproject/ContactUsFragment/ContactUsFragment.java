@@ -32,7 +32,7 @@ public class ContactUsFragment extends Fragment {
     private TextInputLayout tilCustomReason;
     private Button btnSendContact;
     private TextView tvSubmitStatus;
-    private NotificationAdminRepository notificationRepository;  // גישה למסד הנתונים של ההודעות
+    private NotificationAdminRepository notificationRepository;
 
     // משתנים לזיהוי האם המשתמש מחובר ומה שמו
     private boolean isUserLoggedIn = false;
@@ -53,7 +53,6 @@ public class ContactUsFragment extends Fragment {
         // יצירת מופע של המחלקה שאחראית לשמירת ההודעות למסד הנתונים
         notificationRepository = new NotificationAdminRepository();
 
-        // בדיקה האם המשתמש מחובר כדי להציג את שמו
         checkUserLoginStatus();
         return view;
     }

@@ -22,10 +22,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 public class UserRepository {
 
-    private FirebaseAuth mAuth;     // משתנה לאימות משתמשים עם Firebase
-    private FirebaseFirestore database;   // משתנה לגישה למסד הנתונים של Firestore
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore database;
 
-    // בנאי אתחול המחלקה - מקבל מופעים של FirebaseAuth ו-FirebaseFirestore
     public UserRepository() {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
@@ -58,7 +57,6 @@ public class UserRepository {
                     }
                 });
     }
-
 
     // שליפת משתמש לפי מזהה (id)
     public void getUserById(String userId, UserCallback callback) {
@@ -147,7 +145,7 @@ public class UserRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
-    // האזנה לשינויים בזמן אמת בפרטי משתמש לפי מזהה
+    // האזנה לשינויים בזמן אמת לפי מזהה
     public ListenerRegistration listenToUserById(String userId, UserCallback callback) {
         DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(userId);
         // הפעלת listener שמאזין לשינויים במסמך
@@ -163,10 +161,3 @@ public class UserRepository {
         });
     }
 }
-
-
-
-
-
-
-
