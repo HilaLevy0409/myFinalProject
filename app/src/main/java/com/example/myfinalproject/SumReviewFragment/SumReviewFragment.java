@@ -103,6 +103,9 @@ public class SumReviewFragment extends Fragment implements ReviewCallback {
         if (btnSubmitReview != null) {
             btnSubmitReview.setOnClickListener(v -> submitReview());
         }
+
+        loadReviews();
+
         return view;
     }
 
